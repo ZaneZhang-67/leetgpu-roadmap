@@ -19,8 +19,8 @@ for (const [id, sample] of Object.entries(codeSamples)) {
   const highlighted = await codeToHtml(sample.code, {
     lang: sample.language,
     themes: {
-      light: "github-light-default",
-      dark: "github-dark-default",
+      light: "light-plus",
+      dark: "dark-plus",
     },
     defaultColor: false,
   })
