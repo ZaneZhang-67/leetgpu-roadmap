@@ -58,9 +58,11 @@ function shell(id) {
       <main class="doc-main">
         <article class="article">
           <div class="breadcrumb"><a href="#/overview">Kernel 随想录</a><span>›</span><span>${allPages[index]?.section || "学习路线"}</span></div>
-          <h1>${page.title}<a class="heading-anchor" href="#/${id}">#</a></h1>
-          <p class="lead">${page.description}</p>
-          ${page.problemId ? `<button id="complete-page" class="complete-button ${done ? "done" : ""}">${done ? icons.check + " 已完成这道题" : "标记为已完成"}</button>` : ""}
+          <div class="article-title-row">
+            <h1>${page.title}<a class="heading-anchor" href="#/${id}">#</a></h1>
+            ${page.problemId ? `<button id="complete-page" class="complete-button ${done ? "done" : ""}">${done ? icons.check + " 已完成这道题" : "标记为已完成"}</button>` : ""}
+          </div>
+          ${page.problemId ? "" : `<p class="lead">${page.description}</p>`}
           <div class="article-body">${specialPage(id) || page.body}</div>
           <div class="page-nav">
             ${previous ? `<a href="#/${previous.id}" class="prev"><small>上一篇</small><span>← ${previous.title}</span></a>` : "<span></span>"}

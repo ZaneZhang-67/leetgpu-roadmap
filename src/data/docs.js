@@ -116,18 +116,23 @@ export const pages = {
   },
 };
 
-function problemPage({ title, titleEn, description, formula, url, concepts, prompts, explanation, codeText }) {
+function problemPage({ title, titleEn, description, formula, originalSpec, url, concepts, prompts, explanation, codeText }) {
+  const thinkingSection = prompts.length
+    ? `<h2 id="thinking">写代码前先回答</h2><ol>${prompts.map((x) => `<li>${x}</li>`).join("")}</ol>`
+    : "";
+  const mappingSection = explanation
+    ? `<h2 id="mapping">线程映射</h2><p>${explanation}</p>`
+    : "";
+
   return {
     title,
     description,
     problemId: titleEn.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
     body: `
-<div class="problem-meta"><span>LeetGPU</span><span>CUDA</span><span>基础实现</span></div>
-<p>${description}</p>
 <p><a class="external-link" href="${url}" target="_blank" rel="noreferrer">打开 LeetGPU 题目 ↗</a></p>
-<h2 id="definition">题目定义</h2><div class="formula-block">${formula}</div>
-<h2 id="thinking">写代码前先回答</h2><ol>${prompts.map((x) => `<li>${x}</li>`).join("")}</ol>
-<h2 id="mapping">线程映射</h2><p>${explanation}</p>
+<h2 id="definition">题目定义</h2><p>${description}</p>${originalSpec || `<div class="formula-block">${formula}</div>`}
+${thinkingSection}
+${mappingSection}
 <h2 id="template">参考实现</h2><pre><code>${codeText.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</code></pre>
 <h2 id="review">复盘清单</h2><ul>${concepts.map((x) => `<li>${x}</li>`).join("")}</ul>
 <div class="callout"><strong>练习要求</strong><p>先根据提示独立完成；提交通过后，再对照实现并从空白重写一次。</p></div>`,
@@ -137,12 +142,33 @@ function problemPage({ title, titleEn, description, formula, url, concepts, prom
 pages["vector-addition"] = problemPage({
   title: "向量加法",
   titleEn: "Vector Addition",
-  description: "这是整套路线的第一道题。目标不是加法本身，而是建立 kernel、线程索引、边界判断和显存指针的完整模型。",
+  description: "编写一个 GPU 程序，对两个包含 32 位浮点数的向量执行逐元素加法。程序接收两个长度相同的输入向量，并生成一个包含它们之和的输出向量。",
   formula: "C[i] = A[i] + B[i]，0 ≤ i < N",
+  originalSpec: `
+<h3>实现要求</h3>
+<ul>
+  <li>不允许使用外部库。</li>
+  <li><code>solve</code> 函数签名必须保持不变。</li>
+  <li>最终结果必须存储在向量 <code>C</code> 中。</li>
+</ul>
+<h3>示例 1</h3>
+<pre><code>输入：A = [1.0, 2.0, 3.0, 4.0]
+      B = [5.0, 6.0, 7.0, 8.0]
+输出：C = [6.0, 8.0, 10.0, 12.0]</code></pre>
+<h3>示例 2</h3>
+<pre><code>输入：A = [1.5, 1.5, 1.5]
+      B = [2.3, 2.3, 2.3]
+输出：C = [3.8, 3.8, 3.8]</code></pre>
+<h3>约束</h3>
+<ul>
+  <li>输入向量 <code>A</code> 和 <code>B</code> 的长度相同。</li>
+  <li><code>1 ≤ N ≤ 100,000,000</code>。</li>
+  <li>性能测试使用 <code>N = 25,000,000</code>。</li>
+</ul>`,
   url: "https://leetgpu.com/challenges/vector-addition",
   concepts: ["能解释 blockIdx.x、blockDim.x 和 threadIdx.x。", "能推导全局索引 i。", "能解释为什么向上取整后必须检查 i < N。", "能说明相邻线程访问相邻元素。"],
-  prompts: ["向量共有多少个元素？", "如何给每个线程分配唯一的 i？", "当 N 不是 256 的倍数时会发生什么？"],
-  explanation: "采用一维 Grid。每个线程处理一个元素；总线程数向上取整覆盖 N，最后一个 block 中多余线程通过边界条件退出。",
+  prompts: [],
+  explanation: "",
   codeText: `#include <cuda_runtime.h>
 
 __global__ void vector_add(const float* A, const float* B, float* C, int N) {
