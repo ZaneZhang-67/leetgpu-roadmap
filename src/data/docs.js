@@ -9,17 +9,6 @@ export const sections = [
     ],
   },
   {
-    id: "fundamentals",
-    title: "CUDA 基础",
-    pages: [
-      { id: "cuda-model", title: "GPU 与 CUDA 编程模型" },
-      { id: "grid-block-thread", title: "Grid、Block 与 Thread" },
-      { id: "kernel-launch", title: "Kernel 启动与边界判断" },
-      { id: "memory-model", title: "GPU 内存层级" },
-      { id: "coalescing", title: "合并访存" },
-    ],
-  },
-  {
     id: "elementwise",
     title: "基础算子",
     pages: [
@@ -81,8 +70,6 @@ export const sections = [
   },
 ];
 
-const code = String.raw;
-
 export const pages = {
   overview: {
     title: "LeetGPU 学习路线",
@@ -92,7 +79,6 @@ export const pages = {
 <div class="callout"><strong>学习目标</strong><p>完成路线后，你应该能够从空白实现常见 CUDA 算子，解释线程映射与内存访问，并使用基准测试判断一次优化是否真实有效。</p></div>
 <h2 id="order">推荐学习顺序</h2>
 <ol class="route-list">
-<li><a href="#/cuda-model"><strong>CUDA 基础</strong></a>：GPU 执行模型、Grid/Block/Thread、kernel launch 与边界判断。</li>
 <li><a href="#/vector-addition"><strong>基础算子</strong></a>：通过向量加法、裁剪和矩阵加法建立 elementwise 模板。</li>
 <li><a href="#/matrix-transpose"><strong>访存与布局</strong></a>：学习合并访存、shared memory 和 bank conflict。</li>
 <li><a href="#/reduction-sum"><strong>归约与融合</strong></a>：从线程独立计算进入线程协作，完成 Softmax 和 RMSNorm。</li>
@@ -108,7 +94,7 @@ export const pages = {
 <tr><td>优化</td><td>瓶颈是计算、带宽还是延迟？</td><td>基准结果与结论</td></tr>
 </tbody></table>
 <h2 id="start">现在开始</h2>
-<p>如果这是你第一次写 CUDA，从 <a href="#/cuda-model">GPU 与 CUDA 编程模型</a> 开始；如果已经理解 kernel launch，可以直接进入 <a href="#/vector-addition">向量加法</a>。</p>`,
+<p>从 <a href="#/vector-addition">向量加法</a> 开始，在具体题目中逐步理解线程索引、边界判断和 kernel launch。</p>`,
   },
   "how-to-use": {
     title: "如何使用这套教程",
@@ -127,65 +113,6 @@ export const pages = {
 <h2 id="online">在线刷题</h2><p>Challenges 用于按题目提交；Playground 用于验证独立代码片段。正确性测试与排行榜解决的问题不同：前者确认结果，后者才讨论在特定 GPU 和 shape 上的性能。</p>
 <h2 id="local">什么时候需要本地或云 GPU</h2><p>进入 GEMM、Tensor Core 和 W8A8 后，需要稳定硬件、重复基准和 Nsight Compute 指标。这时再建立本地 CUDA 工程或按小时使用云 GPU。</p>
 <div class="warning"><strong>基准规则</strong><p>比较两个版本时保持 GPU、shape、dtype、预热次数和计时方式一致。</p></div>`,
-  },
-  "cuda-model": {
-    title: "GPU 与 CUDA 编程模型",
-    description: "理解为什么同一个 kernel 会被大量线程同时执行。",
-    body: `
-<p>CPU 擅长执行少量复杂线程，GPU 擅长让大量线程执行相同结构的计算。CUDA kernel 是运行在 GPU 上的函数；CPU 端负责配置并启动它。</p>
-<h2 id="host-device">Host 与 Device</h2><pre><code>CPU / Host                         GPU / Device
-执行 solve()                       执行 kernel()
-准备参数和启动配置        →         大量线程并行计算
-等待或继续提交任务         ←         把结果写入显存</code></pre>
-<p><code>__global__</code> 表示函数由 CPU 发起、在 GPU 上运行。kernel 一般不使用返回值，而是通过输出指针写入结果。</p>
-<h2 id="same-code">相同代码，不同数据</h2><p>所有线程执行相同 kernel，但每个线程看到不同的 <code>blockIdx</code> 和 <code>threadIdx</code>。这些内置变量让线程找到自己负责的数据。</p>
-${code`<pre><code>__global__ void kernel(float* output, int N) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < N) output[i] = ...;
-}</code></pre>`}
-<p>下一篇：<a href="#/grid-block-thread">Grid、Block 与 Thread</a>。</p>`,
-  },
-  "grid-block-thread": {
-    title: "Grid、Block 与 Thread",
-    description: "CUDA 线程组织结构和全局索引推导。",
-    body: `
-<p>一次 kernel launch 创建一个 Grid。Grid 包含多个 Block，每个 Block 包含多个 Thread。</p>
-<div class="diagram"><div>Grid<div class="blocks"><span>Block 0<br><small>Thread 0 … 255</small></span><span>Block 1<br><small>Thread 0 … 255</small></span><span>Block 2<br><small>Thread 0 … 255</small></span></div></div></div>
-<h2 id="index">一维全局索引</h2><pre><code>int i = blockIdx.x * blockDim.x + threadIdx.x;</code></pre>
-<p>假设每个 block 有 256 个线程，Block 2 内的 Thread 10 对应全局索引 <code>2 × 256 + 10 = 522</code>。</p>
-<h2 id="why-block">为什么还要 Block</h2><p>Block 不只是分组。处在同一 Block 的线程可以通过 shared memory 交换数据，也可以使用 <code>__syncthreads()</code> 同步。这会成为转置、归约和 GEMM 的基础。</p>`,
-  },
-  "kernel-launch": {
-    title: "Kernel 启动与边界判断",
-    description: "读懂 <<<grid, block>>> 和整数向上取整。",
-    body: `
-<pre><code>int threads = 256;
-int blocks = (N + threads - 1) / threads;
-kernel&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;(input, output, N);</code></pre>
-<p><code>&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;</code> 配置 block 数量和每个 block 的线程数。公式执行整数向上取整，确保线程总数至少覆盖 N。</p>
-<h2 id="boundary">边界为何存在</h2><p>当 N=513 时，需要 3 个 block，共启动 768 个线程。合法下标只有 0 到 512，所以编号 513 到 767 的线程必须停止数组访问。</p>
-<pre><code>if (i &lt; N) {
-    output[i] = input[i];
-}</code></pre>
-<div class="warning"><strong>越界不是稳定报错</strong><p>它可能表现为错误结果、破坏相邻显存或 illegal memory access，也可能暂时看起来正常。</p></div>`,
-  },
-  "memory-model": {
-    title: "GPU 内存层级",
-    description: "从全局内存、共享内存到寄存器。",
-    body: `
-<p>算子性能往往受数据移动限制。不同内存层级在容量、作用域、延迟和带宽上差异很大。</p>
-<table><thead><tr><th>层级</th><th>作用域</th><th>特点</th></tr></thead><tbody><tr><td>Global Memory</td><td>整个 GPU</td><td>容量大、延迟高，输入输出通常位于这里</td></tr><tr><td>Shared Memory</td><td>一个 Block</td><td>片上、可由线程协作复用</td></tr><tr><td>Register</td><td>一个 Thread</td><td>最快，但数量有限</td></tr></tbody></table>
-<p>优化的核心不是“全部搬进最快内存”，而是让每次昂贵的数据读取产生更多有效计算。</p>`,
-  },
-  coalescing: {
-    title: "合并访存",
-    description: "为什么相邻线程最好访问相邻地址。",
-    body: `
-<p>一个 warp 中的线程访问连续、对齐的地址时，硬件可以把请求合并成较少的内存事务。</p>
-<pre><code>// 良好的连续访问
-int i = blockIdx.x * blockDim.x + threadIdx.x;
-float x = input[i];</code></pre>
-<p>若线程 0、1、2 分别访问相距很远的位置，会浪费传输带宽。分析访存时应从“一个 warp 的 32 个线程分别访问哪里”出发。</p>`,
   },
 };
 
