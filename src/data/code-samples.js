@@ -3,6 +3,7 @@ export const codeSamples = {
     fileName: "示例 1",
     label: "输入 / 输出",
     language: "text",
+    plain: true,
     code: `输入：A = [1.0, 2.0, 3.0, 4.0]
       B = [5.0, 6.0, 7.0, 8.0]
 输出：C = [6.0, 8.0, 10.0, 12.0]`,
@@ -11,6 +12,7 @@ export const codeSamples = {
     fileName: "示例 2",
     label: "输入 / 输出",
     language: "text",
+    plain: true,
     code: `输入：A = [1.5, 1.5, 1.5]
       B = [2.3, 2.3, 2.3]
 输出：C = [3.8, 3.8, 3.8]`,
@@ -23,16 +25,21 @@ export const codeSamples = {
     code: `#include <cuda_runtime.h>
 
 __global__ void vector_add(const float* A, const float* B, float* C, int N) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < N) {
-        C[i] = A[i] + B[i];
+    int bx = blockIdx.x;
+    int tx = threadIdx.x;
+    int nx = bx * blockDim.x + tx;
+
+    if (nx < N) {
+        C[nx] = A[nx] + B[nx];
     }
 }
 
+// A, B, C are device pointers (i.e. pointers to memory on the GPU)
 extern "C" void solve(const float* A, const float* B, float* C, int N) {
-    int threads = 256;
-    int blocks = (N + threads - 1) / threads;
-    vector_add<<<blocks, threads>>>(A, B, C, N);
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
+
+    vector_add<<<blocksPerGrid, threadsPerBlock>>>(A, B, C, N);
     cudaDeviceSynchronize();
 }`,
   },
