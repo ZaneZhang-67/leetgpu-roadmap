@@ -58,14 +58,27 @@ function shell(id) {
       <main class="doc-main">
         <article class="article">
           <div class="breadcrumb"><a href="#/overview">Kernel 随想录</a><span>›</span><span>${allPages[index]?.section || "学习路线"}</span></div>
-          <div class="article-title-row">
-            <div class="article-title-main">
-              ${page.problemId ? `<label class="problem-checkbox" title="${done ? "取消完成状态" : "标记为已完成"}"><input id="complete-page" type="checkbox" ${done ? "checked" : ""} aria-label="${done ? "取消完成状态" : "标记为已完成"}"><span>${icons.check}</span></label>` : ""}
-              <h1>${page.title}<a class="heading-anchor" href="#/${id}">#</a></h1>
+          ${page.problemId ? `
+          <div class="problem-hero">
+            <div class="problem-heading">
+              <h1>${page.titleEn}<a class="heading-anchor" href="#/${id}" aria-label="链接到 ${page.titleEn}">#</a></h1>
+              <div class="problem-subtitle">
+                <span class="problem-title-zh">${page.titleZh}</span>
+                <span class="subtitle-separator" aria-hidden="true">·</span>
+                <label class="completion-toggle" title="${done ? "取消完成状态" : "标记为已完成"}">
+                  <input id="complete-page" type="checkbox" ${done ? "checked" : ""} aria-label="${done ? "取消完成状态" : "标记为已完成"}">
+                  <span class="completion-icon" aria-hidden="true">${icons.check}</span>
+                  <span class="completion-label">${done ? "已完成" : "未完成"}</span>
+                </label>
+              </div>
             </div>
-            ${page.problemUrl ? `<a class="problem-link-button" href="${page.problemUrl}" target="_blank" rel="noreferrer">打开 LeetGPU 题目 ↗</a>` : ""}
+            <a class="problem-link-button" href="${page.problemUrl}" target="_blank" rel="noreferrer">在 LeetGPU 中练习 <span aria-hidden="true">↗</span></a>
           </div>
-          ${page.problemId ? "" : `<p class="lead">${page.description}</p>`}
+          <div class="problem-hero-divider" aria-hidden="true"></div>` : `
+          <div class="article-title-row">
+            <div class="article-title-main"><h1>${page.title}<a class="heading-anchor" href="#/${id}">#</a></h1></div>
+          </div>
+          <p class="lead">${page.description}</p>`}
           <div class="article-body">${specialPage(id) || page.body}</div>
           <div class="page-nav">
             ${previous ? `<a href="#/${previous.id}" class="prev"><small>上一篇</small><span>← ${previous.title}</span></a>` : "<span></span>"}

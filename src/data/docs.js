@@ -126,6 +126,8 @@ function problemPage({ id, title, titleEn, description, formula, originalSpec, u
 
   return {
     title,
+    titleEn,
+    titleZh: title.replace(`${titleEn}（`, "").replace(/）$/, ""),
     description,
     problemId: titleEn.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
     problemUrl: url,
