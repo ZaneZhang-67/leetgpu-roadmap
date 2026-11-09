@@ -1,4 +1,20 @@
 export const codeSamples = {
+  "vector-addition-example-1": {
+    fileName: "示例 1",
+    label: "输入 / 输出",
+    language: "text",
+    code: `输入：A = [1.0, 2.0, 3.0, 4.0]
+      B = [5.0, 6.0, 7.0, 8.0]
+输出：C = [6.0, 8.0, 10.0, 12.0]`,
+  },
+  "vector-addition-example-2": {
+    fileName: "示例 2",
+    label: "输入 / 输出",
+    language: "text",
+    code: `输入：A = [1.5, 1.5, 1.5]
+      B = [2.3, 2.3, 2.3]
+输出：C = [3.8, 3.8, 3.8]`,
+  },
   "vector-addition": {
     fileName: "vector_add.cu",
     label: "CUDA C++",

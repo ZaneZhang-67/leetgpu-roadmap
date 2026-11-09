@@ -7,8 +7,9 @@
   "scripts": {
     "dev": "vite",
     "check:punctuation": "node scripts/check-no-terminal-periods.mjs",
+    "check:code-blocks": "node scripts/check-shiki-code-blocks.mjs",
     "generate:code": "node scripts/generate-highlighted-code.mjs",
-    "build": "npm run check:punctuation && npm run generate:code && vite build",
+    "build": "npm run check:punctuation && npm run generate:code && npm run check:code-blocks && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
