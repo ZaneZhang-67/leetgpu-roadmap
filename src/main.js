@@ -1,5 +1,6 @@
 import "./styles.css";
 import { sections, pages, flatPages } from "./data/docs.js";
+import { codeSamples } from "./data/code-samples.js";
 import { problems, starterProgress } from "./data/problems.js";
 import { activityCounts, exportProgress, importProgress, loadProgress, saveProgress } from "./utils/progress.js";
 import { renderHeatmap } from "./utils/heatmap.js";
@@ -120,6 +121,20 @@ function bind() {
   document.querySelector("#close-search")?.addEventListener("click", closeSearch);
   document.querySelector("#search-modal")?.addEventListener("click", (e) => { if (e.target.id === "search-modal") closeSearch(); });
   document.querySelector("#theme-toggle")?.addEventListener("click", toggleTheme);
+  document.querySelectorAll("[data-copy-code]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const sample = codeSamples[button.dataset.copyCode]
+      if (!sample) return
+      await navigator.clipboard.writeText(sample.code)
+      const original = button.textContent
+      button.textContent = "已复制"
+      button.classList.add("copied")
+      window.setTimeout(() => {
+        button.textContent = original
+        button.classList.remove("copied")
+      }, 1600)
+    })
+  })
   document.querySelector("#complete-page")?.addEventListener("click", () => {
     const id = routeId(); const pid = pages[id].problemId; const done = progress[pid]?.status === "done";
     progress[pid] = { ...progress[pid], status: done ? "todo" : "done", completedAt: done ? undefined : new Date().toISOString().slice(0,10) };

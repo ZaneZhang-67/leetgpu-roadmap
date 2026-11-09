@@ -1,15 +1,18 @@
 {
   "name": "leetgpu-roadmap",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "description": "A GitHub Pages-ready LeetGPU learning roadmap and progress tracker.",
   "scripts": {
     "dev": "vite",
     "check:punctuation": "node scripts/check-no-terminal-periods.mjs",
-    "build": "npm run check:punctuation && vite build",
+    "generate:code": "node scripts/generate-highlighted-code.mjs",
+    "build": "npm run check:punctuation && npm run generate:code && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "shiki": "4.6.0",
     "vite": "^7.2.2"
   }
 }

@@ -1,3 +1,5 @@
+import { highlightedCode } from "../generated/highlighted-code.js"
+
 export const sections = [
   {
     id: "start",
@@ -116,7 +118,7 @@ export const pages = {
   },
 };
 
-function problemPage({ title, titleEn, description, formula, originalSpec, url, prompts, explanation, codeText }) {
+function problemPage({ id, title, titleEn, description, formula, originalSpec, url, prompts, explanation }) {
   const thinkingSection = prompts.length
     ? `<h2 id="thinking">写代码前先回答</h2><ol>${prompts.map((x) => `<li>${x}</li>`).join("")}</ol>`
     : "";
@@ -133,11 +135,12 @@ function problemPage({ title, titleEn, description, formula, originalSpec, url, 
 <h2 id="definition">题目定义</h2><p>${description}</p>${originalSpec || `<div class="formula-block">${formula}</div>`}
 ${thinkingSection}
 ${mappingSection}
-<h2 id="template">参考实现</h2><pre><code>${codeText.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</code></pre>`,
+<h2 id="template">参考实现</h2>${highlightedCode[id]}`, 
   };
 }
 
 pages["vector-addition"] = problemPage({
+  id: "vector-addition",
   title: "Vector Addition（向量加法）",
   titleEn: "Vector Addition",
   description: "编写一个 GPU 程序，对两个包含 32 位浮点数的向量执行逐元素加法程序接收两个长度相同的输入向量，并生成一个包含它们之和的输出向量",
@@ -166,24 +169,10 @@ pages["vector-addition"] = problemPage({
   url: "https://leetgpu.com/challenges/vector-addition",
   prompts: [],
   explanation: "",
-  codeText: `#include <cuda_runtime.h>
-
-__global__ void vector_add(const float* A, const float* B, float* C, int N) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < N) {
-        C[i] = A[i] + B[i];
-    }
-}
-
-extern "C" void solve(const float* A, const float* B, float* C, int N) {
-    int threads = 256;
-    int blocks = (N + threads - 1) / threads;
-    vector_add<<<blocks, threads>>>(A, B, C, N);
-    cudaDeviceSynchronize();
-}`,
 });
 
 pages["value-clipping"] = problemPage({
+  id: "value-clipping",
   title: "Value Clipping（数值裁剪）",
   titleEn: "Value Clipping",
   description: "复用向量加法的线程框架，把单元素数学规则翻译成 elementwise kernel",
@@ -191,17 +180,10 @@ pages["value-clipping"] = problemPage({
   url: "https://leetgpu.com/challenges/value-clipping",
   prompts: ["输入与输出长度是否相同？", "每个线程需要读取和写入几个元素？", "三个取值区间分别输出什么？"],
   explanation: "仍然让线程 i 处理 input[i]新的知识只在单元素计算规则，不需要改变 Grid 配置",
-  codeText: `__global__ void clip_kernel(const float* input, float* output,
-                            float lo, float hi, int N) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < N) {
-        float x = input[i];
-        output[i] = x < lo ? lo : (x > hi ? hi : x);
-    }
-}`,
 });
 
 pages["matrix-addition"] = problemPage({
+  id: "matrix-addition",
   title: "Matrix Addition（矩阵加法）",
   titleEn: "Matrix Addition",
   description: "理解二维矩阵在显存中仍是一段连续数组逐元素算子不一定需要显式计算行列",
@@ -209,12 +191,6 @@ pages["matrix-addition"] = problemPage({
   url: "https://leetgpu.com/challenges/matrix-addition",
   prompts: ["矩阵在内存中怎样展平？", "总线程数应覆盖 N 还是 N×N？", "什么时候才必须计算 row 和 col？"],
   explanation: "把矩阵视为长度 N×N 的连续数组线程 i 直接处理 A[i]、B[i] 和 C[i]",
-  codeText: `__global__ void matrix_add(const float* A, const float* B,
-                           float* C, int N) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    int total = N * N;
-    if (i < total) C[i] = A[i] + B[i];
-}`,
 });
 
 const generic = {
