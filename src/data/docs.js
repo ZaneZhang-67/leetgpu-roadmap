@@ -130,8 +130,8 @@ function problemPage({ id, title, titleEn, description, formula, originalSpec, u
     title,
     description,
     problemId: titleEn.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    problemUrl: url,
     body: `
-<p><a class="external-link" href="${url}" target="_blank" rel="noreferrer">打开 LeetGPU 题目 ↗</a></p>
 <h2 id="definition">题目定义</h2><p>${description}</p>${originalSpec || `<div class="formula-block">${formula}</div>`}
 ${thinkingSection}
 ${mappingSection}

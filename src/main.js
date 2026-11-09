@@ -60,8 +60,11 @@ function shell(id) {
         <article class="article">
           <div class="breadcrumb"><a href="#/overview">Kernel 随想录</a><span>›</span><span>${allPages[index]?.section || "学习路线"}</span></div>
           <div class="article-title-row">
-            <h1>${page.title}<a class="heading-anchor" href="#/${id}">#</a></h1>
-            ${page.problemId ? `<button id="complete-page" class="complete-button ${done ? "done" : ""}">${done ? icons.check + " 已完成这道题" : "标记为已完成"}</button>` : ""}
+            <div class="article-title-main">
+              ${page.problemId ? `<label class="problem-checkbox" title="${done ? "取消完成状态" : "标记为已完成"}"><input id="complete-page" type="checkbox" ${done ? "checked" : ""} aria-label="${done ? "取消完成状态" : "标记为已完成"}"><span>${icons.check}</span></label>` : ""}
+              <h1>${page.title}<a class="heading-anchor" href="#/${id}">#</a></h1>
+            </div>
+            ${page.problemUrl ? `<a class="problem-link-button" href="${page.problemUrl}" target="_blank" rel="noreferrer">打开 LeetGPU 题目 ↗</a>` : ""}
           </div>
           ${page.problemId ? "" : `<p class="lead">${page.description}</p>`}
           <div class="article-body">${specialPage(id) || page.body}</div>
@@ -135,10 +138,14 @@ function bind() {
       }, 1600)
     })
   })
-  document.querySelector("#complete-page")?.addEventListener("click", () => {
-    const id = routeId(); const pid = pages[id].problemId; const done = progress[pid]?.status === "done";
-    progress[pid] = { ...progress[pid], status: done ? "todo" : "done", completedAt: done ? undefined : new Date().toISOString().slice(0,10) };
-    saveProgress(progress); render(); toast(done ? "已取消完成状态" : "已加入学习热力图");
+  document.querySelector("#complete-page")?.addEventListener("change", (event) => {
+    const id = routeId()
+    const pid = pages[id].problemId
+    const checked = event.target.checked
+    progress[pid] = { ...progress[pid], status: checked ? "done" : "todo", completedAt: checked ? new Date().toISOString().slice(0,10) : undefined }
+    saveProgress(progress)
+    render()
+    toast(checked ? "已加入学习热力图" : "已取消完成状态")
   });
   document.querySelectorAll("[data-problem]").forEach((button) => button.addEventListener("click", () => cycleStatus(button.dataset.problem)));
   document.querySelector("#export-progress")?.addEventListener("click", () => exportProgress(progress));
