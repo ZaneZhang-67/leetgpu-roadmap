@@ -1,6 +1,6 @@
 # Kernel Path
 
-一个可直接部署到 GitHub Pages 的 LeetGPU 刷题路线与学习记录站。
+一个可直接部署到 GitHub Pages 的 LeetGPU 刷题路线与学习记录站
 
 ## 功能
 
@@ -14,7 +14,7 @@
 
 ## 本地运行
 
-要求 Node.js 20 或更高版本。
+要求 Node.js 20 或更高版本
 
 ```bash
 pnpm install
@@ -28,17 +28,17 @@ pnpm run build
 pnpm run preview
 ```
 
-生成目录为 `dist/`。
+生成目录为 `dist/`
 
 ## 部署到 GitHub Pages
 
-1. 在 GitHub 创建一个新仓库，例如 `leetgpu-roadmap`。
-2. 把本项目推送到仓库的 `main` 分支。
-3. 打开仓库的 **Settings → Pages**。
-4. 在 **Build and deployment** 中，将 Source 设为 **GitHub Actions**。
-5. `.github/workflows/deploy.yml` 会自动构建并发布。
+1. 在 GitHub 创建一个新仓库，例如 `leetgpu-roadmap`
+2. 把本项目推送到仓库的 `main` 分支
+3. 打开仓库的 **Settings → Pages**
+4. 在 **Build and deployment** 中，将 Source 设为 **GitHub Actions**
+5. `.github/workflows/deploy.yml` 会自动构建并发布
 
-`vite.config.js` 使用相对资源路径，因此用户主页和项目主页都可以部署。
+`vite.config.js` 使用相对资源路径，因此用户主页和项目主页都可以部署
 
 ## 修改题单
 
@@ -58,15 +58,15 @@ src/data/problems.js
 
 ## 进度数据
 
-进度默认保存在浏览器 `localStorage`，不会发送到服务器。
+进度默认保存在浏览器 `localStorage`，不会发送到服务器
 
 页面右上角提供：
 
 - **导出进度**：下载 JSON 备份
 - **导入进度**：在另一台设备恢复
 
-如果希望让仓库内置自己的初始进度，可以修改 `src/data/problems.js` 中的 `starterProgress`。
+如果希望让仓库内置自己的初始进度，可以修改 `src/data/problems.js` 中的 `starterProgress`
 
 ## 注意
 
-这是独立学习站，不隶属于 LeetGPU。题目链接指向 LeetGPU，站内只维护个人路线、提示和复盘记录。
+这是独立学习站，不隶属于 LeetGPU题目链接指向 LeetGPU，站内只维护个人路线、提示和复盘记录

@@ -88,14 +88,14 @@ function specialPage(id) {
 }
 
 function checklistMarkup() {
-  return `<p>题单按知识依赖排列。完成题目后点击状态按钮，数据会保存在当前浏览器。</p><div class="checklist">${problems.map((p) => {
+  return `<p>题单按知识依赖排列完成题目后点击状态按钮，数据会保存在当前浏览器</p><div class="checklist">${problems.map((p) => {
     const status = progress[p.id]?.status || "todo";
     return `<div class="check-row"><span class="check-no">${String(p.no).padStart(2,"0")}</span><div><strong>${p.title}（${p.titleZh}）</strong><small>${p.concepts.join(" / ")}</small></div><span class="tag ${p.difficulty.toLowerCase()}">${p.difficulty}</span><a href="${p.url}" target="_blank" rel="noreferrer">题目 ↗</a><button data-problem="${p.id}" class="status-${status}">${status === "done" ? "已完成" : status === "doing" ? "进行中" : "未开始"}</button></div>`;
   }).join("")}</div>`;
 }
 
 function activityMarkup() {
-  return `<p>这张热力图只记录 LeetGPU 学习，不与 GitHub Contribution Calendar 混在一起。</p><div class="activity-panel"><div class="activity-summary"><strong>${completedCount()}</strong><span>道题已完成</span></div><div id="heatmap"></div></div><h2 id="backup">进度备份</h2><p>进度保存在浏览器 localStorage。你可以使用右侧的导入、导出按钮在不同设备间迁移。</p>`;
+  return `<p>这张热力图只记录 LeetGPU 学习，不与 GitHub Contribution Calendar 混在一起</p><div class="activity-panel"><div class="activity-summary"><strong>${completedCount()}</strong><span>道题已完成</span></div><div id="heatmap"></div></div><h2 id="backup">进度备份</h2><p>进度保存在浏览器 localStorage你可以使用右侧的导入、导出按钮在不同设备间迁移</p>`;
 }
 
 function interviewMarkup() {
