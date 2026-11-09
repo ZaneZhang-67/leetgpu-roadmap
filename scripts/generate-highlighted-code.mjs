@@ -23,6 +23,16 @@ for (const [id, sample] of Object.entries(codeSamples)) {
       dark: "dark-plus",
     },
     defaultColor: false,
+    transformers: sample.lineNumbers
+      ? [{
+          pre(node) {
+            this.addClassToHast(node, "has-line-numbers")
+          },
+          line(node, line) {
+            node.properties["data-line"] = line
+          },
+        }]
+      : [],
   })
 
   const html = `<div class="code-block" data-code-id="${escapeAttribute(id)}">

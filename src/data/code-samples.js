@@ -19,6 +19,7 @@ export const codeSamples = {
     fileName: "vector_add.cu",
     label: "CUDA C++",
     language: "cpp",
+    lineNumbers: true,
     code: `#include <cuda_runtime.h>
 
 __global__ void vector_add(const float* A, const float* B, float* C, int N) {
@@ -39,6 +40,7 @@ extern "C" void solve(const float* A, const float* B, float* C, int N) {
     fileName: "value_clipping.cu",
     label: "CUDA C++",
     language: "cpp",
+    lineNumbers: true,
     code: `__global__ void clip_kernel(
     const float* input,
     float* output,
@@ -57,6 +59,7 @@ extern "C" void solve(const float* A, const float* B, float* C, int N) {
     fileName: "matrix_add.cu",
     label: "CUDA C++",
     language: "cpp",
+    lineNumbers: true,
     code: `__global__ void matrix_add(
     const float* A,
     const float* B,
