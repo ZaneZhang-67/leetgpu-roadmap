@@ -12,11 +12,11 @@ export const sections = [
     id: "elementwise",
     title: "基础算子",
     pages: [
-      { id: "vector-addition", title: "向量加法" },
-      { id: "value-clipping", title: "数值裁剪" },
-      { id: "matrix-addition", title: "矩阵加法" },
-      { id: "interleave-arrays", title: "数组交错" },
-      { id: "rgb-grayscale", title: "RGB 转灰度" },
+      { id: "vector-addition", title: "Vector Addition（向量加法）" },
+      { id: "value-clipping", title: "Value Clipping（数值裁剪）" },
+      { id: "matrix-addition", title: "Matrix Addition（矩阵加法）" },
+      { id: "interleave-arrays", title: "Interleave Arrays（数组交错）" },
+      { id: "rgb-grayscale", title: "RGB to Grayscale（RGB 转灰度）" },
     ],
   },
   {
@@ -140,7 +140,7 @@ ${mappingSection}
 }
 
 pages["vector-addition"] = problemPage({
-  title: "向量加法",
+  title: "Vector Addition（向量加法）",
   titleEn: "Vector Addition",
   description: "编写一个 GPU 程序，对两个包含 32 位浮点数的向量执行逐元素加法。程序接收两个长度相同的输入向量，并生成一个包含它们之和的输出向量。",
   formula: "C[i] = A[i] + B[i]，0 ≤ i < N",
@@ -187,7 +187,7 @@ extern "C" void solve(const float* A, const float* B, float* C, int N) {
 });
 
 pages["value-clipping"] = problemPage({
-  title: "数值裁剪",
+  title: "Value Clipping（数值裁剪）",
   titleEn: "Value Clipping",
   description: "复用向量加法的线程框架，把单元素数学规则翻译成 elementwise kernel。",
   formula: "output[i] = min(max(input[i], lo), hi)",
@@ -206,7 +206,7 @@ pages["value-clipping"] = problemPage({
 });
 
 pages["matrix-addition"] = problemPage({
-  title: "矩阵加法",
+  title: "Matrix Addition（矩阵加法）",
   titleEn: "Matrix Addition",
   description: "理解二维矩阵在显存中仍是一段连续数组。逐元素算子不一定需要显式计算行列。",
   formula: "C[r,c] = A[r,c] + B[r,c]",
@@ -223,9 +223,9 @@ pages["matrix-addition"] = problemPage({
 });
 
 const generic = {
-  "interleave-arrays": ["数组交错", "由输入索引推导多个输出地址。"],
-  "rgb-grayscale": ["RGB 转灰度", "练习多通道图像的数据布局和地址计算。"],
-  "matrix-transpose": ["矩阵转置", "从朴素实现进入二维 Grid、共享内存与合并访存。"],
+  "interleave-arrays": ["Interleave Arrays（数组交错）", "由输入索引推导多个输出地址。"],
+  "rgb-grayscale": ["RGB to Grayscale（RGB 转灰度）", "练习多通道图像的数据布局和地址计算。"],
+  "matrix-transpose": ["Matrix Transpose（矩阵转置）", "从朴素实现进入二维 Grid、共享内存与合并访存。"],
   "shared-memory": ["Shared Memory", "理解 Block 内线程怎样协作搬运和复用数据。"],
   "bank-conflict": ["Bank Conflict", "理解共享内存地址布局为何影响吞吐。"],
   "vectorized-access": ["向量化读写", "使用更宽的内存操作减少指令数量。"],

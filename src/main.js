@@ -90,7 +90,7 @@ function specialPage(id) {
 function checklistMarkup() {
   return `<p>题单按知识依赖排列。完成题目后点击状态按钮，数据会保存在当前浏览器。</p><div class="checklist">${problems.map((p) => {
     const status = progress[p.id]?.status || "todo";
-    return `<div class="check-row"><span class="check-no">${String(p.no).padStart(2,"0")}</span><div><strong>${p.titleZh}</strong><small>${p.title} · ${p.concepts.join(" / ")}</small></div><span class="tag ${p.difficulty.toLowerCase()}">${p.difficulty}</span><a href="${p.url}" target="_blank" rel="noreferrer">题目 ↗</a><button data-problem="${p.id}" class="status-${status}">${status === "done" ? "已完成" : status === "doing" ? "进行中" : "未开始"}</button></div>`;
+    return `<div class="check-row"><span class="check-no">${String(p.no).padStart(2,"0")}</span><div><strong>${p.title}（${p.titleZh}）</strong><small>${p.concepts.join(" / ")}</small></div><span class="tag ${p.difficulty.toLowerCase()}">${p.difficulty}</span><a href="${p.url}" target="_blank" rel="noreferrer">题目 ↗</a><button data-problem="${p.id}" class="status-${status}">${status === "done" ? "已完成" : status === "doing" ? "进行中" : "未开始"}</button></div>`;
   }).join("")}</div>`;
 }
 
