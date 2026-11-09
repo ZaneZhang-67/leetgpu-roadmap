@@ -2,8 +2,7 @@ import "./styles.css";
 import { sections, pages, flatPages } from "./data/docs.js";
 import { codeSamples } from "./data/code-samples.js";
 import { problems, starterProgress } from "./data/problems.js";
-import { activityCounts, exportProgress, importProgress, loadProgress, saveProgress } from "./utils/progress.js";
-import { renderHeatmap } from "./utils/heatmap.js";
+import { exportProgress, importProgress, loadProgress, saveProgress } from "./utils/progress.js";
 
 const app = document.querySelector("#app");
 const allPages = flatPages();
@@ -40,7 +39,7 @@ function shell(id) {
     <header class="topbar">
       <button class="icon-button mobile-menu" id="mobile-menu" aria-label="打开目录">${icons.menu}</button>
       <a href="#/overview" class="site-logo"><span class="logo-cube">K</span><span><strong>Kernel 随想录</strong><small>LEETGPU 系统学习路线</small></span></a>
-      <nav><a href="#/overview">学习路线</a><a href="#/checklist">完整题单</a><a href="#/activity">刷题记录</a></nav>
+      <nav><a href="#/overview">学习路线</a><a href="#/interview">面试复习</a></nav>
       <div class="top-actions">
         <button class="search-trigger" id="search-trigger">${icons.search}<span>搜索文档</span><kbd>⌘ K</kbd></button>
         <button class="icon-button" id="theme-toggle" aria-label="切换主题">${icons.moon}</button>
@@ -85,21 +84,8 @@ function shell(id) {
 }
 
 function specialPage(id) {
-  if (id === "checklist") return checklistMarkup();
-  if (id === "activity") return activityMarkup();
   if (id === "interview") return interviewMarkup();
   return "";
-}
-
-function checklistMarkup() {
-  return `<p>题单按知识依赖排列完成题目后点击状态按钮，数据会保存在当前浏览器</p><div class="checklist">${problems.map((p) => {
-    const status = progress[p.id]?.status || "todo";
-    return `<div class="check-row"><span class="check-no">${String(p.no).padStart(2,"0")}</span><div><strong>${p.title}（${p.titleZh}）</strong><small>${p.concepts.join(" / ")}</small></div><span class="tag ${p.difficulty.toLowerCase()}">${p.difficulty}</span><a href="${p.url}" target="_blank" rel="noreferrer">题目 ↗</a><button data-problem="${p.id}" class="status-${status}">${status === "done" ? "已完成" : status === "doing" ? "进行中" : "未开始"}</button></div>`;
-  }).join("")}</div>`;
-}
-
-function activityMarkup() {
-  return `<p>这张热力图只记录 LeetGPU 学习，不与 GitHub Contribution Calendar 混在一起</p><div class="activity-panel"><div class="activity-summary"><strong>${completedCount()}</strong><span>道题已完成</span></div><div id="heatmap"></div></div><h2 id="backup">进度备份</h2><p>进度保存在浏览器 localStorage你可以使用右侧的导入、导出按钮在不同设备间迁移</p>`;
 }
 
 function interviewMarkup() {
@@ -145,24 +131,15 @@ function bind() {
     progress[pid] = { ...progress[pid], status: checked ? "done" : "todo", completedAt: checked ? new Date().toISOString().slice(0,10) : undefined }
     saveProgress(progress)
     render()
-    toast(checked ? "已加入学习热力图" : "已取消完成状态")
+    toast(checked ? "已标记为完成" : "已取消完成状态")
   });
-  document.querySelectorAll("[data-problem]").forEach((button) => button.addEventListener("click", () => cycleStatus(button.dataset.problem)));
   document.querySelector("#export-progress")?.addEventListener("click", () => exportProgress(progress));
   document.querySelector("#import-progress")?.addEventListener("change", async (e) => {
     const file = e.target.files[0]; if (!file) return;
     try { progress = await importProgress(file); saveProgress(progress); render(); toast("进度导入成功"); } catch (err) { toast(`导入失败：${err.message}`); }
   });
-  if (routeId() === "activity") renderHeatmap(document.querySelector("#heatmap"), activityCounts(progress));
   renderToc();
   bindSearchInput();
-}
-
-function cycleStatus(id) {
-  const current = progress[id]?.status || "todo";
-  const next = current === "todo" ? "doing" : current === "doing" ? "done" : "todo";
-  progress[id] = { ...progress[id], status: next, completedAt: next === "done" ? new Date().toISOString().slice(0,10) : undefined };
-  saveProgress(progress); render();
 }
 
 function openSearch() { searchOpen = true; render(); setTimeout(() => document.querySelector("#search-input")?.focus(), 0); }

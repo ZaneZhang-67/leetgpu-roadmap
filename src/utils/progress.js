@@ -35,10 +35,3 @@ export async function importProgress(file) {
   return value;
 }
 
-export function activityCounts(progress) {
-  return Object.values(progress).reduce((counts, item) => {
-    if (item?.status !== "done" || !item.completedAt) return counts;
-    counts[item.completedAt] = (counts[item.completedAt] || 0) + 1;
-    return counts;
-  }, {});
-}

@@ -63,10 +63,8 @@ export const sections = [
   },
   {
     id: "practice",
-    title: "刷题记录",
+    title: "复习",
     pages: [
-      { id: "checklist", title: "完整题单" },
-      { id: "activity", title: "学习热力图" },
       { id: "interview", title: "面试复习清单" },
     ],
   },
@@ -208,8 +206,6 @@ const generic = {
   quantization: ["INT8 量化基础", "理解量化值、scale、zero point 和误差来源"],
   "w8a8-gemm": ["W8A8 GEMM", "实现 INT8×INT8→INT32，再融合 scale 与输出转换"],
   "quant-fusion": ["Scale 与后处理融合", "减少中间张量和全局内存往返"],
-  checklist: ["完整题单", "按阶段查看并更新所有题目的学习状态"],
-  activity: ["学习热力图", "用独立绿点记录每天完成的 LeetGPU 题目"],
   interview: ["面试复习清单", "按索引、访存、归约、GEMM 和量化整理口述问题"],
 };
 
