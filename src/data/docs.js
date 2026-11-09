@@ -116,7 +116,7 @@ export const pages = {
   },
 };
 
-function problemPage({ title, titleEn, description, formula, originalSpec, url, concepts, prompts, explanation, codeText }) {
+function problemPage({ title, titleEn, description, formula, originalSpec, url, prompts, explanation, codeText }) {
   const thinkingSection = prompts.length
     ? `<h2 id="thinking">写代码前先回答</h2><ol>${prompts.map((x) => `<li>${x}</li>`).join("")}</ol>`
     : "";
@@ -133,9 +133,7 @@ function problemPage({ title, titleEn, description, formula, originalSpec, url, 
 <h2 id="definition">题目定义</h2><p>${description}</p>${originalSpec || `<div class="formula-block">${formula}</div>`}
 ${thinkingSection}
 ${mappingSection}
-<h2 id="template">参考实现</h2><pre><code>${codeText.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</code></pre>
-<h2 id="review">复盘清单</h2><ul>${concepts.map((x) => `<li>${x}</li>`).join("")}</ul>
-<div class="callout"><strong>练习要求</strong><p>先根据提示独立完成；提交通过后，再对照实现并从空白重写一次</p></div>`,
+<h2 id="template">参考实现</h2><pre><code>${codeText.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</code></pre>`,
   };
 }
 
@@ -166,7 +164,6 @@ pages["vector-addition"] = problemPage({
   <li>性能测试使用 <code>N = 25,000,000</code></li>
 </ul>`,
   url: "https://leetgpu.com/challenges/vector-addition",
-  concepts: ["能解释 blockIdx.x、blockDim.x 和 threadIdx.x", "能推导全局索引 i", "能解释为什么向上取整后必须检查 i < N", "能说明相邻线程访问相邻元素"],
   prompts: [],
   explanation: "",
   codeText: `#include <cuda_runtime.h>
@@ -192,7 +189,6 @@ pages["value-clipping"] = problemPage({
   description: "复用向量加法的线程框架，把单元素数学规则翻译成 elementwise kernel",
   formula: "output[i] = min(max(input[i], lo), hi)",
   url: "https://leetgpu.com/challenges/value-clipping",
-  concepts: ["线程映射与 Vector Addition 相同", "能覆盖小于 lo、大于 hi 和区间内三种情况", "知道分支表达和 min/max 表达的对应关系"],
   prompts: ["输入与输出长度是否相同？", "每个线程需要读取和写入几个元素？", "三个取值区间分别输出什么？"],
   explanation: "仍然让线程 i 处理 input[i]新的知识只在单元素计算规则，不需要改变 Grid 配置",
   codeText: `__global__ void clip_kernel(const float* input, float* output,
@@ -211,7 +207,6 @@ pages["matrix-addition"] = problemPage({
   description: "理解二维矩阵在显存中仍是一段连续数组逐元素算子不一定需要显式计算行列",
   formula: "C[r,c] = A[r,c] + B[r,c]",
   url: "https://leetgpu.com/challenges/matrix-addition",
-  concepts: ["N×N 矩阵的元素总数是 N²", "合法线性下标范围是 [0, N²)", "逐元素操作可以直接线性遍历"],
   prompts: ["矩阵在内存中怎样展平？", "总线程数应覆盖 N 还是 N×N？", "什么时候才必须计算 row 和 col？"],
   explanation: "把矩阵视为长度 N×N 的连续数组线程 i 直接处理 A[i]、B[i] 和 C[i]",
   codeText: `__global__ void matrix_add(const float* A, const float* B,
