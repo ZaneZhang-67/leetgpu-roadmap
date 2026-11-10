@@ -54,12 +54,18 @@ for (const file of files) {
 
   let codeIndex = 0
   const markdownCode = {}
-  renderer.code = async ({ text, lang }) => {
+  const tokens = marked.lexer(content, { gfm: true })
+  const codeTokens = []
+  marked.walkTokens(tokens, (token) => {
+    if (token.type === "code") codeTokens.push(token)
+  })
+
+  for (const token of codeTokens) {
     codeIndex += 1
-    const language = lang || "text"
-    const block = codeBlockHtml({ id: data.id, code: text, language, index: codeIndex })
-    markdownCode[block.codeId] = text
-    const highlighted = await codeToHtml(text, {
+    const language = token.lang || "text"
+    const block = codeBlockHtml({ id: data.id, code: token.text, language, index: codeIndex })
+    markdownCode[block.codeId] = token.text
+    const highlighted = await codeToHtml(token.text, {
       lang: language,
       themes: { light: "light-plus", dark: "dark-plus" },
       defaultColor: false,
@@ -71,7 +77,7 @@ for (const file of files) {
         }] : []),
       ],
     })
-    return `<div class="code-block" data-code-id="${block.codeId}">
+    token.highlightedHtml = `<div class="code-block" data-code-id="${block.codeId}">
   <div class="code-block-header">
     <span class="code-file">${escapeHtml(block.fileName)}</span>
     <span class="code-language">${escapeHtml(block.label)}</span>
@@ -81,8 +87,10 @@ for (const file of files) {
 </div>`
   }
 
-  marked.use({ gfm: true, renderer, async: true })
-  const html = await marked.parse(content)
+  renderer.code = (token) => token.highlightedHtml
+  marked.use({ gfm: true, renderer })
+  const html = marked.parser(tokens, { gfm: true, renderer })
+  if (html.includes("[object Promise]")) throw new Error(`${relative(root, file)} 生成了未解析的 Promise`)
   pages[data.id] = {
     title: `${data.titleEn}（${data.titleZh}）`,
     titleEn: data.titleEn,
