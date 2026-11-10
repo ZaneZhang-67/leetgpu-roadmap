@@ -4,6 +4,7 @@ export const navigation = [
   { id: "vector-addition", title: "Vector Addition（向量加法）" },
   { id: "naive-gemm", title: "Matrix Multiplication（矩阵乘法）" },
   { id: "matrix-transpose", title: "Matrix Transpose（矩阵转置）" },
+  { id: "color-inversion", title: "Color Inversion（图像颜色反转）" },
 ]
 
 export const defaultPageId = navigation[0].id
