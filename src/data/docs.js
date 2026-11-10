@@ -2,7 +2,7 @@ import { markdownPages } from "../generated/markdown-pages.js"
 
 export const navigation = [
   { id: "vector-addition", title: "Vector Addition（向量加法）" },
-  { id: "naive-gemm", title: "朴素 GEMM" },
+  { id: "naive-gemm", title: "Matrix Multiplication（矩阵乘法）" },
 ]
 
 export const defaultPageId = navigation[0].id

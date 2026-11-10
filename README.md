@@ -4,7 +4,7 @@
 
 ## 功能
 
-- 文章目录仅保留 Vector Addition（向量加法）和朴素 GEMM
+- 文章目录仅保留 Vector Addition（向量加法）和 Matrix Multiplication（矩阵乘法）
 - 左侧目录、站内搜索和上一篇 / 下一篇导航使用同一份文章列表
 - 未开始 / 进行中 / 已完成状态管理
 - 本地学习笔记

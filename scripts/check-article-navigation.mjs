@@ -9,11 +9,11 @@ assert.equal(new Set(navigation.map(({ id }) => id)).size, navigation.length)
 
 for (const { id, title } of navigation) {
   const page = pages[id]
-  assert.ok(title, `${id}: navigation title is required`)
+  assert.equal(title, page.title, `${id}: navigation title must match the article title`)
   assert.equal(page.problemId, id, `${id}: article and progress IDs must match`)
   assert.ok(page.body.includes("参考实现"), `${id}: reference implementation is missing`)
   assert.ok(Object.keys(page.markdownCode).length, `${id}: code snippets are missing`)
   assert.ok(!page.body.includes("章节建设中"), `${id}: placeholder content is still visible`)
 }
 
-console.log("Article navigation contains only Vector Addition and naive GEMM")
+console.log("Article navigation contains only Vector Addition and Matrix Multiplication")
