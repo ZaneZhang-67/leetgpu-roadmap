@@ -116,7 +116,7 @@ export const pages = {
   },
 };
 
-function problemPage({ id, title, titleEn, description, formula, originalSpec, url, prompts, explanation }) {
+function problemPage({ id, title, titleEn, description, formula, originalSpec, templateAnalysis = "", url, prompts, explanation }) {
   const thinkingSection = prompts.length
     ? `<h2 id="thinking">写代码前先回答</h2><ol>${prompts.map((x) => `<li>${x}</li>`).join("")}</ol>`
     : "";
@@ -133,6 +133,7 @@ function problemPage({ id, title, titleEn, description, formula, originalSpec, u
     problemUrl: url,
     body: `
 <h2 id="definition">题目定义</h2><p>${description}</p>${originalSpec || `<div class="formula-block">${formula}</div>`}
+${templateAnalysis}
 ${thinkingSection}
 ${mappingSection}
 <h2 id="template">参考实现</h2>${highlightedCode[id]}`, 
@@ -161,6 +162,15 @@ ${highlightedCode["vector-addition-example-2"]}
   <li>输入向量 <code>A</code> 和 <code>B</code> 的长度相同</li>
   <li><code>1 ≤ N ≤ 100,000,000</code></li>
   <li>性能测试使用 <code>N = 25,000,000</code></li>
+</ul>`,
+  templateAnalysis: `
+<h2 id="template-analysis">模板代码解析</h2>
+<p>模板分成两部分：GPU 上执行的 <code>vector_add</code>，以及 CPU 端负责启动 kernel 的 <code>solve</code></p>
+<ul>
+  <li><code>blockIdx.x</code> 表示当前 Block 编号，<code>threadIdx.x</code> 表示线程在 Block 内的编号</li>
+  <li><code>blockDim.x</code> 是每个 Block 的线程数用 <code>blockIdx.x * blockDim.x + threadIdx.x</code> 可以算出线程对应的全局下标</li>
+  <li><code>nx &lt; N</code> 用来拦住越界线程，因为最后一个 Block 不一定刚好填满</li>
+  <li><code>solve</code> 先确定 Block 大小，再向上取整计算 Block 数，最后启动 kernel 并等待 GPU 完成</li>
 </ul>`,
   url: "https://leetgpu.com/challenges/vector-addition",
   prompts: [],
