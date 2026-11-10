@@ -6,16 +6,15 @@ description: 编写一个 GPU 程序，对两个包含 32 位浮点数的向量�
 problemUrl: https://leetgpu.com/challenges/vector-addition
 updatedAt: 2026-11-10
 ---
-
 ## 题目定义
 
 编写一个 GPU 程序，对两个包含 32 位浮点数的向量执行逐元素加法程序接收两个长度相同的输入向量，并生成一个包含它们之和的输出向量
 
 ### 实现要求
 
-- 不允许使用外部库
-- `solve` 函数签名必须保持不变
-- 最终结果必须存储在向量 `C` 中
+* 不允许使用外部库
+* `solve` 函数签名必须保持不变
+* 最终结果必须存储在向量 `C` 中
 
 ### 示例 1
 
@@ -35,9 +34,9 @@ updatedAt: 2026-11-10
 
 ### 约束
 
-- 输入向量 `A` 和 `B` 的长度相同
-- `1 ≤ N ≤ 100,000,000`
-- 性能测试使用 `N = 25,000,000`
+* 输入向量 `A` 和 `B` 的长度相同
+* `1 ≤ N ≤ 100,000,000`
+* 性能测试使用 `N = 25,000,000`
 
 ## 模板代码解析
 
@@ -45,13 +44,13 @@ updatedAt: 2026-11-10
 
 模板已经提供了完整的调用框架，只需补全 `vector_add` 的函数体
 
-- `vector_add` 由 `__global__` 修饰，是在 GPU 上执行的 kernel
-- `A` 和 `B` 是输入向量，`C` 是输出向量，对应公式 `C = A + B`；`N` 表示向量长度
-- `A`、`B`、`C` 都指向 GPU 显存，其中 `A` 和 `B` 带有 `const`，表示只读
-- `extern "C"` 让 `solve` 使用 C 语言的链接方式，避免 C++ 改写函数名，便于评测平台找到并调用它；这里的 `"C"` 与输出向量 `C` 无关
-- `threadsPerBlock = 256` 表示每个 Block 启动 256 个线程
-- `blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock` 通过向上取整计算 Block 数，确保线程总数能够覆盖全部元素
-- `vector_add<<<blocksPerGrid, threadsPerBlock>>>(A, B, C, N)` 启动 kernel，`cudaDeviceSynchronize()` 等待 GPU 执行完成
+* `vector_add` 由 `__global__` 修饰，是在 GPU 上执行的 kernel
+* `A` 和 `B` 是输入向量，`C` 是输出向量，对应公式 `C = A + B`；`N` 表示向量长度
+* `A`、`B`、`C` 都指向 GPU 显存，其中 `A` 和 `B` 带有 `const`，表示只读
+* `extern "C"` 让 `solve` 使用 C 语言的链接方式，避免 C++ 改写函数名，便于评测平台找到并调用它；这里的 `"C"` 与输出向量 `C` 无关
+* `threadsPerBlock = 256` 表示每个 Block 启动 256 个线程
+* `blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock` 通过向上取整计算 Block 数，确保线程总数能够覆盖全部元素
+* `vector_add<<<blocksPerGrid, threadsPerBlock>>>(A, B, C, N)` 启动 kernel，`cudaDeviceSynchronize()` 等待 GPU 执行完成
 
 ## 实现思路
 
@@ -65,9 +64,9 @@ CUDA 将线程组织成 Grid、Block 和 Thread当前线程在整个 Grid 中对
 int i = blockIdx.x * blockDim.x + threadIdx.x;
 ```
 
-- `blockIdx.x`：当前 Block 在 Grid 中的编号
-- `blockDim.x`：每个 Block 包含的线程数
-- `threadIdx.x`：当前线程在 Block 内的编号
+* `blockIdx.x`：当前 Block 在 Grid 中的编号
+* `blockDim.x`：每个 Block 包含的线程数
+* `threadIdx.x`：当前线程在 Block 内的编号
 
 例如，每个 Block 有 256 个线程，那么 Block 0 负责下标 `0～255`，Block 1 负责 `256～511`，依次类推
 
