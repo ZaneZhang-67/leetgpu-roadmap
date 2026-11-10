@@ -168,13 +168,15 @@ ${highlightedCode["vector-addition-example-2"]}
 <figure class="article-image">
   <img src="./vector-addition-template.png" alt="Vector Addition 模板代码，包含 GPU 上执行的 vector_add 和 CPU 端启动 kernel 的 solve" loading="lazy">
 </figure>
-<p>模板已经给出程序的外壳，需要补全的是 <code>vector_add</code> 的函数体</p>
+<p>模板已经提供了完整的调用框架，只需补全 <code>vector_add</code> 的函数体</p>
 <ul>
-  <li><code>vector_add</code> 由 <code>__global__</code> 修饰，是在 GPU 上执行的 kernel；当前函数体为空，题目要求在这里完成逐元素向量加法</li>
-  <li>参数 <code>A</code> 和 <code>B</code> 是两个输入向量，<code>C</code> 是输出向量，<code>N</code> 表示向量长度；这些指针都指向 GPU 显存</li>
-  <li><code>solve</code> 是平台提供的 CPU 端入口，已经设置每个 Block 使用 256 个线程，并根据 <code>N</code> 向上取整得到 Block 数</li>
-  <li><code>vector_add&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(A, B, C, N)</code> 负责启动 kernel，<code>cudaDeviceSynchronize()</code> 等待 GPU 执行完成</li>
-  <li>因此只需要编写 <code>vector_add</code> 内部逻辑，不要修改 <code>solve</code> 的函数签名和启动代码</li>
+  <li><code>vector_add</code> 由 <code>__global__</code> 修饰，是在 GPU 上执行的 kernel</li>
+  <li><code>A</code> 和 <code>B</code> 是输入向量，<code>C</code> 是输出向量，对应公式 <code>C = A + B</code>；<code>N</code> 表示向量长度</li>
+  <li><code>A</code>、<code>B</code>、<code>C</code> 都指向 GPU 显存，其中 <code>A</code> 和 <code>B</code> 带有 <code>const</code>，表示只读</li>
+  <li><code>extern &quot;C&quot;</code> 让 <code>solve</code> 使用 C 语言的链接方式，避免 C++ 改写函数名，便于评测平台找到并调用它；这里的 <code>&quot;C&quot;</code> 与输出向量 <code>C</code> 无关</li>
+  <li><code>threadsPerBlock = 256</code> 表示每个 Block 启动 256 个线程</li>
+  <li><code>blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock</code> 通过向上取整计算 Block 数，确保线程总数能够覆盖全部元素</li>
+  <li><code>vector_add&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(A, B, C, N)</code> 启动 kernel，<code>cudaDeviceSynchronize()</code> 等待 GPU 执行完成</li>
 </ul>`,
   url: "https://leetgpu.com/challenges/vector-addition",
   prompts: [],
