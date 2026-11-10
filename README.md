@@ -9,7 +9,6 @@
 - 未开始 / 进行中 / 已完成状态管理
 - 本地学习笔记
 - 独立的 LeetGPU 年度绿点热力图
-- 进度 JSON 导入与导出
 - GitHub Pages 自动部署
 
 ## 本地运行
@@ -59,11 +58,6 @@ src/data/problems.js
 ## 进度数据
 
 进度默认保存在浏览器 `localStorage`，不会发送到服务器
-
-页面右上角提供：
-
-- **导出进度**：下载 JSON 备份
-- **导入进度**：在另一台设备恢复
 
 如果希望让仓库内置自己的初始进度，可以修改 `src/data/problems.js` 中的 `starterProgress`
 

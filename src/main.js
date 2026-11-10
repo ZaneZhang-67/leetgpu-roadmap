@@ -2,7 +2,7 @@ import "./styles.css";
 import { sections, pages, flatPages } from "./data/docs.js";
 import { codeSamples } from "./data/code-samples.js";
 import { problems, starterProgress } from "./data/problems.js";
-import { exportProgress, importProgress, loadProgress, saveProgress } from "./utils/progress.js";
+import { loadProgress, saveProgress } from "./utils/progress.js";
 
 const app = document.querySelector("#app");
 const allPages = flatPages();
@@ -86,7 +86,7 @@ function shell(id) {
           </div>
           <div class="article-footer"><span>最后更新：2026-11-09</span><a href="https://github.com/ZaneZhang-67/leetgpu-roadmap" target="_blank" rel="noreferrer">在 GitHub 上查看源码</a></div>
         </article>
-        <aside class="toc"><strong>本页目录</strong><nav id="toc-list"></nav><div class="toc-tools"><button id="export-progress">导出进度</button><label>导入进度<input id="import-progress" type="file" accept="application/json"></label></div></aside>
+        <aside class="toc"><strong>本页目录</strong><nav id="toc-list"></nav></aside>
       </main>
     </div>
     <div class="search-modal ${searchOpen ? "show" : ""}" id="search-modal">
@@ -145,11 +145,6 @@ function bind() {
     saveProgress(progress)
     render()
     toast(checked ? "已标记为完成" : "已取消完成状态")
-  });
-  document.querySelector("#export-progress")?.addEventListener("click", () => exportProgress(progress));
-  document.querySelector("#import-progress")?.addEventListener("change", async (e) => {
-    const file = e.target.files[0]; if (!file) return;
-    try { progress = await importProgress(file); saveProgress(progress); render(); toast("进度导入成功"); } catch (err) { toast(`导入失败：${err.message}`); }
   });
   renderToc();
   bindSearchInput();

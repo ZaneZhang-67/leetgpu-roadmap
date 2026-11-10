@@ -165,6 +165,9 @@ ${highlightedCode["vector-addition-example-2"]}
 </ul>`,
   templateAnalysis: `
 <h2 id="template-analysis">模板代码解析</h2>
+<figure class="article-image">
+  <img src="./vector-addition-template.png" alt="Vector Addition 模板代码，包含 GPU 上执行的 vector_add 和 CPU 端启动 kernel 的 solve" loading="lazy">
+</figure>
 <p>模板分成两部分：GPU 上执行的 <code>vector_add</code>，以及 CPU 端负责启动 kernel 的 <code>solve</code></p>
 <ul>
   <li><code>blockIdx.x</code> 表示当前 Block 编号，<code>threadIdx.x</code> 表示线程在 Block 内的编号</li>

@@ -14,24 +14,3 @@ export function saveProgress(progress) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
 }
 
-export function exportProgress(progress) {
-  const blob = new Blob([JSON.stringify(progress, null, 2)], {
-    type: "application/json",
-  });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = `leetgpu-progress-${new Date().toISOString().slice(0, 10)}.json`;
-  anchor.click();
-  URL.revokeObjectURL(url);
-}
-
-export async function importProgress(file) {
-  const text = await file.text();
-  const value = JSON.parse(text);
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new Error("进度文件必须是 JSON 对象");
-  }
-  return value;
-}
-
