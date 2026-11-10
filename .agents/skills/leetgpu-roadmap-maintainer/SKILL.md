@@ -1,0 +1,170 @@
+---
+name: leetgpu-roadmap-maintainer
+description: 维护 leetgpu-roadmap 项目、添加或修改题目页面、调整站点 UI，并在每次变更后完成构建、提交、推送、GitHub Pages 部署和线上验证。Vector Addition 页面是所有后续题目的参考实现。
+---
+
+# LeetGPU Roadmap Maintainer
+
+## 适用范围
+
+在本仓库执行下列任务时使用本 Skill：
+
+- 添加、补全或修改 LeetGPU 题目页面
+- 修改题目描述、示例、模板解析、参考实现或图片
+- 修改站点布局、样式、导航、搜索、进度状态等界面功能
+- 修复构建、部署或 GitHub Pages 线上问题
+
+## 唯一页面基准
+
+所有后续题目都以 Vector Addition 页面为参考实现：
+
+- 线上页面：<https://zanezhang-67.github.io/leetgpu-roadmap/#/vector-addition>
+- 页面配置：`src/data/docs.js` 中的 `pages["vector-addition"]`
+- 题目元数据：`src/data/problems.js` 中 `id: "vector-addition"`
+- 代码源：`src/data/code-samples.js` 中以 `vector-addition` 开头的条目
+- 生成代码：`src/generated/highlighted-code.js`，只通过生成脚本更新
+- 页面样式：`src/styles.css`
+
+添加新题目之前，先检查当前 Vector Addition 的源码和线上表现。后续题目必须沿用它的信息结构、视觉层级与交互方式；除非用户明确要求，不另起一套页面结构。
+
+## 新题目页面规范
+
+### 1. 数据关系
+
+同一个题目 ID 必须在相关文件中一致：
+
+- `src/data/problems.js`：题目 ID、阶段、标题、难度、链接、知识点和摘要
+- `src/data/docs.js`：页面正文与页面级配置
+- `src/data/code-samples.js`：示例输入输出和参考实现代码
+
+新题目还要进入正确的阶段和侧边栏顺序。不得只创建正文而遗漏题单、导航或代码条目。
+
+### 2. 页面结构
+
+以 Vector Addition 的当前结构为准，按题目实际内容提供：
+
+1. 英文题名、中文题名、完成状态、LeetGPU 练习入口
+2. 题目定义
+3. 实现要求
+4. 输入输出示例
+5. 约束与性能测试规模
+6. 模板代码解析
+7. 解题思路、线程映射或关键推导
+8. 参考实现
+9. 上一篇和下一篇导航
+
+内容不存在时不要编造。题目原始约束、函数签名、输入布局和输出要求应优先依据 LeetGPU 题面。
+
+### 3. 代码规范
+
+- 代码源只写入 `src/data/code-samples.js`
+- 代码高亮只由 `npm run generate:code` 生成
+- 不手工编辑 `src/generated/highlighted-code.js`
+- CUDA 参考实现要明确区分 GPU kernel 与 CPU 端入口函数
+- 保留题目要求的函数签名
+- 数组访问必须解释索引推导和边界条件
+- 参考实现启用行号，并满足现有行号校验脚本
+- 示例输入输出使用纯文本代码块，保持 Vector Addition 的样式
+
+### 4. 图片规范
+
+- 页面图片放在 `public/`
+- 文件名使用小写 kebab-case，并包含题目 ID，例如 `vector-addition-template.png`
+- 页面中使用相对地址 `./文件名`
+- 必须提供准确的 `alt`
+- 使用项目现有的响应式图片样式
+- 本地构建后确认对应文件进入 `dist/`
+- 部署后直接请求线上图片 URL，确认返回 HTTP 200
+
+### 5. 文案与样式
+
+- 中文正文保持简洁、技术化，术语与 Vector Addition 页面一致
+- 遵守项目的中文句末标点检查
+- 优先复用现有 CSS 类；只有现有能力确实不足时才新增样式
+- 同时检查深色、浅色、桌面端和移动端表现
+- 删除功能时同步删除入口、事件、函数、样式和 README 描述，不保留死代码
+
+## 每次变更的强制流程
+
+### 阶段 A：变更前调查
+
+1. 运行 `git status -sb`，确认当前分支和工作区状态
+2. 阅读涉及文件，不覆盖用户已有的未提交修改
+3. 添加或修改题目时，对照 Vector Addition 的源码结构
+4. 涉及线上表现时，先查看当前线上页面，区分源代码问题、构建问题和部署延迟
+
+### 阶段 B：实现
+
+1. 修改最少的必要文件
+2. 保持题目 ID、代码 key、路由和资源路径一致
+3. 更新相关 README 或说明
+4. 若修改代码样例，通过生成脚本更新高亮产物
+
+### 阶段 C：本地验证
+
+依次执行：
+
+```bash
+git diff --check
+npm run build
+```
+
+并完成以下针对性检查：
+
+- 搜索被删除功能的旧标识，确认无残留
+- 检查 `dist/` 中新资源真实存在
+- 检查构建产物引用的资源路径正确
+- 对页面结构或样式变更，启动预览并实际查看目标路由
+- 检查浏览器控制台无资源 404 和运行时错误
+
+构建成功只证明产物可生成，不代表线上功能已经完成。
+
+### 阶段 D：提交与推送
+
+本项目默认在验证通过后自动提交并推送，不等待再次提醒：
+
+```bash
+git add <本次相关文件>
+git commit -m "<简洁且准确的变更说明>"
+git push origin main
+```
+
+规则：
+
+- 只提交本次任务相关文件
+- 不添加 AI 共同作者
+- 提交前再次运行 `git diff --check`
+- 推送后记录提交 SHA
+
+### 阶段 E：部署闭环
+
+推送不等于完成。必须继续检查由 `.github/workflows/deploy.yml` 触发的 GitHub Pages 工作流：
+
+1. 找到与刚才提交 SHA 对应的最新 Actions run
+2. 等待其状态从 `queued` / `in_progress` 变为 `completed`
+3. 确认 `conclusion` 为 `success`
+4. 访问目标页面并验证新内容真实出现
+5. 新增图片时，直接访问图片 URL 并确认 HTTP 200
+6. 若浏览器仍显示旧内容，使用带时间戳查询参数的页面或资源 URL排除 CDN/浏览器缓存
+7. 最后检查 `git status -sb`，确认本地与 `origin/main` 同步且工作区干净
+
+只有本地验证、提交推送、Actions 成功和线上验证全部完成，任务才算结束。
+
+## 失败处理
+
+- 本地构建失败：定位首个真实错误，修复后重新运行完整构建
+- Actions 失败：读取失败 job 和 step 日志，修复根因后重新提交推送
+- 页面更新但图片 404：检查 `public/`、`dist/`、引用路径以及部署版本是否包含该文件
+- Actions 成功但页面仍旧：比较线上构建资源 hash，并用 cache-busting URL 验证
+- 线上页面异常：继续修复、构建、提交、推送和验证，不把“已推送”当成完成状态
+
+## 完成汇报格式
+
+最终汇报只包含可核验结果：
+
+- 完成了哪些变更
+- 本地执行了哪些验证
+- 提交 SHA 和目标分支
+- GitHub Actions 运行结果
+- 实际验证过的线上页面或资源 URL
+- 工作区是否干净、是否与远端同步
