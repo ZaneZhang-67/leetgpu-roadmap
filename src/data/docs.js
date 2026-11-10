@@ -168,12 +168,13 @@ ${highlightedCode["vector-addition-example-2"]}
 <figure class="article-image">
   <img src="./vector-addition-template.png" alt="Vector Addition 模板代码，包含 GPU 上执行的 vector_add 和 CPU 端启动 kernel 的 solve" loading="lazy">
 </figure>
-<p>模板分成两部分：GPU 上执行的 <code>vector_add</code>，以及 CPU 端负责启动 kernel 的 <code>solve</code></p>
+<p>模板已经给出程序的外壳，需要补全的是 <code>vector_add</code> 的函数体</p>
 <ul>
-  <li><code>blockIdx.x</code> 表示当前 Block 编号，<code>threadIdx.x</code> 表示线程在 Block 内的编号</li>
-  <li><code>blockDim.x</code> 是每个 Block 的线程数用 <code>blockIdx.x * blockDim.x + threadIdx.x</code> 可以算出线程对应的全局下标</li>
-  <li><code>nx &lt; N</code> 用来拦住越界线程，因为最后一个 Block 不一定刚好填满</li>
-  <li><code>solve</code> 先确定 Block 大小，再向上取整计算 Block 数，最后启动 kernel 并等待 GPU 完成</li>
+  <li><code>vector_add</code> 由 <code>__global__</code> 修饰，是在 GPU 上执行的 kernel；当前函数体为空，题目要求在这里完成逐元素向量加法</li>
+  <li>参数 <code>A</code> 和 <code>B</code> 是两个输入向量，<code>C</code> 是输出向量，<code>N</code> 表示向量长度；这些指针都指向 GPU 显存</li>
+  <li><code>solve</code> 是平台提供的 CPU 端入口，已经设置每个 Block 使用 256 个线程，并根据 <code>N</code> 向上取整得到 Block 数</li>
+  <li><code>vector_add&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(A, B, C, N)</code> 负责启动 kernel，<code>cudaDeviceSynchronize()</code> 等待 GPU 执行完成</li>
+  <li>因此只需要编写 <code>vector_add</code> 内部逻辑，不要修改 <code>solve</code> 的函数签名和启动代码</li>
 </ul>`,
   url: "https://leetgpu.com/challenges/vector-addition",
   prompts: [],
