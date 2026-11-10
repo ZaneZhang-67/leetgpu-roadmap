@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" role="img" aria-labelledby="title desc">
+  <title id="title">矩阵乘法线程索引、边界判断与行列内积</title>
+  <desc id="desc">使用 A 三行四列、B 四行三列和 C 三行三列，解释线程如何计算 C[row,col]，如何访问 A 的第 row 行和 B 的第 col 列，以及为什么需要边界判断。</desc>
+  <defs>
+    <style>
+      text{font-family:"PingFang SC","Noto Sans SC",Arial,sans-serif;fill:#172b45}.title{font-size:34px;font-weight:700}.subtitle{font-size:19px;fill:#60738b}.section{font-size:24px;font-weight:700}.label{font-size:19px;font-weight:700}.small{font-size:15px;fill:#60738b}.code{font-family:"IBM Plex Mono",Menlo,monospace;font-size:18px}.cell{fill:#fff;stroke:#ced8e5;stroke-width:1.5}.focusA{fill:#e5f0fc;stroke:#2474c9;stroke-width:2}.focusB{fill:#e8f6f1;stroke:#167c82;stroke-width:2}.focusC{fill:#fff0ed;stroke:#bc615b;stroke-width:2}.panel{fill:#fff;stroke:#ced8e5;stroke-width:1.5}.noteBlue{fill:#e5f0fc}.noteRed{fill:#fff0ed}.noteGreen{fill:#e8f6f1}.mono{font-family:"IBM Plex Mono",Menlo,monospace}.idx{font-size:14px;fill:#60738b}.value{font-size:18px;font-weight:600}.arrow{fill:none;stroke:#8297af;stroke-width:2;marker-end:url(#arrow)}.dash{fill:none;stroke:#bc615b;stroke-width:2;stroke-dasharray:7 6;marker-end:url(#arrowRed)}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8297af"/></marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#bc615b"/></marker>
+  </defs>
+  <rect width="1800" height="1120" fill="#f7f9fc"/>
+  <text x="70" y="72" class="title">一个线程为什么这样计算 C[row, col]？</text>
+  <text x="70" y="108" class="subtitle">A(M×N) × B(N×K) = C(M×K)　示例：A(3×4) × B(4×3) = C(3×3)</text>
+
+  <rect x="70" y="145" width="1660" height="105" rx="14" class="panel"/>
+  <text x="100" y="182" class="section">① 线程先确定输出坐标</text>
+  <text x="100" y="218" class="code">col = blockIdx.x × blockDim.x + threadIdx.x　　row = blockIdx.y × blockDim.y + threadIdx.y</text>
+  <rect x="1115" y="166" width="375" height="58" rx="10" class="noteRed"/>
+  <text x="1140" y="190" class="label" fill="#bc615b">本例选中线程：row = 1，col = 2</text>
+  <text x="1140" y="214" class="small">它只负责计算并写回 C[1,2]</text>
+
+  <text x="85" y="310" class="section">矩阵 A（M×N = 3×4）</text>
+  <text x="585" y="310" class="section">矩阵 B（N×K = 4×3）</text>
+  <text x="1285" y="310" class="section">矩阵 C（M×K = 3×3）</text>
+  <text x="85" y="337" class="small">取第 row=1 行：A[1,i]</text>
+  <text x="585" y="337" class="small">取第 col=2 列：B[i,2]</text>
+  <text x="1285" y="337" class="small">写入交点：C[1,2]</text>
+
+  <!-- A matrix -->
+  <g transform="translate(85 365)">
+    <text x="-28" y="37" class="idx">0</text><text x="-28" y="97" class="idx">1</text><text x="-28" y="157" class="idx">2</text>
+    <text x="42" y="-10" class="idx">0</text><text x="122" y="-10" class="idx">1</text><text x="202" y="-10" class="idx">2</text><text x="282" y="-10" class="idx">3</text>
+    <g><rect width="80" height="60" class="cell"/><rect x="80" width="80" height="60" class="cell"/><rect x="160" width="80" height="60" class="cell"/><rect x="240" width="80" height="60" class="cell"/>
+      <rect y="60" width="80" height="60" class="focusA"/><rect x="80" y="60" width="80" height="60" class="focusA"/><rect x="160" y="60" width="80" height="60" class="focusA"/><rect x="240" y="60" width="80" height="60" class="focusA"/>
+      <rect y="120" width="80" height="60" class="cell"/><rect x="80" y="120" width="80" height="60" class="cell"/><rect x="160" y="120" width="80" height="60" class="cell"/><rect x="240" y="120" width="80" height="60" class="cell"/>
+    </g>
+    <g text-anchor="middle" class="value"><text x="40" y="38">a00</text><text x="120" y="38">a01</text><text x="200" y="38">a02</text><text x="280" y="38">a03</text><text x="40" y="98">a10</text><text x="120" y="98">a11</text><text x="200" y="98">a12</text><text x="280" y="98">a13</text><text x="40" y="158">a20</text><text x="120" y="158">a21</text><text x="200" y="158">a22</text><text x="280" y="158">a23</text></g>
+    <text x="0" y="218" class="code" fill="#2474c9">A[row × N + i]</text>
+    <text x="0" y="248" class="small">一行有 N=4 个元素，所以先跳过 row×N 个元素</text>
+  </g>
+
+  <!-- B matrix -->
+  <g transform="translate(585 365)">
+    <text x="-28" y="37" class="idx">0</text><text x="-28" y="97" class="idx">1</text><text x="-28" y="157" class="idx">2</text><text x="-28" y="217" class="idx">3</text>
+    <text x="42" y="-10" class="idx">0</text><text x="122" y="-10" class="idx">1</text><text x="202" y="-10" class="idx">2</text>
+    <g>
+      <rect width="80" height="60" class="cell"/><rect x="80" width="80" height="60" class="cell"/><rect x="160" width="80" height="60" class="focusB"/>
+      <rect y="60" width="80" height="60" class="cell"/><rect x="80" y="60" width="80" height="60" class="cell"/><rect x="160" y="60" width="80" height="60" class="focusB"/>
+      <rect y="120" width="80" height="60" class="cell"/><rect x="80" y="120" width="80" height="60" class="cell"/><rect x="160" y="120" width="80" height="60" class="focusB"/>
+      <rect y="180" width="80" height="60" class="cell"/><rect x="80" y="180" width="80" height="60" class="cell"/><rect x="160" y="180" width="80" height="60" class="focusB"/>
+    </g>
+    <g text-anchor="middle" class="value"><text x="40" y="38">b00</text><text x="120" y="38">b01</text><text x="200" y="38">b02</text><text x="40" y="98">b10</text><text x="120" y="98">b11</text><text x="200" y="98">b12</text><text x="40" y="158">b20</text><text x="120" y="158">b21</text><text x="200" y="158">b22</text><text x="40" y="218">b30</text><text x="120" y="218">b31</text><text x="200" y="218">b32</text></g>
+    <text x="0" y="278" class="code" fill="#167c82">B[i × K + col]</text>
+    <text x="0" y="308" class="small">每行有 K=3 个元素，第 i 行起点是 i×K</text>
+  </g>
+
+  <!-- C matrix -->
+  <g transform="translate(1085 365)">
+    <text x="-28" y="37" class="idx">0</text><text x="-28" y="97" class="idx">1</text><text x="-28" y="157" class="idx">2</text>
+    <text x="42" y="-10" class="idx">0</text><text x="122" y="-10" class="idx">1</text><text x="202" y="-10" class="idx">2</text>
+    <g><rect width="80" height="60" class="cell"/><rect x="80" width="80" height="60" class="cell"/><rect x="160" width="80" height="60" class="cell"/><rect y="60" width="80" height="60" class="cell"/><rect x="80" y="60" width="80" height="60" class="cell"/><rect x="160" y="60" width="80" height="60" class="focusC"/><rect y="120" width="80" height="60" class="cell"/><rect x="80" y="120" width="80" height="60" class="cell"/><rect x="160" y="120" width="80" height="60" class="cell"/></g>
+    <g text-anchor="middle" class="value"><text x="40" y="38">c00</text><text x="120" y="38">c01</text><text x="200" y="38">c02</text><text x="40" y="98">c10</text><text x="120" y="98">c11</text><text x="200" y="98" fill="#bc615b">c12</text><text x="40" y="158">c20</text><text x="120" y="158">c21</text><text x="200" y="158">c22</text></g>
+    <text x="0" y="218" class="code" fill="#bc615b">C[row × K + col]</text>
+    <text x="0" y="248" class="small">C 一行有 K=3 个元素，写入第 row 行、第 col 列</text>
+  </g>
+
+  <path d="M405 455 C475 455 500 420 565 420" class="arrow"/><path d="M825 485 C1010 485 1080 455 1265 455" class="arrow"/>
+
+  <rect x="70" y="690" width="1660" height="215" rx="14" class="panel"/>
+  <text x="100" y="730" class="section">② 沿公共维度 N 做内积：A 的第 row 行 × B 的第 col 列</text>
+  <text x="100" y="778" class="code">s = a10×b02 + a11×b12 + a12×b22 + a13×b32</text>
+  <text x="100" y="818" class="code">for (int i = 0; i &lt; N; i++)  s += A[row*N + i] * B[i*K + col];</text>
+  <rect x="100" y="846" width="1590" height="38" rx="8" class="noteBlue"/>
+  <text x="120" y="871" class="small">i 同时选择 A 第 row 行的第 i 个元素，以及 B 第 col 列的第 i 个元素；循环 N 次后得到一个标量，正好写入 C[row,col]</text>
+
+  <rect x="70" y="935" width="1660" height="135" rx="14" class="panel"/>
+  <text x="100" y="975" class="section">③ 为什么先判断 row &lt; M &amp;&amp; col &lt; K？</text>
+  <text x="100" y="1015" class="label">Grid 向上取整后，边缘 Block 可能产生超出 C(M×K) 的线程</text>
+  <text x="100" y="1048" class="small">合法线程才读取 A、B 并写 C；越界线程直接退出，避免访问不存在的行或列。N 不需要在线程边界中判断，因为 for 循环已经严格限制为 0 ≤ i &lt; N。</text>
+  <path d="M1590 980 C1650 980 1660 1000 1690 1020" class="dash"/>
+</svg>
