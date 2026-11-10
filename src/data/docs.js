@@ -177,7 +177,35 @@ ${highlightedCode["vector-addition-example-2"]}
   <li><code>threadsPerBlock = 256</code> 表示每个 Block 启动 256 个线程</li>
   <li><code>blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock</code> 通过向上取整计算 Block 数，确保线程总数能够覆盖全部元素</li>
   <li><code>vector_add&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(A, B, C, N)</code> 启动 kernel，<code>cudaDeviceSynchronize()</code> 等待 GPU 执行完成</li>
-</ul>`,
+</ul>
+<h2 id="implementation">实现思路</h2>
+<p>向量加法中，每个输出元素都可以独立计算：<code>C[i] = A[i] + B[i]</code>因此，可以让一个 GPU 线程负责一个元素每个线程只需要确定自己负责的下标、检查下标是否有效，再执行一次加法</p>
+<h3>1. 计算全局下标</h3>
+<p>CUDA 将线程组织成 Grid、Block 和 Thread当前线程在整个 Grid 中对应的全局下标为：</p>
+${highlightedCode["vector-addition-index"]}
+<ul>
+  <li><code>blockIdx.x</code>：当前 Block 在 Grid 中的编号</li>
+  <li><code>blockDim.x</code>：每个 Block 包含的线程数</li>
+  <li><code>threadIdx.x</code>：当前线程在 Block 内的编号</li>
+</ul>
+<p>例如，每个 Block 有 256 个线程，那么 Block 0 负责下标 <code>0～255</code>，Block 1 负责 <code>256～511</code>，依次类推</p>
+<h3>2. 检查边界</h3>
+<p>Block 数通过向上取整计算：</p>
+${highlightedCode["vector-addition-grid-size"]}
+<p>这样可以保证线程总数覆盖全部 <code>N</code> 个元素，但最后一个 Block 中可能有部分线程没有对应的数据例如，<code>N = 1000</code>、每个 Block 有 256 个线程时，会启动 1024 个线程</p>
+<p>因此，每个线程访问数组之前都要检查：</p>
+${highlightedCode["vector-addition-boundary"]}
+<p>缺少这个判断时，多余线程会访问数组范围之外的显存</p>
+<h3>3. 执行逐元素加法</h3>
+<p>通过边界检查后，线程读取 <code>A[i]</code> 和 <code>B[i]</code>，将结果写入 <code>C[i]</code>：</p>
+${highlightedCode["vector-addition-operation"]}
+<p>不同线程处理不同的下标，线程之间没有数据依赖，也不需要同步</p>
+<h3>4. 完整映射</h3>
+${highlightedCode["vector-addition-mapping"]}
+<p>这道题的核心，是把原本由 CPU 循环完成的逐元素计算映射到 GPU 线程：</p>
+${highlightedCode["vector-addition-cpu"]}
+<p>转换为：</p>
+${highlightedCode["vector-addition-gpu"]}`,
   url: "https://leetgpu.com/challenges/vector-addition",
   prompts: [],
   explanation: "",

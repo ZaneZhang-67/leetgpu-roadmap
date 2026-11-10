@@ -43,6 +43,65 @@ extern "C" void solve(const float* A, const float* B, float* C, int N) {
     cudaDeviceSynchronize();
 }`,
   },
+  "vector-addition-index": {
+    fileName: "全局下标",
+    label: "CUDA C++",
+    language: "cpp",
+    lineNumbers: true,
+    code: `int i = blockIdx.x * blockDim.x + threadIdx.x;`,
+  },
+  "vector-addition-grid-size": {
+    fileName: "Grid 大小",
+    label: "CUDA C++",
+    language: "cpp",
+    lineNumbers: true,
+    code: `int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;`,
+  },
+  "vector-addition-boundary": {
+    fileName: "边界检查",
+    label: "CUDA C++",
+    language: "cpp",
+    lineNumbers: true,
+    code: `if (i < N)`,
+  },
+  "vector-addition-operation": {
+    fileName: "逐元素加法",
+    label: "CUDA C++",
+    language: "cpp",
+    lineNumbers: true,
+    code: `C[i] = A[i] + B[i];`,
+  },
+  "vector-addition-mapping": {
+    fileName: "线程映射",
+    label: "示意",
+    language: "text",
+    plain: true,
+    code: `线程 0  → C[0] = A[0] + B[0]
+线程 1  → C[1] = A[1] + B[1]
+线程 2  → C[2] = A[2] + B[2]
+...
+线程 i  → C[i] = A[i] + B[i]`,
+  },
+  "vector-addition-cpu": {
+    fileName: "CPU 写法",
+    label: "C++",
+    language: "cpp",
+    lineNumbers: true,
+    code: `for (int i = 0; i < N; ++i) {
+    C[i] = A[i] + B[i];
+}`,
+  },
+  "vector-addition-gpu": {
+    fileName: "GPU 写法",
+    label: "CUDA C++",
+    language: "cpp",
+    lineNumbers: true,
+    code: `int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+if (i < N) {
+    C[i] = A[i] + B[i];
+}`,
+  },
   "value-clipping": {
     fileName: "value_clipping.cu",
     label: "CUDA C++",
