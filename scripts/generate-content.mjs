@@ -10,34 +10,37 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..")
 const files = await fg("content/problems/*.md", { cwd: root, absolute: true })
 const pages = {}
 
+const languageLabels = {
+  cpp: "CUDA C++",
+  c: "C",
+  text: "文本",
+  bash: "Shell",
+  json: "JSON",
+  yaml: "YAML",
+}
+
+function escapeHtml(value = "") {
+  return String(value).replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+}
+
+function codeTitle(language, index) {
+  if (language === "text") return "输入 / 输出"
+  if (language === "cpp") return index === 1 ? "参考代码" : "代码片段"
+  return "代码"
+}
+
+function codeBlockHtml({ id, code, language, index }) {
+  const codeId = `${id}-markdown-code-${index}`
+  const fileName = codeTitle(language, index)
+  const label = languageLabels[language] || language.toUpperCase()
+  return { codeId, fileName, label, code }
+}
+
 const renderer = new marked.Renderer()
 renderer.image = ({ href, title, text }) => {
   const normalized = href.replace(/^\.\.\/\.\.\/public\//, "./")
   const titleAttribute = title ? ` title="${escapeHtml(title)}"` : ""
   return `<img class="article-image" src="${escapeHtml(normalized)}" alt="${escapeHtml(text)}"${titleAttribute} loading="lazy">`
-}
-
-marked.use({
-  gfm: true,
-  renderer,
-  async: true,
-  walkTokens: async (token) => {
-    if (token.type !== "code") return
-    token.escaped = true
-    token.text = await codeToHtml(token.text, {
-      lang: token.lang || "text",
-      themes: { light: "light-plus", dark: "dark-plus" },
-      defaultColor: false,
-      transformers: token.lang === "text" ? [{ pre(node) { this.addClassToHast(node, "plain-code") } }] : [{
-        pre(node) { this.addClassToHast(node, "has-line-numbers") },
-        line(node, line) { node.properties["data-line"] = line },
-      }],
-    })
-  },
-})
-
-function escapeHtml(value = "") {
-  return String(value).replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
 }
 
 for (const file of files) {
@@ -49,8 +52,37 @@ for (const file of files) {
   if (pages[data.id]) throw new Error(`题目 ID 重复：${data.id}`)
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.id)) throw new Error(`${relative(root, file)} 的 id 必须使用小写 kebab-case`)
 
-  let html = await marked.parse(content)
-  html = html.replace(/<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>/g, (_, value) => value)
+  let codeIndex = 0
+  const markdownCode = {}
+  renderer.code = async ({ text, lang }) => {
+    codeIndex += 1
+    const language = lang || "text"
+    const block = codeBlockHtml({ id: data.id, code: text, language, index: codeIndex })
+    markdownCode[block.codeId] = text
+    const highlighted = await codeToHtml(text, {
+      lang: language,
+      themes: { light: "light-plus", dark: "dark-plus" },
+      defaultColor: false,
+      transformers: [
+        ...(language === "text" ? [{ pre(node) { this.addClassToHast(node, "plain-code") } }] : []),
+        ...(language !== "text" ? [{
+          pre(node) { this.addClassToHast(node, "has-line-numbers") },
+          line(node, line) { node.properties["data-line"] = line },
+        }] : []),
+      ],
+    })
+    return `<div class="code-block" data-code-id="${block.codeId}">
+  <div class="code-block-header">
+    <span class="code-file">${escapeHtml(block.fileName)}</span>
+    <span class="code-language">${escapeHtml(block.label)}</span>
+    <button class="copy-code-button" type="button" data-copy-code="${block.codeId}" aria-label="复制 ${escapeHtml(block.fileName)}">复制</button>
+  </div>
+  <div class="code-block-body">${highlighted}</div>
+</div>`
+  }
+
+  marked.use({ gfm: true, renderer, async: true })
+  const html = await marked.parse(content)
   pages[data.id] = {
     title: `${data.titleEn}（${data.titleZh}）`,
     titleEn: data.titleEn,
@@ -59,6 +91,7 @@ for (const file of files) {
     problemId: data.id,
     problemUrl: data.problemUrl,
     updatedAt: data.updatedAt || "",
+    markdownCode,
     body: html,
   }
 }

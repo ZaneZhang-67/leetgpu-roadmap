@@ -125,9 +125,12 @@ function bind() {
   document.querySelector("#theme-toggle")?.addEventListener("click", toggleTheme);
   document.querySelectorAll("[data-copy-code]").forEach((button) => {
     button.addEventListener("click", async () => {
-      const sample = codeSamples[button.dataset.copyCode]
-      if (!sample) return
-      await navigator.clipboard.writeText(sample.code)
+      const codeId = button.dataset.copyCode
+      const sample = codeSamples[codeId]
+      const markdownCode = pages[routeId()]?.markdownCode?.[codeId]
+      const code = sample?.code || markdownCode
+      if (!code) return
+      await navigator.clipboard.writeText(code)
       const original = button.textContent
       button.textContent = "已复制"
       button.classList.add("copied")
