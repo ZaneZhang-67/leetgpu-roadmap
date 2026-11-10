@@ -84,7 +84,7 @@ function shell(id) {
             ${previous ? `<a href="#/${previous.id}" class="prev"><small>上一篇</small><span>← ${previous.title}</span></a>` : "<span></span>"}
             ${next ? `<a href="#/${next.id}" class="next"><small>下一篇</small><span>${next.title} →</span></a>` : ""}
           </div>
-          <div class="article-footer"><span>最后更新：2026-11-09</span><a href="https://github.com/ZaneZhang-67/leetgpu-roadmap" target="_blank" rel="noreferrer">在 GitHub 上查看源码</a></div>
+          <div class="article-footer"><span>最后更新：${page.updatedAt || "2026-11-09"}</span><a href="https://github.com/ZaneZhang-67/leetgpu-roadmap" target="_blank" rel="noreferrer">在 GitHub 上查看源码</a></div>
         </article>
         <aside class="toc"><strong>本页目录</strong><nav id="toc-list"></nav></aside>
       </main>

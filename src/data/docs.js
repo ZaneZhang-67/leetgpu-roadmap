@@ -1,4 +1,5 @@
 import { highlightedCode } from "../generated/highlighted-code.js"
+import { markdownPages } from "../generated/markdown-pages.js"
 
 export const sections = [
   {
@@ -140,76 +141,7 @@ ${mappingSection}
   };
 }
 
-pages["vector-addition"] = problemPage({
-  id: "vector-addition",
-  title: "Vector Addition（向量加法）",
-  titleEn: "Vector Addition",
-  description: "编写一个 GPU 程序，对两个包含 32 位浮点数的向量执行逐元素加法程序接收两个长度相同的输入向量，并生成一个包含它们之和的输出向量",
-  formula: "C[i] = A[i] + B[i]，0 ≤ i < N",
-  originalSpec: `
-<h3>实现要求</h3>
-<ul>
-  <li>不允许使用外部库</li>
-  <li><code>solve</code> 函数签名必须保持不变</li>
-  <li>最终结果必须存储在向量 <code>C</code> 中</li>
-</ul>
-<h3>示例 1</h3>
-${highlightedCode["vector-addition-example-1"]}
-<h3>示例 2</h3>
-${highlightedCode["vector-addition-example-2"]}
-<h3>约束</h3>
-<ul>
-  <li>输入向量 <code>A</code> 和 <code>B</code> 的长度相同</li>
-  <li><code>1 ≤ N ≤ 100,000,000</code></li>
-  <li>性能测试使用 <code>N = 25,000,000</code></li>
-</ul>`,
-  templateAnalysis: `
-<h2 id="template-analysis">模板代码解析</h2>
-<figure class="article-image">
-  <img src="./vector-addition-template.png" alt="Vector Addition 模板代码，包含 GPU 上执行的 vector_add 和 CPU 端启动 kernel 的 solve" loading="lazy">
-</figure>
-<p>模板已经提供了完整的调用框架，只需补全 <code>vector_add</code> 的函数体</p>
-<ul>
-  <li><code>vector_add</code> 由 <code>__global__</code> 修饰，是在 GPU 上执行的 kernel</li>
-  <li><code>A</code> 和 <code>B</code> 是输入向量，<code>C</code> 是输出向量，对应公式 <code>C = A + B</code>；<code>N</code> 表示向量长度</li>
-  <li><code>A</code>、<code>B</code>、<code>C</code> 都指向 GPU 显存，其中 <code>A</code> 和 <code>B</code> 带有 <code>const</code>，表示只读</li>
-  <li><code>extern &quot;C&quot;</code> 让 <code>solve</code> 使用 C 语言的链接方式，避免 C++ 改写函数名，便于评测平台找到并调用它；这里的 <code>&quot;C&quot;</code> 与输出向量 <code>C</code> 无关</li>
-  <li><code>threadsPerBlock = 256</code> 表示每个 Block 启动 256 个线程</li>
-  <li><code>blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock</code> 通过向上取整计算 Block 数，确保线程总数能够覆盖全部元素</li>
-  <li><code>vector_add&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(A, B, C, N)</code> 启动 kernel，<code>cudaDeviceSynchronize()</code> 等待 GPU 执行完成</li>
-</ul>
-<h2 id="implementation">实现思路</h2>
-<p>向量加法中，每个输出元素都可以独立计算：<code>C[i] = A[i] + B[i]</code>因此，可以让一个 GPU 线程负责一个元素每个线程只需要确定自己负责的下标、检查下标是否有效，再执行一次加法</p>
-<h3>1. 计算全局下标</h3>
-<p>CUDA 将线程组织成 Grid、Block 和 Thread当前线程在整个 Grid 中对应的全局下标为：</p>
-${highlightedCode["vector-addition-index"]}
-<ul>
-  <li><code>blockIdx.x</code>：当前 Block 在 Grid 中的编号</li>
-  <li><code>blockDim.x</code>：每个 Block 包含的线程数</li>
-  <li><code>threadIdx.x</code>：当前线程在 Block 内的编号</li>
-</ul>
-<p>例如，每个 Block 有 256 个线程，那么 Block 0 负责下标 <code>0～255</code>，Block 1 负责 <code>256～511</code>，依次类推</p>
-<h3>2. 检查边界</h3>
-<p>Block 数通过向上取整计算：</p>
-${highlightedCode["vector-addition-grid-size"]}
-<p>这样可以保证线程总数覆盖全部 <code>N</code> 个元素，但最后一个 Block 中可能有部分线程没有对应的数据例如，<code>N = 1000</code>、每个 Block 有 256 个线程时，会启动 1024 个线程</p>
-<p>因此，每个线程访问数组之前都要检查：</p>
-${highlightedCode["vector-addition-boundary"]}
-<p>缺少这个判断时，多余线程会访问数组范围之外的显存</p>
-<h3>3. 执行逐元素加法</h3>
-<p>通过边界检查后，线程读取 <code>A[i]</code> 和 <code>B[i]</code>，将结果写入 <code>C[i]</code>：</p>
-${highlightedCode["vector-addition-operation"]}
-<p>不同线程处理不同的下标，线程之间没有数据依赖，也不需要同步</p>
-<h3>4. 完整映射</h3>
-${highlightedCode["vector-addition-mapping"]}
-<p>这道题的核心，是把原本由 CPU 循环完成的逐元素计算映射到 GPU 线程：</p>
-${highlightedCode["vector-addition-cpu"]}
-<p>转换为：</p>
-${highlightedCode["vector-addition-gpu"]}`,
-  url: "https://leetgpu.com/challenges/vector-addition",
-  prompts: [],
-  explanation: "",
-});
+Object.assign(pages, markdownPages)
 
 pages["value-clipping"] = problemPage({
   id: "value-clipping",

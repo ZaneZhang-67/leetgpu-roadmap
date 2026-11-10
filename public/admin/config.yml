@@ -1,0 +1,33 @@
+backend:
+  name: github
+  repo: ZaneZhang-67/leetgpu-roadmap
+  branch: main
+  use_graphql: true
+
+locale: zh_Hans
+site_url: https://zanezhang-67.github.io/leetgpu-roadmap/
+display_url: https://zanezhang-67.github.io/leetgpu-roadmap/
+logo_url: https://zanezhang-67.github.io/leetgpu-roadmap/vector-addition-template.png
+publish_mode: simple
+media_folder: public/uploads
+public_folder: ./uploads
+
+collections:
+  - name: problems
+    label: 题目文章
+    label_singular: 题目文章
+    folder: content/problems
+    create: true
+    extension: md
+    format: frontmatter
+    slug: "{{fields.id}}"
+    identifier_field: id
+    summary: "{{titleEn}}（{{titleZh}}）"
+    fields:
+      - { label: 题目 ID, name: id, widget: string, hint: 使用小写 kebab-case，例如 vector-addition }
+      - { label: 英文题名, name: titleEn, widget: string }
+      - { label: 中文题名, name: titleZh, widget: string }
+      - { label: 页面摘要, name: description, widget: text }
+      - { label: LeetGPU 链接, name: problemUrl, widget: string }
+      - { label: 更新日期, name: updatedAt, widget: datetime, date_format: YYYY-MM-DD, time_format: false, format: YYYY-MM-DD }
+      - { label: 正文, name: body, widget: markdown, modes: [rich_text, raw] }

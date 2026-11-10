@@ -39,6 +39,31 @@ pnpm run preview
 
 `vite.config.js` 使用相对资源路径，因此用户主页和项目主页都可以部署
 
+## 在线编辑文章
+
+题目正文保存在 `content/problems/*.md`，可以直接通过 GitHub 网页或 [github.dev](https://github.dev/ZaneZhang-67/leetgpu-roadmap) 编辑
+
+站点同时提供 Decap CMS 后台：
+
+```text
+https://zanezhang-67.github.io/leetgpu-roadmap/admin/
+```
+
+后台字段定义位于 `public/admin/config.yml`保存文章后，Decap CMS 会提交 Markdown 文件到 `main` 分支，并触发 GitHub Pages 自动部署
+
+GitHub 后端登录需要 OAuth 服务首次启用时，按 [Decap CMS 的 GitHub 后端文档](https://decapcms.org/docs/github-backend/) 配置 GitHub OAuth App，并在 `public/admin/config.yml` 的 `backend` 中填写 OAuth 服务的 `base_url` 与 `auth_endpoint`本地编辑内容时可以直接修改 Markdown 并运行构建，无需登录 CMS
+
+Markdown 文件的 front matter 必须包含：
+
+- `id`
+- `titleEn`
+- `titleZh`
+- `description`
+- `problemUrl`
+- `updatedAt`
+
+构建时，`scripts/generate-content.mjs` 会把 Markdown 和代码块转换为 `src/generated/markdown-pages.js`，该生成文件不要手工修改
+
 ## 修改题单
 
 题目数据位于：
