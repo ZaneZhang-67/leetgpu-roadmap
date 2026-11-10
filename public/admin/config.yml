@@ -3,6 +3,9 @@ backend:
   repo: ZaneZhang-67/leetgpu-roadmap
   branch: main
   use_graphql: true
+  base_url: https://leetgpu-cms-oauth.gcomfident.workers.dev
+  auth_endpoint: auth
+  site_domain: zanezhang-67.github.io
 
 locale: zh_Hans
 site_url: https://zanezhang-67.github.io/leetgpu-roadmap/
