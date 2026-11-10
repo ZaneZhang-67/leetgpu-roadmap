@@ -6,6 +6,8 @@ const extensions = new Set([".js", ".md", ".html"]);
 const violations = [];
 
 function inspect(path) {
+  // Generated files preserve CMS article text; check only hand-written source here.
+  if (path.split(/[\\/]/).includes("generated")) return;
   if (statSync(path).isDirectory()) {
     for (const name of readdirSync(path)) inspect(join(path, name));
     return;

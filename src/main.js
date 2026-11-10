@@ -1,11 +1,10 @@
 import "./styles.css";
-import { sections, pages, flatPages } from "./data/docs.js";
-import { codeSamples } from "./data/code-samples.js";
-import { problems, starterProgress } from "./data/problems.js";
+import { navigation, pages, defaultPageId } from "./data/docs.js";
+import { starterProgress } from "./data/problems.js";
 import { loadProgress, saveProgress } from "./utils/progress.js";
 
 const app = document.querySelector("#app");
-const allPages = flatPages();
+const allPages = navigation;
 let progress = loadProgress(starterProgress);
 let sidebarOpen = false;
 let searchOpen = false;
@@ -21,7 +20,7 @@ const icons = {
 
 function routeId() {
   const id = location.hash.replace(/^#\/?/, "").split("?")[0];
-  return pages[id] ? id : "overview";
+  return Object.hasOwn(pages, id) ? id : defaultPageId;
 }
 
 function pageIndex(id) {
@@ -38,8 +37,8 @@ function shell(id) {
   app.innerHTML = `
     <header class="topbar">
       <button class="icon-button mobile-menu" id="mobile-menu" aria-label="打开目录">${icons.menu}</button>
-      <a href="#/overview" class="site-logo"><span class="logo-cube">K</span><span><strong>Kernel 随想录</strong><small>LEETGPU 系统学习路线</small></span></a>
-      <nav><a href="#/overview">学习路线</a><a href="#/interview">面试复习</a></nav>
+      <a href="#/${defaultPageId}" class="site-logo"><span class="logo-cube">K</span><span><strong>Kernel 随想录</strong><small>LEETGPU 系统学习路线</small></span></a>
+      <nav>${allPages.map((item) => `<a href="#/${item.id}">${item.title}</a>`).join("")}</nav>
       <div class="top-actions">
         <button class="search-trigger" id="search-trigger">${icons.search}<span>搜索文档</span><kbd>⌘ K</kbd></button>
         <button class="icon-button" id="theme-toggle" aria-label="切换主题">${icons.moon}</button>
@@ -49,15 +48,13 @@ function shell(id) {
     <div class="docs-layout">
       <aside class="sidebar ${sidebarOpen ? "open" : ""}">
         <div class="sidebar-head"><span>教程目录</span><button id="close-sidebar">${icons.close}</button></div>
-        <nav class="sidebar-nav">${sections.map((section) => `
-          <section><h3>${section.title}</h3>${section.pages.map((item) => `<a class="${item.id === id ? "active" : ""}" href="#/${item.id}"><span>${item.title}</span>${progress[item.id]?.status === "done" ? icons.check : ""}</a>`).join("")}</section>
-        `).join("")}</nav>
-        <div class="sidebar-progress"><div><span>路线进度</span><strong>${completedCount()} / ${problems.length}</strong></div><i><b style="width:${Math.round(completedCount()/problems.length*100)}%"></b></i></div>
+        <nav class="sidebar-nav">${allPages.map((item) => `<a class="${item.id === id ? "active" : ""}" href="#/${item.id}"><span>${item.title}</span>${progress[pages[item.id].problemId]?.status === "done" ? icons.check : ""}</a>`).join("")}</nav>
+        <div class="sidebar-progress"><div><span>路线进度</span><strong>${completedCount()} / ${allPages.length}</strong></div><i><b style="width:${Math.round(completedCount()/allPages.length*100)}%"></b></i></div>
       </aside>
       <div class="sidebar-mask ${sidebarOpen ? "show" : ""}" id="sidebar-mask"></div>
       <main class="doc-main">
         <article class="article">
-          <div class="breadcrumb"><a href="#/overview">Kernel 随想录</a><span>›</span><span>${allPages[index]?.section || "学习路线"}</span></div>
+          <div class="breadcrumb"><a href="#/${defaultPageId}">Kernel 随想录</a><span>›</span><span>${allPages[index].title}</span></div>
           ${page.problemId ? `
           <div class="problem-hero">
             <div class="problem-heading">
@@ -79,7 +76,7 @@ function shell(id) {
             <div class="article-title-main"><h1>${page.title}<a class="heading-anchor" href="#/${id}">#</a></h1></div>
           </div>
           <p class="lead">${page.description}</p>`}
-          <div class="article-body">${specialPage(id) || page.body}</div>
+          <div class="article-body">${page.body}</div>
           <div class="page-nav">
             ${previous ? `<a href="#/${previous.id}" class="prev"><small>上一篇</small><span>← ${previous.title}</span></a>` : "<span></span>"}
             ${next ? `<a href="#/${next.id}" class="next"><small>下一篇</small><span>${next.title} →</span></a>` : ""}
@@ -96,17 +93,8 @@ function shell(id) {
   `;
 }
 
-function specialPage(id) {
-  if (id === "interview") return interviewMarkup();
-  return "";
-}
-
-function interviewMarkup() {
-  return `<h2 id="index">线程与索引</h2><ul><li>怎样推导一维和二维全局索引？</li><li>为什么 block 数向上取整后需要边界判断？</li><li>一个 warp 包含多少线程？</li></ul><h2 id="memory">访存</h2><ul><li>什么是合并访存？</li><li>shared memory 解决了什么问题？</li><li>什么是 bank conflict？</li></ul><h2 id="gemm">GEMM</h2><ul><li>朴素 GEMM 为什么慢？</li><li>block tiling 和 thread tiling 分别复用什么？</li><li>W8A8 为什么用 INT32 累加？</li></ul>`;
-}
-
 function completedCount() {
-  return problems.filter((p) => progress[p.id]?.status === "done").length;
+  return allPages.filter((page) => progress[pages[page.id].problemId]?.status === "done").length;
 }
 
 function renderToc() {
@@ -126,9 +114,7 @@ function bind() {
   document.querySelectorAll("[data-copy-code]").forEach((button) => {
     button.addEventListener("click", async () => {
       const codeId = button.dataset.copyCode
-      const sample = codeSamples[codeId]
-      const markdownCode = pages[routeId()]?.markdownCode?.[codeId]
-      const code = sample?.code || markdownCode
+      const code = pages[routeId()]?.markdownCode?.[codeId]
       if (!code) return
       await navigator.clipboard.writeText(code)
       const original = button.textContent
@@ -161,7 +147,7 @@ function bindSearchInput() {
     const q = input.value.trim().toLowerCase(); const results = document.querySelector("#search-results");
     if (!q) { results.innerHTML = "<p>输入关键词搜索教程</p>"; return; }
     const found = allPages.filter((x) => `${x.title} ${pages[x.id].description} ${pages[x.id].body.replace(/<[^>]+>/g," ")}`.toLowerCase().includes(q)).slice(0,10);
-    results.innerHTML = found.length ? found.map((x) => `<a href="#/${x.id}"><small>${x.section}</small><strong>${x.title}</strong><span>${pages[x.id].description}</span></a>`).join("") : "<p>没有搜索结果</p>";
+    results.innerHTML = found.length ? found.map((x) => `<a href="#/${x.id}"><strong>${x.title}</strong><span>${pages[x.id].description}</span></a>`).join("") : "<p>没有搜索结果</p>";
     results.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => { searchOpen = false; }));
   });
 }
@@ -172,5 +158,5 @@ function render() { shell(routeId()); bind(); }
 if (localStorage.getItem("kernel-doc-theme") === "light") document.documentElement.classList.add("light");
 window.addEventListener("hashchange", () => { sidebarOpen = false; searchOpen = false; window.scrollTo(0,0); render(); });
 window.addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); openSearch(); } if (e.key === "Escape" && searchOpen) closeSearch(); });
-if (!location.hash) history.replaceState(null, "", "#/overview");
+if (!location.hash) history.replaceState(null, "", `#/${defaultPageId}`);
 render();

@@ -11,7 +11,8 @@
     "check:line-numbers": "node scripts/check-reference-line-numbers.mjs",
     "generate:code": "node scripts/generate-highlighted-code.mjs",
     "generate:content": "node scripts/generate-content.mjs",
-    "build": "npm run check:punctuation && npm run generate:code && npm run generate:content && npm run check:code-blocks && npm run check:line-numbers && vite build",
+    "check:navigation": "node scripts/check-article-navigation.mjs",
+    "build": "npm run check:punctuation && npm run generate:code && npm run generate:content && npm run check:navigation && npm run check:code-blocks && npm run check:line-numbers && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {

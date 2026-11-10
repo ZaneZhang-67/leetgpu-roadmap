@@ -4,8 +4,8 @@
 
 ## 功能
 
-- 五阶段 CUDA / GPU 算子学习路线
-- LeetGPU 题单、思考提示和复盘要点
+- 文章目录仅保留 Vector Addition（向量加法）和朴素 GEMM
+- 左侧目录、站内搜索和上一篇 / 下一篇导航使用同一份文章列表
 - 未开始 / 进行中 / 已完成状态管理
 - 本地学习笔记
 - 独立的 LeetGPU 年度绿点热力图
@@ -63,6 +63,12 @@ Markdown 文件的 front matter 必须包含：
 - `updatedAt`
 
 构建时，`scripts/generate-content.mjs` 会把 Markdown 和代码块转换为 `src/generated/markdown-pages.js`，该生成文件不要手工修改
+
+## 修改文章目录
+
+`src/data/docs.js` 中的 `navigation` 决定左侧目录、站内搜索和上下篇顺序，当前只有 `vector-addition` 与 `naive-gemm`
+
+首页默认打开 Vector Addition，路线进度只统计目录中的两篇文章；文章正文和图片不受目录调整影响
 
 ## 修改题单
 
