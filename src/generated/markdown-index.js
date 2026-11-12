@@ -919,6 +919,166 @@ export const markdownPages = {
     "problemId": "decaying-causal-attention",
     "problemUrl": "https://leetgpu.com/challenges/decaying-causal-attention",
     "updatedAt": "2026-11-12"
+  },
+  "llama-transformer-block": {
+    "leetgpuId": 93,
+    "title": "Llama Transformer Block（Llama Transformer 块）",
+    "titleEn": "Llama Transformer Block",
+    "titleZh": "Llama Transformer 块",
+    "description": "复现固定维度 Llama 块的 RMSNorm、RoPE、因果 GQA、SwiGLU 与两次残差连接",
+    "problemId": "llama-transformer-block",
+    "problemUrl": "https://leetgpu.com/challenges/llama-transformer-block",
+    "updatedAt": "2026-11-12"
+  },
+  "ssm-selective-scan": {
+    "leetgpuId": 94,
+    "title": "SSM Selective Scan（SSM 选择性扫描）",
+    "titleEn": "SSM Selective Scan",
+    "titleZh": "SSM 选择性扫描",
+    "description": "使用 CUDA 按序列顺序计算输入相关离散化、隐藏状态递推、状态投影和残差分支",
+    "problemId": "ssm-selective-scan",
+    "problemUrl": "https://leetgpu.com/challenges/ssm-selective-scan",
+    "updatedAt": "2026-11-12"
+  },
+  "turboquant-kv-cache-attention": {
+    "leetgpuId": 95,
+    "title": "TurboQuant KV Cache Attention（TurboQuant KV Cache 注意力）",
+    "titleEn": "TurboQuant KV Cache Attention",
+    "titleZh": "TurboQuant KV Cache 注意力",
+    "description": "从码本索引和 QJL 符号残差重建压缩 Key，并计算未缩放的注意力分数",
+    "problemId": "turboquant-kv-cache-attention",
+    "problemUrl": "https://leetgpu.com/challenges/turboquant-kv-cache-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "int8-kv-cache-attention": {
+    "leetgpuId": 96,
+    "title": "INT8 KV-Cache Attention（INT8 KV Cache 注意力）",
+    "titleEn": "INT8 KV-Cache Attention",
+    "titleZh": "INT8 KV Cache 注意力",
+    "description": "使用 CUDA 在线 Softmax 计算带逐 Token 缩放的 INT8 KV Cache 解码注意力",
+    "problemId": "int8-kv-cache-attention",
+    "problemUrl": "https://leetgpu.com/challenges/int8-kv-cache-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "beam-search-step": {
+    "leetgpuId": 98,
+    "title": "Beam Search Step（Beam Search 单步扩展）",
+    "titleEn": "Beam Search Step",
+    "titleZh": "Beam Search 单步扩展",
+    "description": "使用 CUDA 并行扫描候选并选出每个 Batch 的 Top-K Beam",
+    "problemId": "beam-search-step",
+    "problemUrl": "https://leetgpu.com/challenges/beam-search-step",
+    "updatedAt": "2026-11-12"
+  },
+  "grouped-gemm": {
+    "leetgpuId": 99,
+    "title": "Grouped GEMM（分组矩阵乘法）",
+    "titleEn": "Grouped GEMM",
+    "titleZh": "分组矩阵乘法",
+    "description": "使用 CUDA tiled GEMM 为连续行组选择各自权重矩阵",
+    "problemId": "grouped-gemm",
+    "problemUrl": "https://leetgpu.com/challenges/grouped-gemm",
+    "updatedAt": "2026-11-12"
+  },
+  "n-body-gravitational-force": {
+    "leetgpuId": 101,
+    "title": "N-body Gravitational Force（N 体引力）",
+    "titleEn": "N-body Gravitational Force",
+    "titleZh": "N 体引力",
+    "description": "使用 CUDA 计算三维粒子之间带软化项的全对全引力",
+    "problemId": "n-body-gravitational-force",
+    "problemUrl": "https://leetgpu.com/challenges/n-body-gravitational-force",
+    "updatedAt": "2026-11-12"
+  },
+  "variable-length-causal-attention": {
+    "leetgpuId": 102,
+    "title": "Variable-Length Causal Attention（变长因果注意力）",
+    "titleEn": "Variable-Length Causal Attention",
+    "titleZh": "变长因果注意力",
+    "description": "根据累计序列长度在紧凑批次内执行序列隔离的因果缩放点积注意力",
+    "problemId": "variable-length-causal-attention",
+    "problemUrl": "https://leetgpu.com/challenges/variable-length-causal-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "hadamard-transform": {
+    "leetgpuId": 103,
+    "title": "Hadamard Transform（哈达玛变换）",
+    "titleEn": "Hadamard Transform",
+    "titleZh": "哈达玛变换",
+    "description": "使用 CUDA 蝶形运算对批量 FP32 行执行正交 Walsh–Hadamard 变换",
+    "problemId": "hadamard-transform",
+    "problemUrl": "https://leetgpu.com/challenges/hadamard-transform",
+    "updatedAt": "2026-11-12"
+  },
+  "min-p-sampling": {
+    "leetgpuId": 104,
+    "title": "Min-P Sampling（Min-P 采样概率过滤）",
+    "titleEn": "Min-P Sampling",
+    "titleZh": "Min-P 采样概率过滤",
+    "description": "按每行最大概率的相对阈值过滤 logits，并重新归一化保留项",
+    "problemId": "min-p-sampling",
+    "problemUrl": "https://leetgpu.com/challenges/min-p-sampling",
+    "updatedAt": "2026-11-12"
+  },
+  "group-normalization": {
+    "leetgpuId": 105,
+    "title": "Group Normalization（组归一化）",
+    "titleEn": "Group Normalization",
+    "titleZh": "组归一化",
+    "description": "使用 CUDA 按批次和连续通道组计算统计量并执行仿射归一化",
+    "problemId": "group-normalization",
+    "problemUrl": "https://leetgpu.com/challenges/group-normalization",
+    "updatedAt": "2026-11-12"
+  },
+  "token-embedding-layer": {
+    "leetgpuId": 106,
+    "title": "Token Embedding Layer（Token 嵌入层）",
+    "titleEn": "Token Embedding Layer",
+    "titleZh": "Token 嵌入层",
+    "description": "使用 CUDA 融合 token 与位置嵌入查表、相加和逐 token LayerNorm",
+    "problemId": "token-embedding-layer",
+    "problemUrl": "https://leetgpu.com/challenges/token-embedding-layer",
+    "updatedAt": "2026-11-12"
+  },
+  "ppo-clipped-surrogate-loss": {
+    "leetgpuId": 107,
+    "title": "PPO Clipped Surrogate Loss（PPO 截断代理损失）",
+    "titleEn": "PPO Clipped Surrogate Loss",
+    "titleZh": "PPO 截断代理损失",
+    "description": "使用 CUDA 计算逐 token PPO 概率比、截断代理目标及跨批次与序列的标量均值损失",
+    "problemId": "ppo-clipped-surrogate-loss",
+    "problemUrl": "https://leetgpu.com/challenges/ppo-clipped-surrogate-loss",
+    "updatedAt": "2026-11-12"
+  },
+  "dpo-sequence-loss": {
+    "leetgpuId": 108,
+    "title": "DPO Sequence Loss（DPO 序列损失）",
+    "titleEn": "DPO Sequence Loss",
+    "titleZh": "DPO 序列损失",
+    "description": "使用 CUDA 从当前策略与参考策略的序列 log probability 计算数值稳定的 DPO 标量均值损失",
+    "problemId": "dpo-sequence-loss",
+    "problemUrl": "https://leetgpu.com/challenges/dpo-sequence-loss",
+    "updatedAt": "2026-11-12"
+  },
+  "grpo-surrogate-loss": {
+    "leetgpuId": 109,
+    "title": "GRPO Surrogate Loss（GRPO 代理损失）",
+    "titleEn": "GRPO Surrogate Loss",
+    "titleZh": "GRPO 代理损失",
+    "description": "使用 CUDA 计算组内奖励标准化、逐 token 截断策略目标、参考策略 KL 惩罚及最终标量归约",
+    "problemId": "grpo-surrogate-loss",
+    "problemUrl": "https://leetgpu.com/challenges/grpo-surrogate-loss",
+    "updatedAt": "2026-11-12"
+  },
+  "parallel-reverse-scan-gae": {
+    "leetgpuId": 110,
+    "title": "Parallel Reverse Scan (GAE)（并行反向扫描（GAE））",
+    "titleEn": "Parallel Reverse Scan (GAE)",
+    "titleZh": "并行反向扫描（GAE）",
+    "description": "沿时间维保持 FP32 递推顺序，并行处理批内序列以计算广义优势估计",
+    "problemId": "parallel-reverse-scan-gae",
+    "problemUrl": "https://leetgpu.com/challenges/parallel-reverse-scan-gae",
+    "updatedAt": "2026-11-12"
   }
 }
 
@@ -1290,5 +1450,69 @@ export const markdownNavigation = [
   {
     "id": "decaying-causal-attention",
     "title": "Decaying Causal Attention（衰减因果注意力）"
+  },
+  {
+    "id": "llama-transformer-block",
+    "title": "Llama Transformer Block（Llama Transformer 块）"
+  },
+  {
+    "id": "ssm-selective-scan",
+    "title": "SSM Selective Scan（SSM 选择性扫描）"
+  },
+  {
+    "id": "turboquant-kv-cache-attention",
+    "title": "TurboQuant KV Cache Attention（TurboQuant KV Cache 注意力）"
+  },
+  {
+    "id": "int8-kv-cache-attention",
+    "title": "INT8 KV-Cache Attention（INT8 KV Cache 注意力）"
+  },
+  {
+    "id": "beam-search-step",
+    "title": "Beam Search Step（Beam Search 单步扩展）"
+  },
+  {
+    "id": "grouped-gemm",
+    "title": "Grouped GEMM（分组矩阵乘法）"
+  },
+  {
+    "id": "n-body-gravitational-force",
+    "title": "N-body Gravitational Force（N 体引力）"
+  },
+  {
+    "id": "variable-length-causal-attention",
+    "title": "Variable-Length Causal Attention（变长因果注意力）"
+  },
+  {
+    "id": "hadamard-transform",
+    "title": "Hadamard Transform（哈达玛变换）"
+  },
+  {
+    "id": "min-p-sampling",
+    "title": "Min-P Sampling（Min-P 采样概率过滤）"
+  },
+  {
+    "id": "group-normalization",
+    "title": "Group Normalization（组归一化）"
+  },
+  {
+    "id": "token-embedding-layer",
+    "title": "Token Embedding Layer（Token 嵌入层）"
+  },
+  {
+    "id": "ppo-clipped-surrogate-loss",
+    "title": "PPO Clipped Surrogate Loss（PPO 截断代理损失）"
+  },
+  {
+    "id": "dpo-sequence-loss",
+    "title": "DPO Sequence Loss（DPO 序列损失）"
+  },
+  {
+    "id": "grpo-surrogate-loss",
+    "title": "GRPO Surrogate Loss（GRPO 代理损失）"
+  },
+  {
+    "id": "parallel-reverse-scan-gae",
+    "title": "Parallel Reverse Scan (GAE)（并行反向扫描（GAE））"
   }
 ]

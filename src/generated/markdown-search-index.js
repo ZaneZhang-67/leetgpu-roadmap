@@ -551,5 +551,101 @@ export const markdownSearchIndex = [
     "title": "Decaying Causal Attention（衰减因果注意力）",
     "description": "使用 CUDA 计算带几何距离衰减且不经过 softmax 的因果注意力",
     "text": "Decaying Causal Attention 衰减因果注意力 使用 CUDA 计算带几何距离衰减且不经过 softmax 的因果注意力 ## 题目定义 `Q`、`K`、`V` 均为形状 `(seq_len,d_model)` 的 FP32 行主序矩阵。位置 `n` 只能读取当前位置及过去位置 `m≤n`： 这里没有 softmax 或其他归一化。当前 token 的衰减因子为 1，距离每增加 1，因子再乘一次 `gamma`；未来位置完全屏蔽。 ### 示例 官方示例取 `seq_len=2,d_model=4,gamma=0.5`。注意力分数、因果衰减矩阵及输出为： **约束与测试** - `1≤seq_len≤8,192`，`1≤d_model≤256`，`0<gamma≤1` - 所有张量均为 GPU 上的 FP32 - 测试覆盖单 token、`gamma=1`、`gamma=0.1`、零 `Q/K`、全负值和非二次幂序列长度 - 性能测试为 `seq_len=4096,d_model=64`，绝对与相对误差容限均为 `1e-3` ## 模板代码解析 starter 只提供空的 `solve`。四个矩阵均按行主序存储，`gamma` 按值传入；kernel 与启动逻辑需要自行实现。 ## 实现思路 运行时先计算 `QKᵀ/sqrt(d_model)`，再乘衰减 mask，最后与 `V` 相乘。参考实现保留两次矩阵乘法的结合顺序，分两个 kernel 完成。 第一阶段由每个线程处理一个 `(n,m)`。当 `m≤n` 时，线程按 `k=0..d_model-1` 的顺序用 FP32 累加 `Q[n,k]×K[m,k]`，再乘 `1/sqrt(d_model)` 和 `gamma^(n-m)`，写入 `scores[n,m]`；未来位置写零。第二阶段由每个线程处理一个 `(n,d)`，按 `m=0..n` 的顺序用 FP32 累加 `scores[n,m]×V[m,d]`。这一实现与运行时先算 `QKᵀ`、再乘 `V` 的顺序一致，全程不使用 softmax。 该运算不能重关联为 `Q×Σ(K⊗V)`。一个合法的 FP32 反例是 `seq_len=2,d_model=2,gamma=1`：令第二行 `Q=[1,1]`，`K[0]=[33554432,-33554432]`、`K[1]=[1,1]`，两行 `V` 的第一维均为 1。运行时先计算两个点积，得到 0 和 2，缩放后输出 `sqrt(2)`。状态递推会在大数上丢失两个 `+1`，最终得到 0，误差远超 `1e-3`。 两阶段实现的时间复杂度为 `O(seq_len²×d_model)`；逐输出重算每个点积则需要 `O(seq_len²×d_model²)`，多出一维。正式性能规模约执行 10.7 亿次 FMA，但 `(n,m)` 和 `(n,d)` 都可以高度并行。`scores` 工作区包含 `seq_len²` 个 FP32：性能规模 `4096` 约占 64 MiB，题面上限 `8192` 约占 256 MiB。 ## 参考实现"
+  },
+  {
+    "id": "llama-transformer-block",
+    "title": "Llama Transformer Block（Llama Transformer 块）",
+    "description": "复现固定维度 Llama 块的 RMSNorm、RoPE、因果 GQA、SwiGLU 与两次残差连接",
+    "text": "Llama Transformer Block Llama Transformer 块 复现固定维度 Llama 块的 RMSNorm、RoPE、因果 GQA、SwiGLU 与两次残差连接 ## 题目定义 实现一个固定架构的 Llama Transformer Block：`D=512`、8 个 Query 头、2 个 KV 头、`head_dim=64`、SwiGLU 中间维度 1408。runtime 按以下顺序执行： 1. `RMSNorm(x,w1,eps=1e-5)`，再做 Q/K/V 投影。 2. 将每个头拆成前后各 32 维，使用 `[seq_len,32]` 的 cos/sin 对 Q、K 应用 RoPE。 3. 每 4 个连续 Q 头共享一个 KV 头，执行 `1/sqrt(64)` 缩放的 causal attention。 4. O 投影后加原始 `x`，得到第一次残差 `hidden`。 5. `RMSNorm(hidden,w2)`，计算 `silu(W_gate*h) * (W_up*h)`，经 `W_down` 投影后加 `hidden`。 ### 官方示例 ### 完整约束与权重布局 - `1 ≤ seq_len ≤ 4096`，所有张量为 FP32；性能测试使用 `seq_len=2048` - 所有二维权重均为 `(out_dim,in_dim)` 行主序，无 bias - `w1[512] @0`；`WQ[512,512] @512`；`WK[128,512] @262656` - `WV[128,512] @328192`；`WO[512,512] @393728`；`w2[512] @655872` - `Wgate[1408,512] @656384`；`Wup[1408,512] @1377280` - `Wdown[512,1408] @2098176`；总计 `2,819,072` 个 FP32 - 判定容差为 `1e-3` ## 模板代码解析 平台只提供一个 packed 权重缓冲区；参考实现根据上述 offset 取得各段指针，并自行分配 Q/K/V、注意力和 FFN 中间缓冲。 ## 实现思路 参考实现把计算拆到多个 Grid 并行 kernel 中，避免由单个线程串行完成整个 Block。矩阵投影由每个线程计算一个输出元素；注意力由一个 Block 处理 `(q_head,query)`，只遍历 `key≤query`，并把最多 4096 个权重存入 Shared Memory；RoPE、残差、SiLU 和乘法则交给逐元素 kernel。 RoPE 必须采用 half-split 形式：`[a,b] -> [a*cos-b*sin,a*sin+b*cos]`，而不是相邻偶奇配对。GQA 映射为 `kv_head=q_head/4`；两个 Pre-RMSNorm 和两次残差也要严格遵循 runtime 的执行顺序。 ## 参考实现"
+  },
+  {
+    "id": "ssm-selective-scan",
+    "title": "SSM Selective Scan（SSM 选择性扫描）",
+    "description": "使用 CUDA 按序列顺序计算输入相关离散化、隐藏状态递推、状态投影和残差分支",
+    "text": "SSM Selective Scan SSM 选择性扫描 使用 CUDA 按序列顺序计算输入相关离散化、隐藏状态递推、状态投影和残差分支 ## 题目定义 各张量的布局如下：`u,delta,y:[batch,seq_len,d_model]`，`A:[d_model,d_state]`，`B,C:[batch,seq_len,d_state]`，`skip:[d_model]`。隐藏状态 `h:[batch,d_model,d_state]` 从零开始，按时间顺序计算： `B` 和 `C` 会随 batch 与时间变化，但不含 d_model 维；`delta` 则随每个模型通道变化。 ### 实现要求 - 保持 `solve` 签名不变，只使用原生功能 - 时间维必须按 `t=0..seq_len-1` 递推 - 最终结果写入 `y` ### 示例 官方示例设置 `batch=1,seq_len=4,d_model=2,d_state=2`，其中 `delta` 全为 1，`A` 的两行为 `[-0.5,-1]`，同时给出随时间变化的 `B/C` 和全零的 `skip`。 ### 约束 - `1 ≤ batch ≤ 16` - `1 ≤ seq_len ≤ 8192` - `1 ≤ d_model ≤ 2048` - `1 ≤ d_state ≤ 64` - 功能测试覆盖单 token、零输入、零 delta、非 2 的幂长度和典型 `d_state=16` - 所有 `delta` 严格为正，所有 `A` 严格为负 - 性能测试为 `batch=4,seq_len=4096,d_model=512,d_state=16` - 绝对误差和相对误差均为 `1e-3` ## 模板代码解析 starter 只给出入口，没有提供状态缓冲区或 kernel。所有输入都按上述行主序连续存储。 ## 实现思路 一个 Warp 负责一个 `(batch,d_model)` 通道，32 个 lane 沿 `d_state` 并行。由于 `d_state≤64`，每个 lane 最多保存两个状态标量。时间维仍严格按顺序推进：每一步先更新本 lane 的状态，再用 Warp Shuffle 归约 C 投影，最后由 lane 0 加上 skip 残差并写回。 性能规模共有 2048 个通道，对应 2048 个 Warp、256 个 Block，避免退化成只有 8 个 Block 的低占用映射。状态更新显式使用 `__fmul_rn` 和 `__fadd_rn`，保留 runtime 中 `A_bar*h`、`B_bar*u` 先分别相乘、再相加的 FP32 舍入顺序；残差同样先乘后加。 ## 参考实现"
+  },
+  {
+    "id": "turboquant-kv-cache-attention",
+    "title": "TurboQuant KV Cache Attention（TurboQuant KV Cache 注意力）",
+    "description": "从码本索引和 QJL 符号残差重建压缩 Key，并计算未缩放的注意力分数",
+    "text": "TurboQuant KV Cache Attention TurboQuant KV Cache 注意力 从码本索引和 QJL 符号残差重建压缩 Key，并计算未缩放的注意力分数 ## 题目定义 `Q` 的形状为 `[B,D]`，压缩 Key 则由 `[S,D]` 的 `uint8 K_idx`、`int8 qjl_signs` 和 `[S]` 的 FP32 `gamma` 表示。runtime 按行向量约定执行以下计算： 输出仅包含 `[B,S]` 原始点积分数，不做 `1/sqrt(D)` 缩放或 Softmax，也不涉及 V Cache。 ### 官方示例 ### 完整约束 - `1 ≤ B ≤ 32`，`1 ≤ S ≤ 65536`，`1 ≤ D ≤ 256`，`2 ≤ C ≤ 256` - `Pi[D,D]` 为正交矩阵；`S_mat[D,D]` 的元素来自标准正态分布 - `gamma[S]` 为 FP32；`qjl_signs[S,D]` 的 int8 值为 `-1/+1` - `K_idx[S,D]` 为 uint8，值域 `[0,C)`；其余输入和输出为 FP32 - 性能测试为 `B=32,S=32768,D=128,C=16` - 判定容差为 `atol=rtol=1e-3` ## 模板代码解析 `C` 只用于限定码本和索引范围，不参与矩阵尺寸；`Pi`、`S_mat` 都按 `[row,column]` 行主序存储。 ## 实现思路 实现分为两个阶段：第一阶段由每个 Block 负责一个 Key 行 `s`，线程按重建后的维度 `j` 分工，分别计算： 重建结果先写入临时 `K_deq[S,D]`，这样每个 Key 只需解压一次，不必为 32 个 Batch 重复 32 次。第二阶段使用 `16×16` Shared Memory tiled GEMM 计算 `Q @ K_deqᵀ`。在性能测试规模下，复杂度从重复解压方案的 `O(B*S*D²)` 降为 `O(S*D²+B*S*D)`；QJL 系数 `sqrt(pi/2)*gamma[s]/D` 同样只需按 Key 行计算一次。 ## 参考实现"
+  },
+  {
+    "id": "int8-kv-cache-attention",
+    "title": "INT8 KV-Cache Attention（INT8 KV Cache 注意力）",
+    "description": "使用 CUDA 在线 Softmax 计算带逐 Token 缩放的 INT8 KV Cache 解码注意力",
+    "text": "INT8 KV-Cache Attention INT8 KV Cache 注意力 使用 CUDA 在线 Softmax 计算带逐 Token 缩放的 INT8 KV Cache 解码注意力 ## 题目定义 单个新 Token 的查询 `Q(num_heads,head_dim)` 会对 INT8 Cache `K_int8`、`V_int8` 执行多头注意力。Cache 形状为 `(num_heads,seq_len,head_dim)`，每个 `(head,token)` 都有独立的 FP32 scale： 题目没有提供 causal mask 参数。查询对应当前解码 Token，需要关注给定的全部 `seq_len` 位置。 ### 示例 `num_heads=1`、`seq_len=3`、`head_dim=4` 时，三个 K 向量与全 1 查询的缩放点积都是 0.5，因此 Softmax 权重均为 `1/3`，输出为 `[5,6,7,8]`。 约束为 `1≤num_heads≤64`、`1≤seq_len≤32768`、`8≤head_dim≤256` 且 head_dim 为 8 的倍数；INT8 值位于 `[-128,127]`，scale 均为正数。性能用例为 `32×8192×128`，容差为 `1e-3`。 ## 模板代码解析 starter 签名为： scale 按 `(num_heads,seq_len)` 布局，并非逐 head 或逐通道。K/V 的连续维度是 `head_dim`。 ## 实现思路 一个 Block 负责一个 head。线程协作计算并归约每个 Token 的点积，再用数值稳定的在线 Softmax 更新分母和长度为 `head_dim` 的输出累加向量。整个过程无需分配 `num_heads×seq_len` 分数矩阵，也不会直接对大分数取指数。 扫描新分数时，旧累加乘 `exp(old_max-new_max)`，当前 V 乘 `exp(score-new_max)`。V 在使用时按当前 Token 的 `v_scale` 反量化。在最大性能用例中，32 个 Block 分别处理各个 head，每个 Block 内由 256 个线程并行处理特征维。 ## 参考实现"
+  },
+  {
+    "id": "beam-search-step",
+    "title": "Beam Search Step（Beam Search 单步扩展）",
+    "description": "使用 CUDA 并行扫描候选并选出每个 Batch 的 Top-K Beam",
+    "text": "Beam Search Step Beam Search 单步扩展 使用 CUDA 并行扫描候选并选出每个 Batch 的 Top-K Beam ## 题目定义 每个 Batch 包含 K 个活跃 Beam，词表大小为 V。候选 `(k,v)` 的分数为： 从每个 Batch 的 `K×V` 个候选中选出分数最高的 K 个，按降序写入 `new_beam_scores`，同时写出来源 `parent_beam_indices` 和 Token 编号 `next_tokens`。官方测试保证同一 Batch 内的候选分数互不相同，因此无需另行定义 tie 规则。 ### 示例 约束为 `1≤B≤64`、`1≤K≤32`、`1≤V≤100000`。性能用例为 `B=16`、`K=8`、`V=50000`。 ## 模板代码解析 starter 签名为： `token_logprobs` 按 `(B,K,V)` 行主序存放。扁平候选索引 `index=k*V+v`，可还原为 `k=index/V`、`v=index%V`。 ## 实现思路 一个 Block 负责一个 Batch。每个线程以 Grid-stride 方式扫描候选并维护局部 Top-K，线程 0 再汇总所有结果。每个 Block 使用 128 个线程，合并后得到全局 Top-K。K 最大为 32，因此 Shared Memory 保存 `128×32` 个 `(score,index)`，共 32 KiB，未超过常见设备默认的单 Block Shared Memory 限额。 候选无需预先物化，读取时直接加上父 Beam 分数。局部插入和最终合并都保持分数降序。大词表下的候选计算可以并行完成，避免让单线程扫描 `K×V`。 ## 参考实现"
+  },
+  {
+    "id": "grouped-gemm",
+    "title": "Grouped GEMM（分组矩阵乘法）",
+    "description": "使用 CUDA tiled GEMM 为连续行组选择各自权重矩阵",
+    "text": "Grouped GEMM 分组矩阵乘法 使用 CUDA tiled GEMM 为连续行组选择各自权重矩阵 ## 题目定义 `A(M_total,K)` 按连续行划分为 G 组，边界由长度 `G+1` 的 INT32 数组 `group_offsets` 给出。第 g 组使用独立权重 `B[g](K,N)`： 空组的起止 offset 相同，因此不会写入任何行。这里使用的不是指针数组：A、B、C 都是连续的大数组，B 的布局为 `(G,K,N)`。 ### 示例 约束为 `1≤G≤64`、`1≤M_total≤16384`、`1≤K,N≤4096`，offset 非递减且首尾为 0、M_total。性能用例为 `G=8`、`M_total=8192`、`K=1024`、`N=2048`，容差 `1e-4`。 ## 模板代码解析 starter 签名为： 第 g 个 B 矩阵以 `g*K*N` 为基址。A、C 仍使用全局行编号，无需把各组数据复制到独立缓冲。 ## 实现思路 每个组分别启动一个 `16×16` tiled GEMM kernel。host 端先复制规模很小的 offsets 数组，用来确定各组行数，并跳过空组。kernel 将局部行加上组起点，得到 A/C 的全局行；B 则使用组基址。 每个 Block 协作把 A 和 B 的 tile 加载到 Shared Memory，K 尾部和矩阵边缘补零。在最大性能规模下，大量 Block 可以并行计算，无需串行执行行列点积。G 最多 64，逐组 launch 的开销相对大矩阵乘法可控。 ## 参考实现"
+  },
+  {
+    "id": "n-body-gravitational-force",
+    "title": "N-body Gravitational Force（N 体引力）",
+    "description": "使用 CUDA 计算三维粒子之间带软化项的全对全引力",
+    "text": "N-body Gravitational Force N 体引力 使用 CUDA 计算三维粒子之间带软化项的全对全引力 ## 题目定义 给定 `N` 个三维位置和质量，计算每个粒子受到的合力： 运行时会遍历所有 `j`，包括 `j=i`。自作用与重合粒子的位移都为零，因此两者的贡献也为零。位置和输出均按 `(N,3)` 行主序存储 ### 示例 **约束与测试** - `1≤N≤65,536`，位置在 `[-10,10]`，质量满足 `0<mass≤100` - positions、masses、forces 均为 FP32 - 测试覆盖 `N=1`、负坐标、重合粒子、二次幂与非二次幂规模 - 性能测试 `N=8192`，绝对与相对误差容限均为 `1e-2` ## 模板代码解析 官方 starter 中只有空入口。`positions[3*i+k]` 表示粒子 `i` 的第 `k` 个坐标，`masses[i]` 表示源粒子的质量，结果写入 `forces` ## 实现思路 每个线程处理一个目标粒子 `i`，并按 `j=0..N-1` 累加三个方向的贡献。分母 `(dist²+1e-6)^(3/2)` 可写成 `dist2*sqrt(dist2)`；使用 `rsqrtf` 后计算 `inv³`，可以减少开方和除法 由于每个线程都要读取全部源粒子，复杂度为 `O(N²)`。性能规模约 6700 万对；相邻线程会读取相同的 `j`，这些访问可由缓存复用。所有线性偏移均使用 `size_t` ## 参考实现"
+  },
+  {
+    "id": "variable-length-causal-attention",
+    "title": "Variable-Length Causal Attention（变长因果注意力）",
+    "description": "根据累计序列长度在紧凑批次内执行序列隔离的因果缩放点积注意力",
+    "text": "Variable-Length Causal Attention 变长因果注意力 根据累计序列长度在紧凑批次内执行序列隔离的因果缩放点积注意力 ## 题目定义 `Q`、`K`、`V` 以 `[T,d]` 布局紧凑存放所有序列，边界由 `cu_seqlens[S+1]` 给出。序列 `s` 占用半开区间 `[cu_seqlens[s],cu_seqlens[s+1])`，Query `t` 只能关注同一序列中不晚于自身的 Key： 不同序列必须彼此隔离；即使另一个序列在 packed 数组中的全局下标更小，当前 Query 也不可见。 ### 官方示例 ### 完整约束 - `1 ≤ S ≤ 256`，每条序列长度为 `1..2048` - `1 ≤ T ≤ 16384`，`1 ≤ d ≤ 256` - `cu_seqlens[0]=0`、`cu_seqlens[S]=T`，且单调非递减 - Q/K/V/output 为 FP32，`cu_seqlens` 为 int32 - 性能测试为 `T=8192,d=64,S=32`，序列长度介于 128 和 384 - 判定容差为 `1e-4` ## 模板代码解析 平台不会直接传入每个 token 的序列编号或局部位置，需要从 `cu_seqlens` 推导；输出仍按 packed token 顺序写入 `[T,d]`。 ## 实现思路 先启动一个 kernel，为每个 packed token 二分查找所属序列的起点，并写入 `starts[T]`。随后由一个 Block 处理一个 Query token：线程 0 只遍历 `[start,t]`，计算稳定 Softmax 权重，其他线程则按输出维度并行累加 V。 最长序列为 2048，因此动态 Shared Memory 最大为 8 KiB。实现不会构造 `T×T` 分数矩阵，性能测试也只处理各序列自己的下三角区域。 ## 参考实现"
+  },
+  {
+    "id": "hadamard-transform",
+    "title": "Hadamard Transform（哈达玛变换）",
+    "description": "使用 CUDA 蝶形运算对批量 FP32 行执行正交 Walsh–Hadamard 变换",
+    "text": "Hadamard Transform 哈达玛变换 使用 CUDA 蝶形运算对批量 FP32 行执行正交 Walsh–Hadamard 变换 ## 题目定义 对 `(B,N)` 的每一行独立计算正交 Walsh–Hadamard 变换： `N` 保证是二次幂。每个阶段 `h=1,2,...,N/2` 都把同一蝶形中的 `(a,b)` 替换为 `(a+b,a-b)`；全部阶段完成后，再乘 `1/sqrt(N)` ### 示例 **约束与测试** - `1≤B≤16,384`，`1≤N≤4096` 且 `N` 是二次幂 - 输入输出均为 FP32，计算完全驻留 GPU - 测试覆盖 `N=1/2`、全零、常量行、宽 batch 与 `N=2048` - 性能测试 `B=8192,N=4096`，绝对与相对误差容限均为 `1e-4` ## 模板代码解析 官方 starter 中只有空入口。输入不可原地覆盖，最终结果写入形状相同的 `output`；kernel 和临时空间由作答者实现 ## 实现思路 先将 input 复制到 output，再逐阶段原地执行蝶形。每个阶段共有 `B*N/2` 对元素，每个线程负责一对。设线程在当前行内的 pair 编号为 `p`，则： 同一阶段写入的元素互不重叠，但下一阶段依赖前一阶段，因此各阶段使用独立的 kernel launch 形成全局同步。全部阶段结束后，再单独乘 `1/sqrt(N)`。总工作量为 `O(BN logN)`，额外空间为零 ## 参考实现"
+  },
+  {
+    "id": "min-p-sampling",
+    "title": "Min-P Sampling（Min-P 采样概率过滤）",
+    "description": "按每行最大概率的相对阈值过滤 logits，并重新归一化保留项",
+    "text": "Min-P Sampling Min-P 采样概率过滤 按每行最大概率的相对阈值过滤 logits，并重新归一化保留项 ## 题目定义 输入为 `logits[B,V]`，输出同形状的过滤概率。每一行先减去最大 logit，再计算 `e_i=exp(logit_i-max_logit)`。Softmax 分母会在相对阈值两边抵消，因此 runtime 直接保留 `e_i>=min_p` 的项，最后对保留项重新归一化： 最大项的指数恒为 1，因此 `min_p≤1` 时至少会保留一项。题目只输出概率，不接收 temperature、随机数或 CDF，也不返回采样 token；并列的最大项都会保留。 ### 官方示例 ### 完整约束 - `1 ≤ B ≤ 256`，`1 ≤ V ≤ 200000` - `0 ≤ min_p ≤ 1` - `-50 ≤ logits[b,i] ≤ 50` - 输入输出均为 FP32 - 每行独立过滤，屏蔽项必须精确为 0，输出行重新归一化 - 性能测试为 `B=64,V=128000,min_p=0.05` - 判定容差为 `1e-5` ## 模板代码解析 `min_p` 表示相对于行最大概率的比例，既不是累计概率阈值，也不是绝对概率 cutoff，因此无需排序。 ## 实现思路 一个 Block 负责一行，256 个线程共同扫描词表。第一次并行归约得到最大 logit；第二次计算指数，按 `e>=min_p` 过滤并归约保留项总和；第三次再并行写回归一化概率。 第一次归约使指数输入不大于 0。第二次把指数暂存到 `probs`，第三次便无需再次调用 `expf`。每行由 256 个线程并行覆盖最多 20 万词表，避免使用单线程大词表循环。 ## 参考实现"
+  },
+  {
+    "id": "group-normalization",
+    "title": "Group Normalization（组归一化）",
+    "description": "使用 CUDA 按批次和连续通道组计算统计量并执行仿射归一化",
+    "text": "Group Normalization 组归一化 使用 CUDA 按批次和连续通道组计算统计量并执行仿射归一化 ## 题目定义 输入 `X` 和输出 `Y` 均采用 NCHW 布局，形状为 `(N,C,H,W)`。每个 batch 的 `C` 个通道分成 `G` 个连续组，每组包含 `C/G` 个通道。对每个 `(n,g)`，都在组内全部 `(C/G)*H*W` 个元素上计算总体均值和总体方差： `G=1` 时统计范围覆盖整个样本，`G=C` 时每个通道独立统计 ### 示例 **约束与测试** - `1≤N≤32`，`1≤C≤1024`，`1≤G≤C` 且 `C%G=0` - `1≤H,W≤128`，`eps=1e-5` - 输入位于 `[-100,100]`，gamma 位于 `[0.1,10]`，beta 位于 `[-10,10]` - 测试覆盖 `G=1`、`G=C`、全零、负数、非二次幂和非方形空间维 - 性能测试为 `N=8,C=512,H=W=64,G=32`，容差 `atol=rtol=1e-4` ## 模板代码解析 官方 starter 中只有空入口。`gamma`、`beta` 是长度为 `C` 的逐通道参数，统计量按 `(batch,group)` 独立计算 ## 实现思路 每个 Block 处理一个 `(n,g)`，组内元素在 NCHW 布局中连续存放。第一遍用 FP64 局部和与 Shared Memory 归约求均值；第二遍围绕已经舍入到 FP32 的均值累加 `sum((x-mean)²)`，得到稳定的总体方差。这避免 `E[x²]-E[x]²` 在“大偏置、小方差”输入上发生灾难性消减 第三遍遍历组内元素并写回结果。将局部下标除以 `H*W`，即可得到组内通道；再加上组的起始通道，就能读取对应的 gamma 和 beta。每个输出只由一个 Block 写入 ## 参考实现"
+  },
+  {
+    "id": "token-embedding-layer",
+    "title": "Token Embedding Layer（Token 嵌入层）",
+    "description": "使用 CUDA 融合 token 与位置嵌入查表、相加和逐 token LayerNorm",
+    "text": "Token Embedding Layer Token 嵌入层 使用 CUDA 融合 token 与位置嵌入查表、相加和逐 token LayerNorm ## 题目定义 对每个 `(b,t)`，分别根据 token ID 和 position ID 从两个行主序表中取出长度为 `D` 的行，再将两行相加： 均值和总体方差都只沿当前 token 的 `D` 维计算，方差除以 `D`，不使用 Bessel 校正。`position_ids` 只依赖时间位置，对 batch 共享 ### 示例 **约束与测试** - `1≤B≤64`，`1≤T≤1024`，`1≤V≤50,000`，`1≤P≤4096`，`1≤D≤1024` - token ID 满足 `0≤id<V`，position ID 满足 `0≤id<P`；运行时不测试越界 ID - ID 为 INT32，其余张量为 FP32，`eps=1e-5` - 测试覆盖单 token、全零嵌入、负嵌入、重复 ID 和非二次幂维度 - 性能测试 `B=32,T=512,V=30,000,P=2048,D=768`，容差 `atol=rtol=1e-4` ## 模板代码解析 官方 starter 中只有空入口。token 表的形状为 `(V,D)`，位置表为 `(P,D)`，输出为 `(B,T,D)`。`V`、`P` 用于描述合法 ID 范围；正式输入已保证范围正确 ## 实现思路 每个 Block 处理一个 `(b,t)`。线程根据两个 ID 查找表行，并将对应维度相加：第一遍用 FP64 归约求均值，第二遍围绕 FP32 均值归约中心平方差，第三遍重新计算相加结果并完成逐维仿射变换。这种两遍统计可以避免 `E[s²]-E[s]²` 在高偏置、低方差向量上失稳，也省去了大小为 `B*T*D` 的中间缓冲区 网格共有 `B*T` 个 Block，共享内存复用一组 FP64 线程局部统计量。D 无需是二次幂；线程数固定为 256，未分配到元素的线程以零参与归约 ## 参考实现"
+  },
+  {
+    "id": "ppo-clipped-surrogate-loss",
+    "title": "PPO Clipped Surrogate Loss（PPO 截断代理损失）",
+    "description": "使用 CUDA 计算逐 token PPO 概率比、截断代理目标及跨批次与序列的标量均值损失",
+    "text": "PPO Clipped Surrogate Loss PPO 截断代理损失 使用 CUDA 计算逐 token PPO 概率比、截断代理目标及跨批次与序列的标量均值损失 ## 题目定义 输入 `advantages`、`log_pi` 和 `log_pi_old` 的形状均为 `[B,S]`，数据类型为 FP32。`S` 个位置全部是有效 token，不使用 mask。逐元素计算： `min` 对正、负 advantage 都按同一公式取值，不能根据符号固定选择某个截断项。最后的负号把需要最大化的代理目标转换成需要最小化的损失。 ### 实现要求 - 保持 `solve` 签名不变 - 只使用原生功能 - 在 `output[0]` 写入跨全部 `B×S` 元素的单个 FP32 均值 ### 示例 ### 约束 - `1 ≤ B ≤ 256`，`1 ≤ S ≤ 16,384` - `0 ≤ clip_eps < 1` - `log_pi-log_pi_old ∈ [-16,16]` - 性能测试为 `B=256`、`S=16,384` - 绝对误差和相对误差均为 `1e-4` ## 模板代码解析 输入已经给出同一 token 的 advantage 和两套 log probability，因此不需要 Softmax、token 筛选或序列 mask。starter 没有提供 kernel 或工作区。 ## 实现思路 第一阶段由每个线程按原公式计算一个 surrogate。为避免改变舍入顺序，乘法不与其他表达式合并成 FMA，正负 advantage 的截断逻辑也保持原样。Block 内按照固定的二叉树顺序，归约出一个 FP32 partial sum。 第二阶段由单线程按照 partial 数组的顺序累加，最后执行 `-sum/(B*S)`。固定的归约顺序避开了 `atomicAdd` 带来的不确定性；partial 数量很小，所有元素仍会计入最终均值。 ## 参考实现"
+  },
+  {
+    "id": "dpo-sequence-loss",
+    "title": "DPO Sequence Loss（DPO 序列损失）",
+    "description": "使用 CUDA 从当前策略与参考策略的序列 log probability 计算数值稳定的 DPO 标量均值损失",
+    "text": "DPO Sequence Loss DPO 序列损失 使用 CUDA 从当前策略与参考策略的序列 log probability 计算数值稳定的 DPO 标量均值损失 ## 题目定义 四个输入都是长度 `B` 的 FP32 序列 log probability。token 级 log probability 已按照相同的 tokenization 和 mask 规则求和，本题无需再次做 token 归约。对每个样本： 计算时必须用当前策略 margin 减去参考策略 margin，最终损失不带额外负号。 ### 实现要求 - 保持 `solve` 签名不变 - 只使用原生功能 - 稳定计算 Softplus，并将 `B` 个损失的均值写入 `output[0]` ### 示例 ### 约束 - `1 ≤ B ≤ 65,536` - `0 < beta ≤ 1` - 所有输入有限，且均为已经求和的序列 log probability - 性能测试使用 `B=65,536` - 绝对误差和相对误差均为 `1e-4` ## 模板代码解析 starter 接收四个设备数组和标量 `beta`，但没有提供归约 kernel。四个数组已经是序列级数据，不应再除以序列长度，也不应应用 mask。 ## 实现思路 两个 margin 必须严格按照 reference 的括号顺序计算，再相减并乘 `beta`。四项不能重排成另一种加减顺序，也不能合并成 FMA，以免大负 log probability 相减时改变舍入结果。 Softplus 使用稳定公式： 即使输入 log probability 达到 `±1000/±500`，经 `beta=0.1` 形成 `±100/±50` 的 DPO logit，这种写法也不会溢出。Block 内按固定顺序归约，第二个 kernel 再依照 partial 顺序累加并除以 `B`。 ## 参考实现"
+  },
+  {
+    "id": "grpo-surrogate-loss",
+    "title": "GRPO Surrogate Loss（GRPO 代理损失）",
+    "description": "使用 CUDA 计算组内奖励标准化、逐 token 截断策略目标、参考策略 KL 惩罚及最终标量归约",
+    "text": "GRPO Surrogate Loss GRPO 代理损失 使用 CUDA 计算组内奖励标准化、逐 token 截断策略目标、参考策略 KL 惩罚及最终标量归约 ## 题目定义 `rewards` 的形状为 `[B,G]`，三套 log probability 的形状为 `[B,G,S]`。先在每个 prompt 的 G 个响应之间计算总体标准差： 同一个 response 的 advantage 会广播到全部 S 个 token，随后计算： 最终均值覆盖完整的 `B×G×S`，不使用 mask。 ### 实现要求 - 保持 `solve` 签名不变，只使用原生功能 - 使用 population standard deviation，即除以 G - 正确保留 KL 差值方向、beta 符号和最终整体负号 ### 示例 ### 约束 - `1≤B≤256`，`2≤G≤32`，`1≤S≤16384` - `0≤clip_eps<1`，`0≤beta≤1` - 两类 log 差值均位于 `[-16,16]` - 性能测试为 `B=64,G=16,S=4096` - 绝对误差和相对误差均为 `1e-4` ## 模板代码解析 starter 没有提供 advantage 缓冲区，也没有给出归约实现。S 个位置全部参与计算。 ## 实现思路 第一阶段中，每个线程负责一个 `(b,g)`，按照 g 的固定顺序计算该 prompt 的均值和总体方差，再得到 advantage。同一个 b 的统计量会由 G 个线程重复计算，但 G≤32，这样可以省去跨 kernel 的统计同步。 第二阶段逐 token 依次计算 ratio、clip、surrogate、`d=log_ref-log_pi` 和 `surrogate-beta*kl`，再在 Block 内按固定顺序归约。最终 kernel 按 partial 的顺序累加，添加整体负号并除以 `BGS`。整个过程不使用原子加或显式 FMA，从而固定归约顺序，并保留原公式的运算边界。 ## 参考实现"
+  },
+  {
+    "id": "parallel-reverse-scan-gae",
+    "title": "Parallel Reverse Scan (GAE)（并行反向扫描（GAE））",
+    "description": "沿时间维保持 FP32 递推顺序，并行处理批内序列以计算广义优势估计",
+    "text": "Parallel Reverse Scan (GAE) 并行反向扫描（GAE） 沿时间维保持 FP32 递推顺序，并行处理批内序列以计算广义优势估计 ## 题目定义 对 `rewards(B,S)`、`values(B,S)` 计算 GAE，序列末尾的 next value 取零： 每条序列都在 S 处结束。题目没有提供 done、padding 或 mask 输入，也不应自行加入终止掩码。 ### 示例 约束为 `1≤B≤256`、`1≤S≤65536`，gamma、lambda 位于 `[0,1]`，所有张量均为 FP32。性能用例为 `B=64`、`S=4096`，容差为 `1e-3`。 ## 模板代码解析 starter 签名为： 数组按 `(B,S)` 行主序保存。gamma 同时用于 TD bootstrap 和反向衰减，反向衰减系数为 `gamma*lam`。 ## 实现思路 时间维上存在严格依赖：`A[t]` 只有在 `A[t+1]` 产生后才能计算。递推在实数代数中虽可改写为仿射扫描，但 FP32 加法不满足结合律；树形扫描会改变舍入顺序，并在大数抵消输入下产生不同结果。 参考实现因此让一个线程负责一条 Batch 序列，严格从 `S-1` 递推到 0，并在 Batch 维并行。`__fmul_rn`、`__fadd_rn` 与 `__fsub_rn` 明确复现 runtime 中“乘、加、减”分步执行的 FP32 舍入顺序。性能用例共有 `64×4096` 个时间步，64 条依赖链可在一个 Block 中并行执行，无需额外工作区或跨 kernel carry。 ## 参考实现"
   }
 ]
