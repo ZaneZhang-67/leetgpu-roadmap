@@ -6,6 +6,7 @@ export const navigation = [
   { id: "naive-gemm", title: "Matrix Multiplication（矩阵乘法）" },
   { id: "matrix-transpose", title: "Matrix Transpose（矩阵转置）" },
   { id: "color-inversion", title: "Color Inversion（图像颜色反转）" },
+  { id: "1d-convolution", title: "1D Convolution（一维卷积）" },
 ]
 
 export const defaultPageId = navigation[0].id
