@@ -599,6 +599,166 @@ export const markdownPages = {
     "problemId": "top-p-sampling",
     "problemUrl": "https://leetgpu.com/challenges/top-p-sampling",
     "updatedAt": "2026-11-12"
+  },
+  "rotary-positional-embedding": {
+    "leetgpuId": 61,
+    "title": "Rotary Positional Embedding（旋转位置编码）",
+    "titleEn": "Rotary Positional Embedding",
+    "titleZh": "旋转位置编码",
+    "description": "使用 CUDA 对 M×D 查询矩阵执行 half-split RoPE，理解半维配对和位置表布局",
+    "problemId": "rotary-positional-embedding",
+    "problemUrl": "https://leetgpu.com/challenges/rotary-positional-embedding",
+    "updatedAt": "2026-11-12"
+  },
+  "value-clipping": {
+    "leetgpuId": 62,
+    "title": "Value Clipping（数值裁剪）",
+    "titleEn": "Value Clipping",
+    "titleZh": "数值裁剪",
+    "description": "使用 CUDA 将一维 FP32 向量逐元素限制在闭区间 [lo,hi]",
+    "problemId": "value-clipping",
+    "problemUrl": "https://leetgpu.com/challenges/value-clipping",
+    "updatedAt": "2026-11-12"
+  },
+  "interleave-arrays": {
+    "leetgpuId": 63,
+    "title": "Interleave Arrays（数组交错排列）",
+    "titleEn": "Interleave Arrays",
+    "titleZh": "数组交错排列",
+    "description": "使用 CUDA 将两个等长 FP32 数组交错写入长度为 2N 的输出数组",
+    "problemId": "interleave-arrays",
+    "problemUrl": "https://leetgpu.com/challenges/interleave-arrays",
+    "updatedAt": "2026-11-12"
+  },
+  "weight-dequantization": {
+    "leetgpuId": 64,
+    "title": "Weight Dequantization（权重反量化）",
+    "titleEn": "Weight Dequantization",
+    "titleZh": "权重反量化",
+    "description": "使用 CUDA 按二维 tile 的共享缩放因子对 FP32 权重矩阵逐元素反量化",
+    "problemId": "weight-dequantization",
+    "problemUrl": "https://leetgpu.com/challenges/weight-dequantization",
+    "updatedAt": "2026-11-12"
+  },
+  "gaussian-error-gated-linear-unit": {
+    "leetgpuId": 65,
+    "title": "Gaussian Error Gated Linear Unit（高斯误差门控线性单元）",
+    "titleEn": "Gaussian Error Gated Linear Unit",
+    "titleZh": "高斯误差门控线性单元",
+    "description": "使用 CUDA 实现 GEGLU 前向计算，将一维输入等分为两半，对后半段应用精确 GELU 后与前半段逐元素相乘",
+    "problemId": "gaussian-error-gated-linear-unit",
+    "problemUrl": "https://leetgpu.com/challenges/gaussian-error-gated-linear-unit",
+    "updatedAt": "2026-11-12"
+  },
+  "rgb-to-grayscale": {
+    "leetgpuId": 66,
+    "title": "RGB to Grayscale（RGB 转灰度图）",
+    "titleEn": "RGB to Grayscale",
+    "titleZh": "RGB 转灰度图",
+    "description": "使用 CUDA 将交错存储的 RGB 浮点图像转换为灰度图，介绍像素线程映射、通道寻址和精确加权公式",
+    "problemId": "rgb-to-grayscale",
+    "problemUrl": "https://leetgpu.com/challenges/rgb-to-grayscale",
+    "updatedAt": "2026-11-12"
+  },
+  "moe-top-k-gating": {
+    "leetgpuId": 67,
+    "title": "MoE Top-K Gating（MoE Top-K 门控）",
+    "titleEn": "MoE Top-K Gating",
+    "titleZh": "MoE Top-K 门控",
+    "description": "使用 CUDA 为每个 token 选择降序排列的 Top-K 专家，并对选中 logits 执行数值稳定的 Softmax",
+    "problemId": "moe-top-k-gating",
+    "problemUrl": "https://leetgpu.com/challenges/moe-top-k-gating",
+    "updatedAt": "2026-11-12"
+  },
+  "sigmoid-activation": {
+    "leetgpuId": 68,
+    "title": "Sigmoid Activation（Sigmoid 激活函数）",
+    "titleEn": "Sigmoid Activation",
+    "titleZh": "Sigmoid 激活函数",
+    "description": "使用 CUDA 对大型 FP32 向量逐元素计算数值稳定的 Sigmoid，避免极端负值导致指数溢出",
+    "problemId": "sigmoid-activation",
+    "problemUrl": "https://leetgpu.com/challenges/sigmoid-activation",
+    "updatedAt": "2026-11-12"
+  },
+  "2d-jacobi-stencil": {
+    "leetgpuId": 69,
+    "title": "2D Jacobi Stencil（二维 Jacobi 模板计算）",
+    "titleEn": "2D Jacobi Stencil",
+    "titleZh": "二维 Jacobi 模板计算",
+    "description": "使用 CUDA 对二维矩阵执行一次五点 Jacobi 更新，并保持边界元素不变",
+    "problemId": "2d-jacobi-stencil",
+    "problemUrl": "https://leetgpu.com/challenges/2d-jacobi-stencil",
+    "updatedAt": "2026-11-12"
+  },
+  "segmented-exclusive-prefix-sum": {
+    "leetgpuId": 70,
+    "title": "Segmented Exclusive Prefix Sum（分段独占前缀和）",
+    "titleEn": "Segmented Exclusive Prefix Sum",
+    "titleZh": "分段独占前缀和",
+    "description": "使用 CUDA 按段起始标志并行计算 FP64 累计、FP32 输出的独占前缀和",
+    "problemId": "segmented-exclusive-prefix-sum",
+    "problemUrl": "https://leetgpu.com/challenges/segmented-exclusive-prefix-sum",
+    "updatedAt": "2026-11-12"
+  },
+  "parallel-merge": {
+    "leetgpuId": 71,
+    "title": "Parallel Merge（并行归并）",
+    "titleEn": "Parallel Merge",
+    "titleZh": "并行归并",
+    "description": "使用 CUDA Merge Path 将两个升序 FP32 数组稳定归并为一个升序数组",
+    "problemId": "parallel-merge",
+    "problemUrl": "https://leetgpu.com/challenges/parallel-merge",
+    "updatedAt": "2026-11-12"
+  },
+  "stream-compaction": {
+    "leetgpuId": 72,
+    "title": "Stream Compaction（数据流压缩）",
+    "titleEn": "Stream Compaction",
+    "titleZh": "数据流压缩",
+    "description": "使用 CUDA 稳定地筛选正数，并把结果紧凑写入输出数组前部",
+    "problemId": "stream-compaction",
+    "problemUrl": "https://leetgpu.com/challenges/stream-compaction",
+    "updatedAt": "2026-11-12"
+  },
+  "all-pairs-shortest-paths": {
+    "leetgpuId": 73,
+    "title": "All-Pairs Shortest Paths（全源最短路径）",
+    "titleEn": "All-Pairs Shortest Paths",
+    "titleZh": "全源最短路径",
+    "description": "使用 Floyd-Warshall 在 GPU 上计算有向带权图的全源最短路径，正确处理阶段同步与无穷大",
+    "problemId": "all-pairs-shortest-paths",
+    "problemUrl": "https://leetgpu.com/challenges/all-pairs-shortest-paths",
+    "updatedAt": "2026-11-12"
+  },
+  "gpt-2-transformer-block": {
+    "leetgpuId": 74,
+    "title": "GPT-2 Transformer Block（GPT-2 Transformer 块）",
+    "titleEn": "GPT-2 Transformer Block",
+    "titleZh": "GPT-2 Transformer 块",
+    "description": "按固定 GPT-2 124M 维度实现双 Pre-LayerNorm、全局多头注意力、tanh GELU、投影与两次残差连接",
+    "problemId": "gpt-2-transformer-block",
+    "problemUrl": "https://leetgpu.com/challenges/gpt-2-transformer-block",
+    "updatedAt": "2026-11-12"
+  },
+  "sparse-matrix-dense-matrix-multiplication": {
+    "leetgpuId": 75,
+    "title": "Sparse Matrix-Dense Matrix Multiplication（稀疏矩阵与稠密矩阵乘法）",
+    "titleEn": "Sparse Matrix-Dense Matrix Multiplication",
+    "titleZh": "稀疏矩阵与稠密矩阵乘法",
+    "description": "按运行时真实布局计算含零元素的稠密 A 与稠密 B 的矩阵乘法，并利用零值跳过无效乘加",
+    "problemId": "sparse-matrix-dense-matrix-multiplication",
+    "problemUrl": "https://leetgpu.com/challenges/sparse-matrix-dense-matrix-multiplication",
+    "updatedAt": "2026-11-12"
+  },
+  "adder-transformer-inference": {
+    "leetgpuId": 76,
+    "title": "Adder Transformer Inference（加法器 Transformer 推理）",
+    "titleEn": "Adder Transformer Inference",
+    "titleZh": "加法器 Transformer 推理",
+    "description": "精确复现手工构造的十参数加法器 Transformer，并自回归生成 11 位输出 logits",
+    "problemId": "adder-transformer-inference",
+    "problemUrl": "https://leetgpu.com/challenges/adder-transformer-inference",
+    "updatedAt": "2026-11-12"
   }
 }
 
@@ -842,5 +1002,69 @@ export const markdownNavigation = [
   {
     "id": "top-p-sampling",
     "title": "Top-p Sampling（Top-p 采样）"
+  },
+  {
+    "id": "rotary-positional-embedding",
+    "title": "Rotary Positional Embedding（旋转位置编码）"
+  },
+  {
+    "id": "value-clipping",
+    "title": "Value Clipping（数值裁剪）"
+  },
+  {
+    "id": "interleave-arrays",
+    "title": "Interleave Arrays（数组交错排列）"
+  },
+  {
+    "id": "weight-dequantization",
+    "title": "Weight Dequantization（权重反量化）"
+  },
+  {
+    "id": "gaussian-error-gated-linear-unit",
+    "title": "Gaussian Error Gated Linear Unit（高斯误差门控线性单元）"
+  },
+  {
+    "id": "rgb-to-grayscale",
+    "title": "RGB to Grayscale（RGB 转灰度图）"
+  },
+  {
+    "id": "moe-top-k-gating",
+    "title": "MoE Top-K Gating（MoE Top-K 门控）"
+  },
+  {
+    "id": "sigmoid-activation",
+    "title": "Sigmoid Activation（Sigmoid 激活函数）"
+  },
+  {
+    "id": "2d-jacobi-stencil",
+    "title": "2D Jacobi Stencil（二维 Jacobi 模板计算）"
+  },
+  {
+    "id": "segmented-exclusive-prefix-sum",
+    "title": "Segmented Exclusive Prefix Sum（分段独占前缀和）"
+  },
+  {
+    "id": "parallel-merge",
+    "title": "Parallel Merge（并行归并）"
+  },
+  {
+    "id": "stream-compaction",
+    "title": "Stream Compaction（数据流压缩）"
+  },
+  {
+    "id": "all-pairs-shortest-paths",
+    "title": "All-Pairs Shortest Paths（全源最短路径）"
+  },
+  {
+    "id": "gpt-2-transformer-block",
+    "title": "GPT-2 Transformer Block（GPT-2 Transformer 块）"
+  },
+  {
+    "id": "sparse-matrix-dense-matrix-multiplication",
+    "title": "Sparse Matrix-Dense Matrix Multiplication（稀疏矩阵与稠密矩阵乘法）"
+  },
+  {
+    "id": "adder-transformer-inference",
+    "title": "Adder Transformer Inference（加法器 Transformer 推理）"
   }
 ]

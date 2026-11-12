@@ -359,5 +359,101 @@ export const markdownSearchIndex = [
     "title": "Top-p Sampling（Top-p 采样）",
     "description": "对 logits 执行稳定 Softmax、确定性排序与 nucleus 截断，再按指定 PCG 哈希和指数竞赛采样",
     "text": "Top-p Sampling Top-p 采样 对 logits 执行稳定 Softmax、确定性排序与 nucleus 截断，再按指定 PCG 哈希和指数竞赛采样 ## 题目定义 给定长度为 `vocab_size` 的 FP32 `logits`、单元素阈值 `p` 和单元素 `int32` 种子 `seed`，执行 Top-p（nucleus）采样： 1. 对 logits 做 Softmax 2. 按概率降序排序；概率相等时按 token 下标升序 3. 选择累计概率首次达到或超过 `p` 的最短前缀 4. 在 nucleus 内重新归一化 5. 使用题目指定的 PCG 哈希与指数竞赛选出 token 每个 token `i` 的均匀随机数是： 所有无符号整数运算按 `2^32` 回绕采样分数为 `q_i / (-ln(u_i))`，取分数最大的 nucleus token官方流程会显式重新归一化 nucleus 概率，参考实现保持这一步骤 ### 实现要求与评测规模 - 不允许使用外部库 - `solve` 函数签名保持不变 - 输出写入单元素 `int32` 数组 `sampled_token` - `3 ≤ vocab_size ≤ 50,000`，`-100 ≤ logits[i] ≤ 100` - `0 = p`，达到阈值的 token 也属于 nucleus ## 模板代码解析 CUDA starter 为： `logits`、`p`、`seed` 和 `sampled_token` 都是设备指针，阈值与种子必须从设备端读取，不能在 CPU 端直接解引用 参考实现使用设备端工作区保存概率和 token 下标，准备阶段按 FP32 顺序生成 Softmax 概率；排序阶段把长度补到不小于词表的最小 2 的幂，再通过并行 Bitonic 网络处理 `vocab_size=50000`，避免单线程平方复杂度排序 ## 实现思路 先找最大 logit，再计算 `exp(logit-maxLogit)` 及其 FP32 总和，随后显式除以总和，得到官方实际排序的 FP32 概率；这样既避免指数溢出，也保留下溢概率归一化后可能出现的平局 Bitonic 工作长度 `L` 补到 2 的幂，填充项使用负概率；排序规则为概率降序，概率相等时原 token 下标升序；即使许多概率都下溢为零，结果仍与稳定降序排序一致；网络复杂度为 `O(L log²L)`，每一层由并行 kernel 完成 从排序首项开始做 FP32 累加，首个满足 `cumulative >= p[0]` 的位置也被保留；若浮点边界导致循环一直未触发，则保留整个词表；随后再次用 FP32 求 nucleus 概率和并逐项归一化 PCG 哈希使用 `uint32_t`，无符号乘加自然按 `2^32` 回绕；`seed[0]` 先按位解释为无符号数，再根据 token 原始下标生成 `u_i`；指数竞赛以 `double` 计算 `u`、对数和比值；遍历顺序与排序后的 nucleus 一致，并严格使用 `>` 更新，使完全相等的竞赛分数保留先出现的 token ## 参考实现"
+  },
+  {
+    "id": "rotary-positional-embedding",
+    "title": "Rotary Positional Embedding（旋转位置编码）",
+    "description": "使用 CUDA 对 M×D 查询矩阵执行 half-split RoPE，理解半维配对和位置表布局",
+    "text": "Rotary Positional Embedding 旋转位置编码 使用 CUDA 对 M×D 查询矩阵执行 half-split RoPE，理解半维配对和位置表布局 ## 题目定义 给定形状均为 `(M, D)` 的 FP32 矩阵 `Q`、`cos` 和 `sin`，计算旋转位置编码： `D` 保证为偶数若一行向量分为前后两半 `x1`、`x2`，则： `cos` 与 `sin` 使用 half-split 布局：同一行中第 `j` 维和第 `j + D/2` 维的值相同 ### 示例 第一行由 `Cos` 保持不变，第二行由 `Sin` 选择旋转后的向量。 **实现要求与测试** - 不允许使用外部库，`solve` 签名保持不变 - 结果写入形状为 `(M,D)` 的 `output` - `1 ≤ M,D ≤ 10,000`，`D` 为偶数 - 功能测试包含 `D=2`、全零、正负混合值和 `256×128` - runtime 性能测试额外使用 `M=1,048,576`、`D=128`，其中 `M` 高于题面文字上限，实现须按真实性能规模覆盖 - 绝对与相对误差容限均为 `1e-4` ## 模板代码解析 四个矩阵都按连续行主序存储，元素 `(row,col)` 的线性下标是 `row*D+col`。模板没有提供 kernel 和启动配置。 ## 实现思路 一个线程处理一个输出元素由线性下标得到列号 `col=index%D`，再根据它处于哪一半定位配对元素： 随后计算 `Q[index]*cos[index] + rotated*sin[index]`。`cos` 和 `sin` 的位置维已经展开为 `(M,D)`，不需要按 token 重新生成角度，也不能采用相邻偶奇维配对。 正式性能测试的总元素数超过一亿，因此使用 grid-stride 循环和 `size_t` 索引，避免窄化。每个输出元素独立计算，不需要同步或临时空间。 ## 参考实现"
+  },
+  {
+    "id": "value-clipping",
+    "title": "Value Clipping（数值裁剪）",
+    "description": "使用 CUDA 将一维 FP32 向量逐元素限制在闭区间 [lo,hi]",
+    "text": "Value Clipping 数值裁剪 使用 CUDA 将一维 FP32 向量逐元素限制在闭区间 [lo,hi] ## 题目定义 给定长度为 `N` 的 FP32 输入向量和上下界 `lo`、`hi`，将每个元素裁剪到闭区间 `[lo,hi]`： 边界值本身保持不变 ### 示例 **实现要求与测试** - 只使用原生功能，`solve` 签名保持不变 - 最终结果写入长度为 `N` 的 `output` - `1 ≤ N ≤ 100,000`，`lo ≤ hi` - 输入值范围为 `[-10^6,10^6]` - 功能测试覆盖全零、全负、正负混合、非整数上下界和 `N=2048` - 性能测试使用 `N=100,000`、`lo=-51.24`、`hi=39.51` - 绝对与相对误差容限均为 `1e-5` 官方 `challenge.py` 的正式测试不包含 NaN 或无穷值，因此实现以有限 FP32 输入为约束。若输入为 NaN，下面的显式比较会让它原样传播；这与常见逐比较裁剪语义一致，但不属于正式评测范围。 ## 模板代码解析 输入、输出位于 GPU 显存，上下界按值传入。平台已提供空的 `clip_kernel`、每个 Block 256 个线程的启动配置和同步调用；作答时只需补全 kernel 函数体，并保持参数顺序 `input,output,lo,hi,N`。 ## 实现思路 一个线程负责一个元素，先计算全局下标并检查 `index<N`。裁剪使用两次显式比较： 闭区间边界不会被改变；当 `lo==hi` 时，所有有限输入都会得到该值。相邻线程读写相邻位置，不需要同步。 ## 参考实现"
+  },
+  {
+    "id": "interleave-arrays",
+    "title": "Interleave Arrays（数组交错排列）",
+    "description": "使用 CUDA 将两个等长 FP32 数组交错写入长度为 2N 的输出数组",
+    "text": "Interleave Arrays 数组交错排列 使用 CUDA 将两个等长 FP32 数组交错写入长度为 2N 的输出数组 ## 题目定义 给定两个长度均为 `N` 的 FP32 数组 `A` 和 `B`，生成长度为 `2N` 的输出： ### 示例 **实现要求与测试** - 只使用原生功能，`solve` 签名保持不变 - 最终结果写入 `output` - `1 ≤ N ≤ 50,000,000` - `A`、`B` 的形状均为 `(N,)`，`output` 的形状为 `(2N,)` - 三者类型均为 FP32 - 功能测试包含 `N=1`、正负混合、零、大数和 `N=100,000` - 性能测试使用 `N=25,000,000`，输出含 50,000,000 个元素 - 绝对与相对误差容限均为 `1e-5` ## 模板代码解析 `A`、`B` 和 `output` 都在 GPU 显存中。输入长度相同，输出空间由平台按 `2N` 分配。平台已提供空的 `interleave_kernel`、每个 Block 256 个线程的启动配置和同步调用，作答时只需补全 kernel 函数体。 ## 实现思路 一个线程对应输入下标 `i`，同时完成两次写入： 只需判断 `i<N`，便能保证最大写入位置 `2N-1` 合法。每个线程写入互不重叠的两个位置，无需原子操作或同步。 性能规模较大时，输入和输出访问仍是连续模式：相邻线程读取连续的 `A`、`B`，并写入相邻的输出对 ## 参考实现"
+  },
+  {
+    "id": "weight-dequantization",
+    "title": "Weight Dequantization（权重反量化）",
+    "description": "使用 CUDA 按二维 tile 的共享缩放因子对 FP32 权重矩阵逐元素反量化",
+    "text": "Weight Dequantization 权重反量化 使用 CUDA 按二维 tile 的共享缩放因子对 FP32 权重矩阵逐元素反量化 ## 题目定义 给定形状为 `(M,N)` 的 FP32 权重矩阵 `X` 和缩放矩阵 `S`，按 `TILE_SIZE × TILE_SIZE` 的二维分组计算： 缩放矩阵形状为： 边缘不足一个完整 tile 的行列仍使用对应的最后一个缩放因子 ### 示例 四个 `2×2` tile 分别乘以 `S` 中的 `0.5`、`2.0`、`4.0` 和 `0.25`。；这里沿用题面示意的 `TILE_SIZE=2` 便于展示；正式评测只使用 `{16,32,64,128}` **实现要求与测试** - 不允许使用外部库，`solve` 签名保持不变 - 最终结果写入形状为 `(M,N)` 的 `Y` - `1 ≤ M,N ≤ 8192` - `TILE_SIZE ∈ {16,32,64,128}` - 功能测试包含 `1×1`、非整除尺寸、全零输入、负数和 `2048×4096` - 性能测试使用 `8192×8192`、`TILE_SIZE=128` - 绝对与相对误差容限均为 `1e-5` 尽管题名使用“反量化”，官方运行时中的 `X`、`S`、`Y` 都是 FP32，公式只有乘法，没有 zero-point，也没有整数解码 ## 模板代码解析 三个数组按行主序存储。`S` 的列数不是 `N/TILE_SIZE` 的截断结果，而是 `ceil(N/TILE_SIZE)`。模板没有提供 kernel 和启动配置。 ## 实现思路 每个线程处理 `X` 的一个元素，并由线性下标计算： 缩放矩阵的行主序下标为： 只需对真实的 `M×N` 元素启动线程，因此边缘 tile 不需要额外 padding 或边界分支。`M×N` 最大约 6700 万，使用 `size_t` 计算总量和线性下标。 ## 参考实现"
+  },
+  {
+    "id": "gaussian-error-gated-linear-unit",
+    "title": "Gaussian Error Gated Linear Unit（高斯误差门控线性单元）",
+    "description": "使用 CUDA 实现 GEGLU 前向计算，将一维输入等分为两半，对后半段应用精确 GELU 后与前半段逐元素相乘",
+    "text": "Gaussian Error Gated Linear Unit 高斯误差门控线性单元 使用 CUDA 实现 GEGLU 前向计算，将一维输入等分为两半，对后半段应用精确 GELU 后与前半段逐元素相乘 ## 题目定义 给定长度为偶数 `N` 的 FP32 一维数组 `input`，将它从中间分成等长的 `x1` 和 `x2`： 先对 `x2` 使用精确 GELU： 再计算 GEGLU： 输出长度为 `N / 2` ### 实现要求 - 只使用原生功能，不允许使用外部库 - `solve` 函数签名必须保持不变 - 最终结果必须写入 `output` ### 示例 1 ### 示例 2 ### 约束 - `1 ≤ N ≤ 1,000,000` - `N` 是偶数 - 输入值范围为 `[-100.0, 100.0]` - 性能测试使用 `N = 1,000,000` - 判定的绝对误差和相对误差均为 `1e-4` ## 模板代码解析 平台提供了空 kernel 和完整启动框架： - `input` 是长度为 `N` 的设备数组 - `output` 是长度为 `N / 2` 的设备数组 - starter 已计算 `halfN` 和 Grid 大小 - 作答只需补全 kernel，保持 `solve` 签名和两半连续存储的布局不变 ## 实现思路 一个线程计算一个输出元素。线程索引 `i` 同时对应 `x1[i]` 和 `x2[i]`： 必须使用 reference 中基于 `erf` 的精确 GELU，而不是常见的 `tanh` 近似： 最后写入： 边界判断使用 `i < halfN`，因此最后一个 Block 未占满时不会越界。相邻线程连续读取 `x1`、`x2` 并连续写出结果，访问模式合并良好 时间复杂度为 `O(N)`，无需临时缓冲区 ## 参考实现"
+  },
+  {
+    "id": "rgb-to-grayscale",
+    "title": "RGB to Grayscale（RGB 转灰度图）",
+    "description": "使用 CUDA 将交错存储的 RGB 浮点图像转换为灰度图，介绍像素线程映射、通道寻址和精确加权公式",
+    "text": "RGB to Grayscale RGB 转灰度图 使用 CUDA 将交错存储的 RGB 浮点图像转换为灰度图，介绍像素线程映射、通道寻址和精确加权公式 ## 题目定义 给定一张宽为 `width`、高为 `height` 的 RGB 图像。输入使用一维 FP32 数组存储，每个像素的三个通道连续排列： 对每个像素计算： 输入长度为 `height × width × 3`，输出长度为 `height × width` ### 实现要求 - 不允许使用外部库 - `solve` 函数签名必须保持不变 - 必须使用精确系数 `0.299`、`0.587`、`0.114` - 最终结果必须写入 `output` ### 示例 1 ### 示例 2 ### 约束 - `1 ≤ width, height ≤ 4096` - `width × height ≤ 4,194,304` - RGB 值范围为 `[0.0, 255.0]` - 功能测试包含单像素、全零、全 255、正方形和非正方形图像 - 性能测试使用 `width = height = 2048` - 判定的绝对误差和相对误差均为 `1e-5` ## 模板代码解析 平台提供了空 kernel 和完整启动框架： starter 已按像素数量计算 Grid，每个线程应负责一个输出像素。`width` 和 `height` 决定有效像素总数，但无需将一维线程索引拆成行列坐标 ## 实现思路 线程的全局索引就是像素索引： 像素 `pixel` 在输入中的起点为 `3 × pixel`： 输出中每个像素只占一个位置： 边界条件为 `pixel < width * height`，因此支持任意宽高，包括非正方形图像 每个输入通道只读取一次，每个输出只写一次，时间复杂度为 `O(width × height)`，额外空间为 `O(1)` ## 参考实现"
+  },
+  {
+    "id": "moe-top-k-gating",
+    "title": "MoE Top-K Gating（MoE Top-K 门控）",
+    "description": "使用 CUDA 为每个 token 选择降序排列的 Top-K 专家，并对选中 logits 执行数值稳定的 Softmax",
+    "text": "MoE Top-K Gating MoE Top-K 门控 使用 CUDA 为每个 token 选择降序排列的 Top-K 专家，并对选中 logits 执行数值稳定的 Softmax ## 题目定义 给定形状为 `[M, E]` 的 FP32 行主序矩阵 `logits`，其中 `M` 是 token 数量，`E` 是专家数量。对每一行执行： 1. 选择最大的 `k` 个 logit 2. 按 logit 降序输出对应的专家下标 3. 只对选中的 `k` 个 logit 计算 Softmax 输出形状均为 `[M, k]`： - `topk_weights` 保存归一化权重 - `topk_indices` 保存对应的 `int32` 专家下标 每一位置的权重必须与同位置的专家下标对应 ### 实现要求 - 不允许使用外部库 - `solve` 函数签名必须保持不变 - 最终结果必须写入 `topk_weights` 和 `topk_indices` ### 示例 ### 约束 - `1 ≤ M ≤ 10,000` - `1 ≤ E ≤ 256` - `1 ≤ k ≤ E` - logits 和权重为 FP32，下标为 `int32` - 功能测试包含 `k = 1`、`k = E`、负 logits、`E = 64` 和 `k = 4` - 性能测试使用 `M = 1024`、`E = 64`、`k = 2` - 判定的绝对误差和相对误差均为 `1e-5` 官方测试使用连续随机浮点 logits，没有构造相等值。tie 情况下，`torch.topk` 的具体下标顺序不由题面单独定义。参考实现使用较小下标优先，确保结果确定；不同下标若对应值完全相等，其 Softmax 权重也相等 ## 模板代码解析 CUDA starter 只提供固定入口： - `logits` 是行主序的 `[M, E]` 设备矩阵 - 两个输出都是行主序的 `[M, k]` 矩阵 - `topk_indices` 的元素类型是 `int` - starter 没有提供 kernel、临时缓冲区或启动配置 ## 实现思路 一个 CUDA Block 处理一行 logits。由于 `E ≤ 256`，将该行全部加载到共享内存后，可以在 Block 内完成排序、Softmax 和写回 ### 1. 加载一行 线程 `tid < E` 时读取： 共享内存为固定最大容量 256，覆盖完整约束 ### 2. 选出降序 Top-K 由 0 号线程对最多 256 个 `(value, index)` 对执行选择排序。每轮在未选择区间中寻找最大值，并交换到当前位置，完成前 `k` 轮即可 比较规则为： 因此前 `k` 个位置按值降序，且输出顺序确定。`k = E` 时会排列整行，`k = 1` 时只选择最大值 ### 3. 数值稳定的 Softmax 先取选中值中的最大值 `values[0]`，再计算： 减去最大值可防止正 logits 导致指数溢出。最后除以选中指数项之和，使每行权重之和为 1 ### 4. 写回对应关系 每个线程处理若干个 `j < k`，将 `values[j]` 对应的指数权重和 `indices[j]` 写到相同输出位置，保持位置对应关系 该实现每行选择复杂度为 `O(kE)`，在官方上限 `E = 256` 内覆盖全部约束 ## 参考实现"
+  },
+  {
+    "id": "sigmoid-activation",
+    "title": "Sigmoid Activation（Sigmoid 激活函数）",
+    "description": "使用 CUDA 对大型 FP32 向量逐元素计算数值稳定的 Sigmoid，避免极端负值导致指数溢出",
+    "text": "Sigmoid Activation Sigmoid 激活函数 使用 CUDA 对大型 FP32 向量逐元素计算数值稳定的 Sigmoid，避免极端负值导致指数溢出 ## 题目定义 给定长度为 `N` 的 FP32 向量 `X`，逐元素计算 Sigmoid 并写入 `Y`： Sigmoid 将实数映射到 `(0, 1)` ### 实现要求 - 不允许使用外部库 - `solve` 函数签名必须保持不变 - 最终结果必须写入 `Y` ### 示例 1 ### 示例 2 ### 约束 - `1 ≤ N ≤ 100,000,000` - 输入是有限的 32 位浮点数 - 功能测试包含 `±1000`、零、正负混合值及非 Block 整数倍长度 `N = 255` - 性能测试使用 `N = 50,000,000`，输入范围为 `[-10, 10]` - 判定的绝对误差和相对误差均为 `1e-5` ## 模板代码解析 平台提供了空 kernel 和完整启动框架： - `X`、`Y` 是长度为 `N` 的设备数组 - starter 已按向上取整计算 Grid 大小 - 作答需要补全逐元素 kernel，并保留边界判断 官方 `challenge.py` 的运行时签名把 `N` 描述为 `size_t`，但当前 CUDA starter 的固定签名使用 `int N`。本页参考实现严格保持 starter 签名；题目上限一亿，可由 `int` 安全表示 ## 实现思路 一个线程处理一个元素。为了让极端正负输入都保持数值稳定，按符号使用等价公式： 当 `x` 很负时，直接计算 `exp(-x)` 可能溢出。分支公式只计算 `exp(x)`，它会趋近于 0，不会产生 `inf / inf` 或无效结果 同理，正数分支中的 `exp(-x)` 不大于 1。极端输入 `1000` 和 `-1000` 会稳定得到接近 1 和 0 的结果 线程在访问前判断 `index < N`，覆盖 `N = 255` 等非 Block 整数倍长度。时间复杂度为 `O(N)`，额外空间为 `O(1)` ## 参考实现"
+  },
+  {
+    "id": "2d-jacobi-stencil",
+    "title": "2D Jacobi Stencil（二维 Jacobi 模板计算）",
+    "description": "使用 CUDA 对二维矩阵执行一次五点 Jacobi 更新，并保持边界元素不变",
+    "text": "2D Jacobi Stencil 二维 Jacobi 模板计算 使用 CUDA 对二维矩阵执行一次五点 Jacobi 更新，并保持边界元素不变 ## 题目定义 给定 FP32 行主序矩阵 `input(rows,cols)`，执行一次五点 Jacobi 更新。内部元素取上下左右四个邻居的平均值： 第一行、最后一行、第一列和最后一列属于边界，必须原样复制。题目只要求一次更新，不进行多轮迭代，也不需要交换输入输出缓冲。 ### 示例 例如，内部元素 `(1,1)` 为 `0.25×(2+10+5+7)=6`。其余内部元素也恰好等于对应的原值，边界则直接复制。 约束为 `1≤rows,cols≤16384`，输入与输出均为 FP32，输入值位于 `[-100,100]`。官方测试覆盖 `1×1`、单行、单列、非方阵和非二次幂尺寸；性能用例为 `8192×8192`，容差为 `1e-5`。 ## 模板代码解析 CUDA starter 的签名为： 两个数组都是设备指针，按 `row*cols+col` 寻址。`challenge.py` 先把输入复制到输出，再只覆盖内部区域，因此边界语义是复制而不是补零参与平均。 ## 实现思路 使用二维 Grid，一个线程负责一个元素。线程先检查 `row<rows && col<cols`；若位于边界，直接复制 `input[index]`，否则读取四个合法邻居。这样 `rows<3` 或 `cols<3` 时所有元素自然进入边界分支。 每个输出只依赖只读输入，因此无需同步或临时缓冲，单次 kernel 即可覆盖最大矩阵。 ## 参考实现"
+  },
+  {
+    "id": "segmented-exclusive-prefix-sum",
+    "title": "Segmented Exclusive Prefix Sum（分段独占前缀和）",
+    "description": "使用 CUDA 按段起始标志并行计算 FP64 累计、FP32 输出的独占前缀和",
+    "text": "Segmented Exclusive Prefix Sum 分段独占前缀和 使用 CUDA 按段起始标志并行计算 FP64 累计、FP32 输出的独占前缀和 ## 题目定义 给定 FP32 数组 `values` 和 INT32 数组 `flags`。`flags[i]==1` 表示下标 `i` 是新分段的起点，且官方输入保证 `flags[0]==1`。输出为每段内部的独占前缀和： 所以每个分段首元素的输出都是 0。 ### 示例 约束为 `1≤N≤100,000,000`、`flags[0]=1`、`flags[i]∈{0,1}`，且 `values[i]∈[-100,100]`。官方性能用例 `N=50,000,000`，每 256 个元素开始新段；reference 使用 FP64 计算全局前缀后转回 FP32，判定容差为 `1e-3`。 ## 模板代码解析 CUDA starter 的签名为： 三者均为设备指针。`flags` 不是段编号，而是起点标志。独占语义要求当前元素不计入自己的输出；分段起点的输出必须为零。 ## 实现思路 使用全局 Hillis-Steele 分段扫描。初始化时，为每个位置构造一个二元状态 `(sum,head)`： 这相当于把独占前缀需要的贡献向右移动一位，同时在每个分段起点清零。 每轮偏移为 `1,2,4,...`。当前位置状态为 `cur`，左侧状态为 `left`： `curHead` 表示从左侧位置到当前位置之间已经出现分段起点，此时不能把左侧和跨过边界加入。两个 `double` 缓冲区和两个 `unsigned char` 缓冲区交替作为每轮的输入与输出。每轮启动一个独立 kernel，由 kernel 边界提供全局同步，因此跨越任意 Block 的分段也能正确计算。 算法执行 `ceil(log2 N)` 轮，时间复杂度为 `O(N log N)`，并行深度为 `O(log N)`。临时空间包括两份 FP64 数组和两份字节标志数组，共约 `18N` 字节。这是保证全局分段语义与 FP64 累计精度的正确性基线，并非工作量最优的扫描实现。FP64 累加与官方 reference 一致，最终统一转换为 FP32。`N=1`、连续分段起点、单一长分段和跨 Block 分段都使用同一套逻辑。 ## 参考实现"
+  },
+  {
+    "id": "parallel-merge",
+    "title": "Parallel Merge（并行归并）",
+    "description": "使用 CUDA Merge Path 将两个升序 FP32 数组稳定归并为一个升序数组",
+    "text": "Parallel Merge 并行归并 使用 CUDA Merge Path 将两个升序 FP32 数组稳定归并为一个升序数组 ## 题目定义 给定两个已经按升序排列的 FP32 数组 `A` 和 `B`，长度分别为 `M`、`N`，将全部元素归并到长度 `M+N` 的 `C` 中。结果同样升序，重复值必须全部保留。 ### 示例 1 ### 示例 2 约束为 `1≤M,N≤50,000,000`、`M+N≤50,000,000`；输入元素为 FP32，`A` 与 `B` 都已按非降序排列。官方测试包含长度 1、不等长数组、负数、重复值、无交错区间和非二次幂尺寸；性能用例为 `M=N=25,000,000`，要求逐元素完全一致。 ## 模板代码解析 CUDA starter 的签名为： 三个数组均为设备指针。输入已经有序，不需要先排序。相等时选择 `A` 可以给出稳定的 tie 规则；虽然平台只比较数值，这一规则也保证重复值计数正确。 ## 实现思路 对输出对角线 `diag∈[0,M+N)`，寻找输入划分 `(i,j)`，满足 `i+j=diag`，且归并序列在该位置之前恰有 `i` 个 A 元素和 `j` 个 B 元素。 二分条件使用： 第二个条件采用严格小于，因此相等元素优先取自 A。确定划分后，当前位置取 `min(A[i],B[j])`，相等时仍取 A。每个线程独立计算一个输出位置，复杂度为 `O((M+N)log(min(M,N)))`。每个位置只写一次，也不需要临时缓冲。这是覆盖全部约束的正确性基线；逐输出二分并非面向最大性能用例的最优归并方案。 ## 参考实现"
+  },
+  {
+    "id": "stream-compaction",
+    "title": "Stream Compaction（数据流压缩）",
+    "description": "使用 CUDA 稳定地筛选正数，并把结果紧凑写入输出数组前部",
+    "text": "Stream Compaction 数据流压缩 使用 CUDA 稳定地筛选正数，并把结果紧凑写入输出数组前部 ## 题目定义 给定长度为 `N` 的 FP32 数组 `A`，筛选所有严格大于零的元素，按原输入顺序紧凑写入 `out` 的前部。 ### 示例 零不满足谓词。输出数组的长度仍为 `N`，接口不会单独返回有效长度。若正元素数量为 `k`，则 `out[0:k]` 保存筛选结果，`out[k:N]` 必须为零。约束为 `1≤N≤100,000,000`、`A[i]∈[-1000,1000]`。`out` 是预分配的 FP32 数组，长度为 `N`，运行时初始值为零；参考实现仍主动清零，保证代码可以独立提交。官方测试覆盖无正数、全正数、精确零和非二次幂长度。性能用例为 `N=50,000,000`，要求精确匹配。 ## 模板代码解析 CUDA starter 的真实签名为： 注意参数顺序是 `A,N,out`。稳定顺序是 reference 的布尔索引自然产生的语义；直接让线程对全局计数器 `atomicAdd` 会按执行时序写入，从而破坏输入顺序。 ## 实现思路 参考实现先为每个元素生成 0/1 标志，再执行全局独占扫描：`positions[i]` 表示 `i` 之前有多少个正元素。若 `A[i]>0`，就把它写到 `out[positions[i]]`，因此顺序稳定且写入紧凑。 扫描使用经典的 Hillis-Steele 双缓冲，每轮偏移依次为 `1,2,4...`。每轮启动一个 kernel，以 kernel 边界提供全局同步；读取 `source`、写入 `destination` 后，再交换两个指针。扫描得到的是 inclusive 计数，因此散射位置为 `prefix[i]-1`。 `solve` 在散射前主动清零整个输出，未被正元素覆盖的尾部自然保持为零。同一默认流中的清零、扫描和散射会按提交顺序执行。该实现的时间复杂度为 `O(N log N)`，临时空间为两个长度为 N 的 INT32 数组，可以覆盖最大 N。这是保证稳定顺序和完整输出语义的正确性基线，并非面向最大性能用例的最优压缩扫描实现。 ## 参考实现"
+  },
+  {
+    "id": "all-pairs-shortest-paths",
+    "title": "All-Pairs Shortest Paths（全源最短路径）",
+    "description": "使用 Floyd-Warshall 在 GPU 上计算有向带权图的全源最短路径，正确处理阶段同步与无穷大",
+    "text": "All-Pairs Shortest Paths 全源最短路径 使用 Floyd-Warshall 在 GPU 上计算有向带权图的全源最短路径，正确处理阶段同步与无穷大 ## 题目定义 输入 `dist` 是按行主序展平的 `N × N` 距离矩阵，`dist[i*N+j]` 表示从顶点 `i` 到顶点 `j` 的直接边权。不可达位置为正无穷，主对角线为 0。要求把任意两点之间的最短距离写入 `output` 运行时 reference 使用 Floyd-Warshall： ### 官方示例 其中 `0→2` 经由顶点 1，距离为 8；`0→3` 经由 `1→2`，距离为 9；`1→3` 经由顶点 2，距离为 4 ### 完整约束 - `1 ≤ N ≤ 4096` - 边权是有限 `float32` 或表示无直接边的正无穷 - 输入图没有负环 - 对所有 `i`，均有 `dist[i*N+i] = 0` - `dist` 与 `output` 都是长度 `N*N` 的 FP32 行主序数组 - 性能测试使用 `N=2048` - 运行时评测还包括 `N=1`、断连图、零权边、无负环的负权边和非二次幂规模 - 判定容差为 `atol=0.01, rtol=0.01` ## 模板代码解析 CUDA starter 的真实入口为： `dist` 是只读设备指针，`output` 是长度为 `N*N` 的设备输出。题目没有传入额外缓冲区，因此可以先把输入复制到输出，再原地执行 Floyd-Warshall 每个 `k` 都依赖上一个阶段更新后的完整矩阵。Block 内同步不足以覆盖整个 Grid，阶段之间必须有全局同步。最直接的做法是每个 `k` 启动一次 kernel；默认 Stream 中的 kernel 按提交顺序执行 ## 实现思路 一个二维线程负责一个 `(i,j)`，读取当前阶段的 `output[i,k]` 与 `output[k,j]`，再更新 `output[i,j]` 由于输入图主对角线为 0 且不存在负环，同一 `k` 阶段原地更新第 `k` 行和第 `k` 列不会改变它们： 因此 kernel 可直接跳过 `row==k` 或 `col==k` 的元素，既保持 reference 结果，也避免同一阶段对枢轴行列同时读写 正无穷满足 `inf + x = inf`，使用普通浮点加法与 `fminf` 会自然保留不可达状态，无需把 INF 替换成有限哨兵。负权边也按同一公式处理 时间复杂度为 `O(N³)`，额外设备空间为 `O(1)`；输出矩阵本身占 `O(N²)` ## 参考实现"
+  },
+  {
+    "id": "gpt-2-transformer-block",
+    "title": "GPT-2 Transformer Block（GPT-2 Transformer 块）",
+    "description": "按固定 GPT-2 124M 维度实现双 Pre-LayerNorm、全局多头注意力、tanh GELU、投影与两次残差连接",
+    "text": "GPT-2 Transformer Block GPT-2 Transformer 块 按固定 GPT-2 124M 维度实现双 Pre-LayerNorm、全局多头注意力、tanh GELU、投影与两次残差连接 ## 题目定义 实现一个固定维度的 GPT-2 Transformer Block：隐藏维度 `D=768`，注意力头数 `H=12`，每头维度 `DH=64`，FFN 中间维度 `3072` 运行时顺序为： 注意力是双向全局注意力，runtime reference 没有 causal mask。LayerNorm 使用总体方差和 `eps=1e-5`，GELU 使用 PyTorch 的 `approximate=\"tanh\"` ### 官方示例 示例中的 `x` 从 `[-1,1]` 均匀抽样，`weights` 按下述固定布局随机初始化 ### 完整约束 - `1 ≤ seq_len ≤ 4096` - `x` 和 `output` 的形状均为 `(seq_len,768)` - `weights` 是恰含 `7,087,872` 个元素的连续缓冲区 - `x`、`output` 和 `weights` 均为 FP32 - 固定架构为 `d_model=768`、`n_heads=12`、`head_dim=64`、`ffn_dim=3072` - LayerNorm 使用 `eps=1e-5`，GELU 使用 tanh 近似 - 性能测试使用 `seq_len=1024` - 功能测试覆盖 `seq_len=1,2,4,16,30,64,100,128,256` 及零输入 - 判定容差为 `atol=0.001, rtol=0.001` ## 模板代码解析 真实 starter 为： `weights` 是一个连续 FP32 缓冲区，布局严格为： 所有二维权重都是行主序，投影语义是输入行向量右乘权重，也就是输出列 `j` 累加 `input[k] * W[k,out]` ## 实现思路 参考实现把各阶段拆为顺序 kernel，并复用工作区以控制内存峰值：`a` 保存归一化/投影结果，`qkv` 保存 2304 维投影，`attention` 保存拼接后的注意力结果，`hidden` 保存第一次残差，`fc` 保存 3072 维 FFN 激活 LayerNorm 为每个 token 分配一个线程，按固定维度计算均值与总体方差。注意力为每个 `(head,query)` 启动一个 Block：线程 0 顺序计算所有 Key 的 score 和减最大值 Softmax，再由线程协作输出该头的 64 个特征。这里没有上三角掩码 QKV 在每个 token 内布局为 `[Q的768维,K的768维,V的768维]`，每个部分再按 `head*64+feature` 定位。注意力缩放固定为 `1/sqrt(64)=0.125` 两次残差不可交换：第一次把注意力投影加到原始 `x`，得到 `hidden`；第二次把 FFN 投影加到 `hidden`。LayerNorm 2 的输入必须是 `hidden` `tanh` GELU 公式为： ## 参考实现"
+  },
+  {
+    "id": "sparse-matrix-dense-matrix-multiplication",
+    "title": "Sparse Matrix-Dense Matrix Multiplication（稀疏矩阵与稠密矩阵乘法）",
+    "description": "按运行时真实布局计算含零元素的稠密 A 与稠密 B 的矩阵乘法，并利用零值跳过无效乘加",
+    "text": "Sparse Matrix-Dense Matrix Multiplication 稀疏矩阵与稠密矩阵乘法 按运行时真实布局计算含零元素的稠密 A 与稠密 B 的矩阵乘法，并利用零值跳过无效乘加 ## 题目定义 运行时传入的 `A` 是形状 `[M,N]` 的 FP32 矩阵，零元素表示稀疏位置；`B` 是 `[N,K]` 的稠密矩阵，输出 `C` 为 `[M,K]`： 尽管题名包含 Sparse Matrix，官方 runtime 并未传入 CSR 的 `row_ptr`、`col_idx` 和 `values`。`A` 仍以完整的行主序 `M*N` 数组传入，`nnz` 只是独立的整数参数，reference 也直接执行稠密 `A @ B` ### 官方示例 ### 完整约束 - `1 ≤ M,N,K ≤ 8192` - `A`、`B`、`C` 均为 FP32 行主序矩阵 - `A` 与 `B` 的元素范围为 `[-10,10]` - 题面描述 `A` 约有 60%–70% 元素为零 - `nnz` 表示 `A` 中非零元素的数量，但不携带 CSR 索引；运行时仍传入完整的 `M*N` 数组 - 性能测试使用 `M=4096,N=2048,K=512` - 运行时评测覆盖 `nnz=0`、单位矩阵、负值和非二次幂维度 - 判定容差为 `atol=0.001, rtol=0.001` ## 模板代码解析 真实 CUDA 签名为： 三个矩阵均为行主序设备数组，参数顺序不能按常见 GEMM 的 `M,K,N` 误读。`nnz` 不携带非零元素的位置，不能据此恢复 CSR，也不能只遍历 `A` 的前 `nnz` 个元素 ## 实现思路 一个二维线程负责一个输出元素 `(row,col)`，沿共享维度 `n=0..N-1` 扫描 读取到 `A[row,n]==0` 时跳过对应乘加，在不改变运行时语义的前提下利用稀疏性。全零矩阵会得到全零输出；`K=1` 时自然退化为矩阵向量乘法 `nnz` 仅用于描述输入，不参与寻址。参考实现显式忽略它，提交代码也保持这一行为，避免把逻辑建立在缺失的 CSR 元数据上 这份基线实现复杂度仍是 `O(MNK)`；进一步优化可使用 tiling 复用 `A` 与 `B` 数据，但必须保持对完整行主序 `A` 的读取 ## 参考实现"
+  },
+  {
+    "id": "adder-transformer-inference",
+    "title": "Adder Transformer Inference（加法器 Transformer 推理）",
+    "description": "精确复现手工构造的十参数加法器 Transformer，并自回归生成 11 位输出 logits",
+    "text": "Adder Transformer Inference 加法器 Transformer 推理 精确复现手工构造的十参数加法器 Transformer，并自回归生成 11 位输出 logits ## 题目定义 输入 `prompts` 的形状为 `[batch_size,31]`，包含两个倒序排列的十进制十位数；模型自回归生成 11 步，每步输出 10 个 token 的 logits，因此 `output` 形状为 `[batch_size,11,10]` 模型维度固定为 2，单头维度为 2，词表大小为 10，权重缓冲仅有 10 个 FP32 参数： 每一步都对当前完整序列重新执行模型，只取最后一个有效位置的 logits 写入输出，再以 `argmax` token 追加到序列 ### 官方示例 ### 完整约束 - `1 ≤ batch_size ≤ 100000` - `prompts` 的形状为 `[batch_size,31]`，数据类型为 `int32`，元素范围为 `[0,9]` - `weights` 是恰含 10 个元素的 FP32 数组 - `output` 的形状为 `[batch_size,11,10]`，数据类型为 FP32 - 输入加数范围为 `[0,9,999,999,999]` - 固定架构为词表 10、隐藏维度 2、单头、头维度 2、prompt 长度 31、解码 11 步 - RMSNorm epsilon 为 `1e-6`，RoPE 角频率为 `2π/19` - 性能测试使用 `batch_size=100000` - 判定容差为 `atol=0.01, rtol=0.01` ## 模板代码解析 真实 CUDA 入口为： 运行时语义必须逐项保持：embedding 为 `[w0-w1*d²,-d]`；注意力前和 Q/K 投影后都用无参数 RMSNorm，epsilon 为 `1e-6`；Q/K 应用周期 19 的 RoPE；注意力是 causal Softmax；O 投影把注意力第一维放到隐藏第二维；MLP 使用两个特定 gate 与 SwiGLU 差值；最后使用带学习权重的 RMSNorm，并与 embedding table 权重绑定做输出投影 由于每一步只需要最后位置的 logits，而 causal mask 保证它可以关注当前的全部 token，因此参考 CUDA 实现只计算最后一个 Query 对所有 Key 的注意力，无需计算其他 Query 的输出。这与 Python runtime 在最后位置的结果相同 ## 实现思路 一个 CUDA 线程处理一个 batch 样本，每个 Block 使用 256 个线程，并行处理最多 256 个样本。每个线程顺序执行 11 步完整的最后位置推理，并在自己的局部数组中维护最长 42 个 token，不需要跨线程通信或全局临时缓冲 每个序列 token 先由 embedding 构造二维 `h`，再做单位 RMSNorm。Q 为 `[h0*qw0,h0*qw1]`，K 为 `[h0,0]`，V 为 `[h1*vw,0]`；Q/K 再各自执行 RMSNorm，然后按位置角度 `position*2π/19` 旋转 最后一个 Query 的注意力 score，是旋转后的 Q/K 点积乘以 `ATTN_SCALE = (HEAD_DIM^-0.5) × QK_NORM_SCALE²`。运行时该值为 `52.91764988494996`，写入 CUDA FP32 常量后是 `52.91764831542969f`（位模式 `0x4253abac`）。Q/K 的 unit RMSNorm 不包含 `QK_NORM_SCALE`，这个放大系数只能通过 `ATTN_SCALE` 保留。Softmax 先减去最大值，再对当前 `seq_len` 个 Key 全部归一化，这等价于 causal mask 在最后一行的行为 注意力输出的第一维形成 `o=[0,attn0]`，并与最后一个 token 的原始 embedding 相加。第二次 RMSNorm 后，严格复现： 加上 MLP 残差后执行学习型 RMSNorm，最后与十个 embedding 向量做点积，得到 logits。`argmax` 使用严格 `>`，因此平局时保留最小 token 下标，与 PyTorch `argmax` 一致 ## 参考实现"
   }
 ]
