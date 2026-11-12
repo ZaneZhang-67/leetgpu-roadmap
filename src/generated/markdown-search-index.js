@@ -743,5 +743,101 @@ export const markdownSearchIndex = [
     "title": "Row-wise Argmax（逐行最大值索引）",
     "description": "使用 CUDA 对 FP32 矩阵逐行归约，并在并列最大值时返回最小列索引",
     "text": "Row-wise Argmax 逐行最大值索引 使用 CUDA 对 FP32 矩阵逐行归约，并在并列最大值时返回最小列索引 ## 题目定义 对形状 `(B,V)` 的 FP32 logits 每行求最大值所在列，并把 INT32 索引写入 `output(B)`。若多个元素并列最大，返回最小列索引。 ### 示例 第二行第 1、2 列并列，选择较小的索引 1。 **约束与测试** - `1≤B≤1024`，`1≤V≤262,144`，不存在空行 - logits 全部是有限 FP32，官方契约和测试都不包含 NaN - 测试覆盖 `V=1`、全零、全负、末列最大、重复最大值和 `V=32,000` - 性能测试 `B=256,V=128,000`，输出要求完全一致，`atol=rtol=0` ## 模板代码解析 官方 starter 只提供空入口。logits 按行主序存储，output 是每行一个 INT32 索引。 ## 实现思路 每个 Block 处理一行。每个线程从自己的第一列开始跨步扫描，维护局部 `(value,index)`。比较规则为：值更大者胜出；值相等时索引更小者胜出。共享内存归约同样使用该规则，因此与线程划分和归约树无关，始终得到首个最大值。 `V≥1` 且输入有限，可以用负无穷初始化局部最大值。官方不包含 NaN，无需定义 NaN 比较行为。 ## 参考实现"
+  },
+  {
+    "id": "fused-adamw",
+    "title": "Fused AdamW（融合 AdamW）",
+    "description": "使用单个 CUDA kernel 原地完成解耦权重衰减、矩估计和偏差修正更新",
+    "text": "Fused AdamW 融合 AdamW 使用单个 CUDA kernel 原地完成解耦权重衰减、矩估计和偏差修正更新 ## 题目定义 对长度为 `N` 的 FP32 参数、梯度以及一阶和二阶矩执行一次 AdamW 更新： params、m、v 原地更新。权重衰减直接作用于更新前的 params，不并入 grad，并且发生在自适应步之前。 ### 示例 **约束与测试** - `1≤N≤16,777,216`，`1≤t≤100,000` - params 与 grad 的值位于 `[-10,10]`，v 非负，m 可以为负 - `0<lr≤1`，`0≤beta1,beta2<1`，`1e-12≤eps≤1e-2`，`0≤weight_decay≤1` - 测试覆盖零梯度、热状态、非默认 beta、大 eps 和大 t - 性能测试 `N=16,777,216,t=1000`，容差 `atol=rtol=1e-4` ## 模板代码解析 官方 starter 只给出空入口。params、m、v 是读写缓冲区，grad 只读；没有独立输出。 ## 实现思路 各元素完全独立，一个线程处理一个位置。偏差修正只依赖标量超参数，在 host 端用 `powf` 计算后传入 kernel，避免每个线程重复求幂。kernel 先保存旧 params，再按运行时顺序更新 m、v，最后用衰减后的 params 减去自适应步。 ## 参考实现"
+  },
+  {
+    "id": "split-kv-attention-reduction",
+    "title": "Split-KV Attention Reduction（Split-KV 注意力归约）",
+    "description": "使用各分片的 LSE 稳定权重合并 Split-KV 注意力局部输出",
+    "text": "Split-KV Attention Reduction Split-KV 注意力归约 使用各分片的 LSE 稳定权重合并 Split-KV 注意力局部输出 ## 题目定义 `partial_out:[num_splits,num_heads,head_dim]` 是每个 KV 分片内部已经归一化的注意力输出，`partial_lse:[num_splits,num_heads]` 是对应 score 的 log-sum-exp。对每个 head： 不能直接平均 partial output；LSE 决定每片在完整 Softmax 中的质量。 ### 实现要求与约束 保持签名，FP32 输出。正式范围为 `1≤num_splits≤256`、`1≤num_heads≤128`、`1≤head_dim≤256`；覆盖单 split、相等 LSE、非 2 的幂 split/head_dim。性能测试 `splits=128,heads=64,head_dim=128`，容差 `1e-4`。 ## 模板代码解析 ## 实现思路 一个 Block 负责一个 head。线程先并行归约最大 LSE，再归约指数权重和；随后各线程跨步计算输出维。Shared Memory 仅需 256 个 float，最大值平移保证指数稳定。 ## 参考实现"
+  },
+  {
+    "id": "fused-linear-cross-entropy",
+    "title": "Fused Linear Cross Entropy（融合线性投影与交叉熵）",
+    "description": "不物化 Logits，以词表分块和在线 LogSumExp 计算平均交叉熵",
+    "text": "Fused Linear Cross Entropy 融合线性投影与交叉熵 不物化 Logits，以词表分块和在线 LogSumExp 计算平均交叉熵 ## 题目定义 `X(N,D)` 与 `W(V,D)` 的每一词表行点积得到 logit。每行损失是稳定 LogSumExp 减目标 logit，最终输出 N 行平均： W 是 `(V,D)`，等价于 `X Wᵀ`。targets 为 INT32。 ### 示例 官方示例 logits 为 `[[1,0,1],[0,2,2]]`，两行损失约 0.8620、0.7586，平均 `loss[0]=0.8103`。 约束 `1≤N≤8192,1≤D≤4096,2≤V≤65536`，每个 `target[i]` 都满足 `0≤target[i]<V`，logit 可达数百。性能用例 `N=4096,D=1024,V=32768`。 ## 模板代码解析 签名为： loss 是单元素输出，必须计算均值而不是总和。 ## 实现思路 每个 Block 负责一行，线程分别扫描一部分词表。每个 logit 的 D 维点积由当前线程计算，局部维护 `(max,sumExp,targetLogit)`；随后 Block 归约最大值，再以 `exp(localMax-globalMax)` 修正局部指数和。这种流式方法只保存 N 个行损失，不分配 `N×V` logits，并能处理大 logit。 词表并行有 256 路，但点积仍是线程内 D 循环；高端实现可把词表×D 改为二维 tiled GEMM 后在线归约。此实现覆盖最大规模且无全局 logits 内存瓶颈。 ## 参考实现"
+  },
+  {
+    "id": "fused-moe-swiglu-layer",
+    "title": "Fused MoE SwiGLU Layer（融合 MoE SwiGLU 层）",
+    "description": "按 Top-K 路由计算专家 SwiGLU 并使用原始路由权重合并输出",
+    "text": "Fused MoE SwiGLU Layer 融合 MoE SwiGLU 层 按 Top-K 路由计算专家 SwiGLU 并使用原始路由权重合并输出 ## 题目定义 每个 Token 路由至 K 个互异专家。专家权重布局为 `w_gate(E,H,I)`、`w_up(E,H,I)`、`w_down(E,I,H)`： 路由权重按原值使用，可能未归一化、为负数或零；空专家不产生工作。题面没有 capacity 或丢弃规则。 ### 示例 官方 `T=H=I=E=2,K=1` 示例中，Token 0 经专家 0、权重 1，Token 1 经专家 1、权重 0.5，输出 `[[0.7311,0],[0,0.7311]]`。 约束 `T≤8192`、`H,I≤4096`、`K≤E≤64`。性能用例 `T=4096,H=1024,I=1408,E=16,K=2`。 ## 模板代码解析 签名为： 矩阵是 `(H,I)` 与 `(I,H)`，不是常见的 `(out,in)` 方向。 ## 实现思路 先把每个 `(token,route)` 展开为 R=T×K 行。每个 Block 固定处理一个 route，16×16 个线程分别覆盖 16 个输出通道和 K 维分片；这样整个 Block 只读取该 route 对应专家的权重，不会让同一 Shared Memory tile 混入多个专家。Gate 与 Up 共用 x 分片并融合 SiLU，Down 阶段同样保持一个 Block 一个 route，再以路由权重 `atomicAdd` 到已清零的 Token 输出。 中间缓冲大小为 `T×K×I`，性能用例约 44 MiB。Grid 的 x 维完整覆盖 R，包括最后一个 route；y 维覆盖 I 或 H 的通道 Tile。x 维上限足以容纳最大 `R=8192×64=524288`，每个 route 在输出通道上有多个 Block 并行。 ## 参考实现"
+  },
+  {
+    "id": "fused-layernorm-linear-gelu",
+    "title": "Fused LayerNorm Linear GELU（融合 LayerNorm、Linear 与 GELU）",
+    "description": "以稳定统计和共享内存分块实现 LayerNorm、线性投影及精确 GELU",
+    "text": "Fused LayerNorm Linear GELU 融合 LayerNorm、Linear 与 GELU 以稳定统计和共享内存分块实现 LayerNorm、线性投影及精确 GELU ## 题目定义 对 `x(M,K)` 每行计算 biased variance（除以 K），再应用 gamma、beta，乘 `W(K,N)`、加 bias，并使用精确 erf GELU： 不得换成 tanh 近似。W 的方向是 `(K,N)`。 ### 示例 官方 `M=K=N=2` 示例中，归一化行为 `[-1,1]`、`[0,0]`，线性结果 `[[-1,4],[0,1]]`，输出约 `[[-0.1587,3.9999],[0,0.8413]]`。 约束 `M≤8192`、`K,N≤8192`、`0<eps≤1`；输入可带约 -1000 的公共偏移。性能用例三维均为 4096。 ## 模板代码解析 签名为： gamma、beta 长度均为 K，bias 长度 N。 ## 实现思路 先用每行一个 Block 的 Welford 合并统计得到 mean 与方差，避免 `E[x²]-E[x]²` 在大公共偏移下相消。随后 tiled GEMM 在加载 x tile 时完成标准化和 gamma/beta，W 按 `(K,N)` 载入 Shared Memory；bias 和 erf GELU 在 epilogue 融合。仅保存 `2M` 个统计量，不物化 normalized x 或 pre-activation。 ## 参考实现"
+  },
+  {
+    "id": "speculative-tree-attention",
+    "title": "Speculative Tree Attention（推测树注意力）",
+    "description": "让每个候选节点只关注共享前缀及自己的祖先路径，并计算稳定缩放点积注意力",
+    "text": "Speculative Tree Attention 推测树注意力 让每个候选节点只关注共享前缀及自己的祖先路径，并计算稳定缩放点积注意力 ## 题目定义 `P` 个缓存 token 由所有树节点共享。候选节点 `i` 只能关注全部缓存，以及从根到 `i` 的祖先和自身；它不能看到兄弟、其他根或后代。`parents[i]<i`，根节点的 parent 为 `-1`。 每个 Head 在允许集合上计算 `Q·K/sqrt(D)`、稳定 Softmax 和 V 加权，输出形状 `[T,H,D]`。 ### 官方示例 ### 完整约束 - `1 ≤ P ≤ 16384`，`1 ≤ T ≤ 128` - `1 ≤ H ≤ 64`，`1 ≤ D ≤ 256` - `-1 ≤ parents[i] < i`，输入值范围 `[-6,6]` - 除 parents 为 int32 外，所有张量为 FP32 - 性能测试为 `P=8192,T=64,H=32,D=128` - 容差为 `1e-4` ## 模板代码解析 缓存布局为 `[P,H,D]`，树张量为 `[T,H,D]`。树 mask 由 parents 动态决定，不能用普通下三角 causal mask 代替。 ## 实现思路 第一阶段每个 `(node,head)` 使用一个 Block。线程先沿 parent 链构造长度至多 128 的祖先标记，再协作计算每个允许位置的 score，直接写入全局临时数组。 第二阶段以相同 Grid 并行归约 score 最大值与指数和，并把未归一化权重写回；随后线程按输出 feature 并行累加 V。Block 只使用 256 个 FP32 归约槽和 128 字节祖先标记，不依赖超过默认上限的动态 Shared Memory。全局权重为 `T*H*(P+T)`，性能规模约 64.5 MiB（67.6 MB）；score 计算不再额外乘输出维 D。 ## 参考实现"
+  },
+  {
+    "id": "multi-lora-batched-linear",
+    "title": "Multi-LoRA Batched Linear（多 LoRA 批量线性层）",
+    "description": "为批内每个 token 按 adapter id 选择独立的低秩增量并与共享基础投影融合",
+    "text": "Multi-LoRA Batched Linear 多 LoRA 批量线性层 为批内每个 token 按 adapter id 选择独立的低秩增量并与共享基础投影融合 ## 题目定义 `x[T,K]` 共享基础权重 `W[K,N]`。token `t` 的 adapter id 为 `a` 时： 其中 `A[L,K,R]`、`B[L,R,N]`。`adapter_ids[t]=-1` 表示只使用基础投影。批内 token 没有按 adapter 排序，每行必须独立读取自己的 id。 ### 官方示例 ### 完整约束 - `1 ≤ T ≤ 4096`，`1 ≤ K,N ≤ 8192` - `1 ≤ R,L ≤ 64` - `-1 ≤ adapter_ids[t] < L` - 数据张量为 FP32，adapter id 为 int32 - 性能测试为 `T=1024,K=N=4096,R=16,L=8` - 容差为 `1e-3` ## 模板代码解析 A 的索引是 `((adapter*K+k)*R+r)`，B 是 `((adapter*R+r)*N+n)`。`L` 限定 adapter id，不是矩阵维度。 ## 实现思路 先并行计算 base GEMM，每线程负责 `(t,n)`；生产级实现可进一步用 K 维 tiling 在 Shared Memory复用 x/W。随后计算 shrink `[T,R]`：仅当 id 非负时读取对应 A；最后并行 expand 并乘 `scale` 加入 y。这样不会为 `-1` 访问 adapter 0，也支持 adapter id 交错。性能规模的三个阶段都有二维 Grid，不由单线程承担矩阵乘法。 ## 参考实现"
+  },
+  {
+    "id": "fp8-block-scaled-gemm",
+    "title": "FP8 Block-Scaled GEMM（FP8 分块缩放矩阵乘法）",
+    "description": "按 E4M3FN 位级格式解码矩阵元素，应用 reduction 维的 1×128 分块缩放并输出 FP16",
+    "text": "FP8 Block-Scaled GEMM FP8 分块缩放矩阵乘法 按 E4M3FN 位级格式解码矩阵元素，应用 reduction 维的 1×128 分块缩放并输出 FP16 ## 题目定义 `x_q[M,K]` 与 `w_q[N,K]` 的每个 uint8 都是 PyTorch `float8_e4m3fn` 的位模式，而不是无符号整数值。每 128 个连续 K 元素共享一个 FP32 scale： 输出为 FP16 `[M,N]`。题目没有额外 alpha 参数；两个 block scale 的乘积直接乘入每项。 ### 官方示例 ### 完整约束 - `1 ≤ M,N ≤ 16384` - `128 ≤ K ≤ 16384` 且 K 能被 128 整除 - FP8 payload 有限，无 NaN；题面给出的 scale 范围是 `[0.01,4]`，runtime 的 tiny-scale 用例还会生成约 `[0.0025,0.015]` 的正 FP32 scale - x/w 为 uint8 位模式，y 为 FP16 - 性能测试为 `M=2048,N=4096,K=4096` - 容差为 `atol=0.1,rtol=0.05` ## 模板代码解析 scale 布局分别为 `[M,K/128]` 和 `[N,K/128]`。参考代码手工按 E4M3FN 解码，覆盖零、subnormal 和 finite normal；测试排除了 NaN 位型。 ## 实现思路 一个线程计算一个输出元素，从 FP8 解码和 scale 相乘开始就使用 double，并按 K 累加 double。E4M3FN 位字段为 sign 1 位、exponent 4 位、mantissa 3 位，bias 为 7：exp=0 时值为 `mantissa*2^-9`；其余有限值为 `(1+mantissa/8)*2^(exp-7)`，再应用符号。scale 每 128 项加载一次。最终只在写回时用 `__double2half` 转成 FP16。这样与 runtime 的 float64 reference 一致，也覆盖基础采样再乘 `0.01`、实际下探至约 `0.0025` 的 tiny-scale 测试。二维 Grid 覆盖全部 M×N。 ## 参考实现"
+  },
+  {
+    "id": "flash-decoding-attention",
+    "title": "Flash Decoding Attention（Flash 解码注意力）",
+    "description": "使用在线 Softmax 在长 KV 上计算无掩码多头解码注意力",
+    "text": "Flash Decoding Attention Flash 解码注意力 使用在线 Softmax 在长 KV 上计算无掩码多头解码注意力 ## 题目定义 布局为 `Q:[T,H,D]`、`K/V:[S,H,D]`、输出 `[T,H,D]`： 本题没有因果 mask：K/V 已表示当前可见缓存，每个 query 访问全部 S 个键。 ### 实现要求与约束 - `1≤T≤16`，`1≤S≤131072` - `1≤H≤64`，`1≤D≤256` - 所有张量均为 FP32，输入值位于 `[-6,6]` - 保持签名并使用稳定 Softmax - 功能测试含零 query、大 score 和非 2 的幂 - 性能测试 `T=1,S=65536,H=32,D=128` - 绝对误差和相对误差均为 `1e-4` 官方示例 `T=2,S=3,H=1,D=2`，两行输出约为 `[3,4]` 和 `[3.4067,4.4067]`。 ## 模板代码解析 ## 实现思路 一个 128 线程 Block 负责 `(t,h)`。对每个 key，所有 lane 协作计算一次 Q·K；随后按在线 Softmax 递推更新最大值 m、分母 l 和 D 维分子 acc。每个 score 只计算一次，不分配长度 S 的 score 缓冲。Shared Memory 为 `128+D` 个 double，D=256 时只需 3 KiB，适用于长 KV cache。 ## 参考实现"
+  },
+  {
+    "id": "rms-norm-backward",
+    "title": "RMS Norm Backward（RMS Norm 反向传播）",
+    "description": "使用 CUDA 计算 RMSNorm 输入梯度与跨行权重梯度",
+    "text": "RMS Norm Backward RMS Norm 反向传播 使用 CUDA 计算 RMSNorm 输入梯度与跨行权重梯度 ## 题目定义 对 `x(N,C)`、weight(C) 和上游梯度 dy(N,C)，重新计算前向统计并输出 dx 与 dweight： 两个输出初始含未定义数据，必须完整覆盖。 ### 示例 **约束与测试** - `1≤N≤65,536`，`1≤C≤16,384`，全部为 FP32 - `x∈[-250,250]`，`dy∈[-10,10]`，`weight∈[-2,2]`，`1e-6≤eps≤1` - 测试覆盖零 x、零 dy、相关梯度、非二次幂和奇数行数 - 性能测试 `N=16,384,C=4096`，容差 `atol=rtol=1e-3` ## 模板代码解析 官方 starter 只提供空入口。rstd 未保存，必须从 x 重新计算；dx 按行归约，dweight 按列归约。 ## 实现思路 第一个 kernel 每个 Block 处理一行，用共享内存归约 `sum(x²)` 得到 rstd，将它同时保存到共享标量和临时数组 `row_rstd[N]`；随后归约 `sum(dy*weight*xhat)` 得到 proj，最后写 dx。独立的共享标量可避免第二次归约覆盖 `s[0]` 后误读 rstd。 第二个 kernel 每个线程负责一列 j，按 `i=0..N-1` 的固定顺序读取 `row_rstd[i]` 并累加 dweight。这样不使用原子操作，也不重复计算每行平方和，总复杂度为 `O(NC)`。 ## 参考实现"
+  },
+  {
+    "id": "fused-residual-add-and-layernorm-with-saved-statistics",
+    "title": "Fused Residual Add and LayerNorm with Saved Statistics（融合残差加法与保存统计量的 LayerNorm）",
+    "description": "使用 CUDA 融合残差加法、稳定 LayerNorm，并保存均值与倒标准差",
+    "text": "Fused Residual Add and LayerNorm with Saved Statistics 融合残差加法与保存统计量的 LayerNorm 使用 CUDA 融合残差加法、稳定 LayerNorm，并保存均值与倒标准差 ## 题目定义 先计算 `h=x+residual`，再逐行做 LayerNorm： 必须同时完整写出 `y(N,C)`、`residual_out=h`、`mean(N)` 和 `rstd(N)`。统计基于已经舍入为 FP32 的 h。 ### 示例 **约束与测试** - `1≤N≤65,536`，`1≤C≤16,384`，全部张量为 FP32 - x/residual `[-1000,1000]`，gamma `[-2,2]`，beta `[-0.5,0.5]` - `1e-6≤eps≤1`；测试含常量行、大 DC offset 和非二次幂宽度 - 性能测试 `N=16,384,C=4096`，容差 `atol=rtol=1e-3` ## 模板代码解析 官方 starter 只提供空入口。四个输出都预填垃圾值，不能遗漏任何元素。 ## 实现思路 每个 Block 负责一行。第一遍计算 FP32 的 `h=x+residual` 并写 residual_out，同时用 Welford 算法形成线程局部 `(count,mean,M2)`；共享内存合并后得到稳定总体方差。该方法避免大 offset 测试中 `E[h²]-E[h]²` 的灾难性抵消。 线程 0 写 mean 与 rstd，同步后各线程读取 residual_out，完成 gamma/beta 仿射并写 y。每个输入只在第一遍读取一次。 ## 参考实现"
+  },
+  {
+    "id": "layer-norm-backward",
+    "title": "Layer Norm Backward（Layer Norm 反向传播）",
+    "description": "使用 CUDA 和保存的逐行统计量计算输入、缩放与偏置梯度",
+    "text": "Layer Norm Backward Layer Norm 反向传播 使用 CUDA 和保存的逐行统计量计算输入、缩放与偏置梯度 ## 题目定义 前向保存了 mean(N) 与 rstd(N)。反向定义： 三个输出均未初始化，必须完整覆盖。 ### 示例 **约束与测试** - `1≤N≤65,536`，`1≤C≤16,384`，所有张量为 FP32 - x `[-250,250]`，dy `[-10,10]`，gamma `[-2,2]` - 测试覆盖 C=1、常量行、零 dy、负 gamma、非二次幂和奇数 N - 性能测试 `N=16,384,C=4096`，容差 `atol=rtol=1e-3` ## 模板代码解析 mean 和 rstd 直接来自前向，不重新统计 x。dx 需要逐行归约，dgamma 与 dbeta 需要逐列归约。 ## 实现思路 dx kernel 每个 Block 处理一行，同时归约 `sum(g)` 和 `sum(g*xhat)`，再写该行 dx。参数梯度 kernel 每线程处理一列并按行号递增的固定顺序累加 dgamma/dbeta，避免原子加法的非确定顺序，也直接覆盖预填的输出。两个阶段均为 `O(NC)`。 ## 参考实现"
+  },
+  {
+    "id": "paged-chunked-prefill-attention",
+    "title": "Paged Chunked Prefill Attention（分页分块预填充注意力）",
+    "description": "使用 CUDA 按 block table 访问分页 KV Cache，并应用 chunk 绝对位置因果边界和 GQA 映射",
+    "text": "Paged Chunked Prefill Attention 分页分块预填充注意力 使用 CUDA 按 block table 访问分页 KV Cache，并应用 chunk 绝对位置因果边界和 GQA 映射 ## 题目定义 `Q/output:[total_q,Hq,D]`，物理 cache 为 `[pool,block_size,Hkv,D]`。序列 s 的 query 范围是 `[cu[s],cu[s+1])`，context 长度为 `ctx`。chunk 是上下文最后 `q_len` 个 token，因此局部 query i 的绝对位置： 只允许逻辑 key `0..q_pos`。逻辑 key 经 `logical_block=k/block_size`、slot=`k%block_size` 和 `block_table[s,logical_block]` 映射物理 cache。GQA 映射为 `kv_head=q_head/(Hq/Hkv)`。 ### 实现要求与约束 - `1≤num_seqs≤64`，每个 `1≤q_len≤context_len≤8192`，`total_q≤8192` - `1≤Hkv≤Hq≤64`，且 Hq 是 Hkv 的倍数 - D 为偶数，`2≤D≤256` - block size 是 2 的幂且位于 `[1,64]` - block table 的尾部项和末页 context 之后的槽位都是无关数据，不能读取 - 物理页可任意散布；输入来自标准正态分布，Q 可能放大到 score 约为 ±100 - 性能 workload 为 4 个 512-token chunk 加 28 个 decode 序列，`total_q=2076,Hq=32,Hkv=8,D=128,block_size=16` - 绝对误差和相对误差均为 `1e-3` 官方示例的两条 query 分别访问逻辑键 `0..1` 与 `0..2`；对应输出为 `[[1.5,1.5],[1.5,1.5]]` 和 `[[2,2],[1.6626,1.6626]]`。 ## 模板代码解析 ## 实现思路 先用并行 kernel 为每个全局 query 找到所属 sequence、chunk 局部索引和 causal key count。随后一个 128 线程 Block 负责 `(query,q_head)`：对每个合法逻辑 key，lane 协作计算一次 score，再在线更新 m、l 与 D 维 acc。物理索引从 `size_t(physical_block)×block_size` 开始计算，避免页号乘法溢出。整个流程不会访问 `key>=ctx` 或 `key>q_pos`，也不会按输出维重复 score。 ## 参考实现"
+  },
+  {
+    "id": "fused-gate-up-projection-with-silu",
+    "title": "Fused Gate-Up Projection with SiLU（融合 Gate-Up 投影与 SiLU）",
+    "description": "使用共享内存分块同时计算 Gate 与 Up 投影并融合 SiLU 乘法",
+    "text": "Fused Gate-Up Projection with SiLU 融合 Gate-Up 投影与 SiLU 使用共享内存分块同时计算 Gate 与 Up 投影并融合 SiLU 乘法 ## 题目定义 `x(M,H)` 乘 packed 权重 `W_gate_up(H,2I)`。前 I 列是 Gate，后 I 列是 Up： 权重是横向 `[gate|up]`，不是 `(2I,H)`。乘积必须以 FP32 或更高精度累加。 ### 示例 `M=H=I=2`，x 为单位阵，packed 权重两半均为单位阵，输出为 `[[0.731059,0],[0,0.731059]]`。 约束为 `M,H≤8192`、`I≤16384`，Gate 可达约 ±20。性能用例 `4096×4096×11008`。 ## 模板代码解析 签名为： 输出仅有 I 列；无需把 `M×2I` 投影写回全局内存。 ## 实现思路 一个 `16×16` Block 计算输出 tile。共享内存中的 x tile 被 Gate、Up 两次点积共同复用，同时加载权重两半。每个线程维护两个 FP32 累加器，K 维扫描结束后直接执行 SiLU 和逐元素乘法，融合 epilogue 并省去巨大的中间矩阵。 所有边缘维度都带判断，支持奇数 I 和非 16 倍数。 ## 参考实现"
+  },
+  {
+    "id": "gated-attention",
+    "title": "Gated Attention（门控注意力）",
+    "description": "使用 CUDA 计算多头因果注意力，并在注意力输出之后应用 XW_g 的逐通道 Sigmoid 门控",
+    "text": "Gated Attention 门控注意力 使用 CUDA 计算多头因果注意力，并在注意力输出之后应用 XW_g 的逐通道 Sigmoid 门控 ## 题目定义 `Q/K/V/X/output:[M,d_model]`，`W_g:[d_model,d_model]`。先计算行主序 `gate=sigmoid(X×W_g)`。令 `d_k=d_model/h`，每个 head 独立执行因果注意力： 门控应用在注意力输出之后，不是作用于 V；`W_g` 不转置，列块对应各 head。 ### 实现要求与约束 - 所有张量均为 FP32 - `1≤M≤4096` - `d_model≤512` 且能被 h 整除，`h≤8` - Q、K、V、X 来自有正有负的范围；W_g 经过缩放，避免 sigmoid 饱和 - 性能测试 `M=4096,d_model=512,h=8` - 绝对误差和相对误差均为 `1e-5` 官方 `M=3,d_model=4,h=2` 示例输出为 `[[0.9525741,1.7615942,1.5,2.9242343],[2.6895983,4.1212902,3.3314223,3.4961277],[2.8680652,3.1115429,1.6336840,3.5372488]]`。 ## 模板代码解析 ## 实现思路 gate 投影使用 16×16 shared tiled GEMM，并原位应用 sigmoid。注意力采用一个 128 线程 Block 对应 `(query,head)`；对每个 `key≤query`，lane 协作计算一次 score，再在线更新 m、l 和 head_dim 维 acc。输出归一化后乘对应 gate 通道，没有 M×M score 缓冲，也不按输出维重复 score。 ## 参考实现"
+  },
+  {
+    "id": "differential-attention",
+    "title": "Differential Attention（差分注意力）",
+    "description": "计算两张因果注意力图的加权差，对完整双倍 Head 特征执行 RMS 归一化",
+    "text": "Differential Attention 差分注意力 计算两张因果注意力图的加权差，对完整双倍 Head 特征执行 RMS 归一化 ## 题目定义 Q/K/V/output 形状均为 `[S,H,2D]`。Q、K 沿最后一维连续拆成前 D 维和后 D 维，分别计算两张 causal Softmax 图： λ 是直接传入的每 Head 标量，不由向量指数公式重新计算。RMSNorm 覆盖完整 `2D`，V 也保留完整 `2D`。 ### 官方示例 ### 完整约束 - `1 ≤ S ≤ 8192`，`1 ≤ H ≤ 64`，`1 ≤ D ≤ 128` - `-1 ≤ lambdas[h] ≤ 1`，`0 ≤ lambda_init < 1` - 所有张量为 FP32；Q/K/V 来自标准正态分布，Q 可能被放大，使 score 约落在 `[-30,30]`；score 和累加使用 FP32 或更高 - O 全零时输出全零 - 性能测试为 `S=4096,H=32,D=64` - 容差为 `1e-3` ## 模板代码解析 布局是 `[sequence,head,feature]`，不是 `[head,sequence,feature]`。每张图只看 Key `0..query`。 ## 实现思路 `attn_part` 每个 `(query,head)` 使用一个 Block，动态 Shared Memory只保存这一行最多 S 个 score。线程协作计算 score，归约最大值和指数和，再把 Shared Memory原地改为 Softmax 权重；输出 feature 线程直接复用这组权重累加 V，不按 feature 重算 dot 或 exp。S=8192 时动态 Shared Memory为 32 KiB，加上固定归约槽仍低于 48 KiB。 同一默认流先对 Q1/K1 启动一次 `attn_part`，覆盖写入 `A1@V`；再对 Q2/K2 启动一次，以 `-lambdas[h]` 累加 `A2@V`。因此无需 `[H,S,S]` 全局临时权重。最后独立 RMS kernel 对 `2D` 输出归约平方和，按 `mean+1e-5` 归一化并乘 `1-lambda_init`。 ## 参考实现"
   }
 ]

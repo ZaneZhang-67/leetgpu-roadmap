@@ -1239,6 +1239,166 @@ export const markdownPages = {
     "problemId": "row-wise-argmax",
     "problemUrl": "https://leetgpu.com/challenges/row-wise-argmax",
     "updatedAt": "2026-11-12"
+  },
+  "fused-adamw": {
+    "leetgpuId": 127,
+    "title": "Fused AdamW（融合 AdamW）",
+    "titleEn": "Fused AdamW",
+    "titleZh": "融合 AdamW",
+    "description": "使用单个 CUDA kernel 原地完成解耦权重衰减、矩估计和偏差修正更新",
+    "problemId": "fused-adamw",
+    "problemUrl": "https://leetgpu.com/challenges/fused-adamw",
+    "updatedAt": "2026-11-12"
+  },
+  "split-kv-attention-reduction": {
+    "leetgpuId": 128,
+    "title": "Split-KV Attention Reduction（Split-KV 注意力归约）",
+    "titleEn": "Split-KV Attention Reduction",
+    "titleZh": "Split-KV 注意力归约",
+    "description": "使用各分片的 LSE 稳定权重合并 Split-KV 注意力局部输出",
+    "problemId": "split-kv-attention-reduction",
+    "problemUrl": "https://leetgpu.com/challenges/split-kv-attention-reduction",
+    "updatedAt": "2026-11-12"
+  },
+  "fused-linear-cross-entropy": {
+    "leetgpuId": 129,
+    "title": "Fused Linear Cross Entropy（融合线性投影与交叉熵）",
+    "titleEn": "Fused Linear Cross Entropy",
+    "titleZh": "融合线性投影与交叉熵",
+    "description": "不物化 Logits，以词表分块和在线 LogSumExp 计算平均交叉熵",
+    "problemId": "fused-linear-cross-entropy",
+    "problemUrl": "https://leetgpu.com/challenges/fused-linear-cross-entropy",
+    "updatedAt": "2026-11-12"
+  },
+  "fused-moe-swiglu-layer": {
+    "leetgpuId": 130,
+    "title": "Fused MoE SwiGLU Layer（融合 MoE SwiGLU 层）",
+    "titleEn": "Fused MoE SwiGLU Layer",
+    "titleZh": "融合 MoE SwiGLU 层",
+    "description": "按 Top-K 路由计算专家 SwiGLU 并使用原始路由权重合并输出",
+    "problemId": "fused-moe-swiglu-layer",
+    "problemUrl": "https://leetgpu.com/challenges/fused-moe-swiglu-layer",
+    "updatedAt": "2026-11-12"
+  },
+  "fused-layernorm-linear-gelu": {
+    "leetgpuId": 131,
+    "title": "Fused LayerNorm Linear GELU（融合 LayerNorm、Linear 与 GELU）",
+    "titleEn": "Fused LayerNorm Linear GELU",
+    "titleZh": "融合 LayerNorm、Linear 与 GELU",
+    "description": "以稳定统计和共享内存分块实现 LayerNorm、线性投影及精确 GELU",
+    "problemId": "fused-layernorm-linear-gelu",
+    "problemUrl": "https://leetgpu.com/challenges/fused-layernorm-linear-gelu",
+    "updatedAt": "2026-11-12"
+  },
+  "speculative-tree-attention": {
+    "leetgpuId": 132,
+    "title": "Speculative Tree Attention（推测树注意力）",
+    "titleEn": "Speculative Tree Attention",
+    "titleZh": "推测树注意力",
+    "description": "让每个候选节点只关注共享前缀及自己的祖先路径，并计算稳定缩放点积注意力",
+    "problemId": "speculative-tree-attention",
+    "problemUrl": "https://leetgpu.com/challenges/speculative-tree-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "multi-lora-batched-linear": {
+    "leetgpuId": 133,
+    "title": "Multi-LoRA Batched Linear（多 LoRA 批量线性层）",
+    "titleEn": "Multi-LoRA Batched Linear",
+    "titleZh": "多 LoRA 批量线性层",
+    "description": "为批内每个 token 按 adapter id 选择独立的低秩增量并与共享基础投影融合",
+    "problemId": "multi-lora-batched-linear",
+    "problemUrl": "https://leetgpu.com/challenges/multi-lora-batched-linear",
+    "updatedAt": "2026-11-12"
+  },
+  "fp8-block-scaled-gemm": {
+    "leetgpuId": 140,
+    "title": "FP8 Block-Scaled GEMM（FP8 分块缩放矩阵乘法）",
+    "titleEn": "FP8 Block-Scaled GEMM",
+    "titleZh": "FP8 分块缩放矩阵乘法",
+    "description": "按 E4M3FN 位级格式解码矩阵元素，应用 reduction 维的 1×128 分块缩放并输出 FP16",
+    "problemId": "fp8-block-scaled-gemm",
+    "problemUrl": "https://leetgpu.com/challenges/fp8-block-scaled-gemm",
+    "updatedAt": "2026-11-12"
+  },
+  "flash-decoding-attention": {
+    "leetgpuId": 141,
+    "title": "Flash Decoding Attention（Flash 解码注意力）",
+    "titleEn": "Flash Decoding Attention",
+    "titleZh": "Flash 解码注意力",
+    "description": "使用在线 Softmax 在长 KV 上计算无掩码多头解码注意力",
+    "problemId": "flash-decoding-attention",
+    "problemUrl": "https://leetgpu.com/challenges/flash-decoding-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "rms-norm-backward": {
+    "leetgpuId": 142,
+    "title": "RMS Norm Backward（RMS Norm 反向传播）",
+    "titleEn": "RMS Norm Backward",
+    "titleZh": "RMS Norm 反向传播",
+    "description": "使用 CUDA 计算 RMSNorm 输入梯度与跨行权重梯度",
+    "problemId": "rms-norm-backward",
+    "problemUrl": "https://leetgpu.com/challenges/rms-norm-backward",
+    "updatedAt": "2026-11-12"
+  },
+  "fused-residual-add-and-layernorm-with-saved-statistics": {
+    "leetgpuId": 143,
+    "title": "Fused Residual Add and LayerNorm with Saved Statistics（融合残差加法与保存统计量的 LayerNorm）",
+    "titleEn": "Fused Residual Add and LayerNorm with Saved Statistics",
+    "titleZh": "融合残差加法与保存统计量的 LayerNorm",
+    "description": "使用 CUDA 融合残差加法、稳定 LayerNorm，并保存均值与倒标准差",
+    "problemId": "fused-residual-add-and-layernorm-with-saved-statistics",
+    "problemUrl": "https://leetgpu.com/challenges/fused-residual-add-and-layernorm-with-saved-statistics",
+    "updatedAt": "2026-11-12"
+  },
+  "layer-norm-backward": {
+    "leetgpuId": 144,
+    "title": "Layer Norm Backward（Layer Norm 反向传播）",
+    "titleEn": "Layer Norm Backward",
+    "titleZh": "Layer Norm 反向传播",
+    "description": "使用 CUDA 和保存的逐行统计量计算输入、缩放与偏置梯度",
+    "problemId": "layer-norm-backward",
+    "problemUrl": "https://leetgpu.com/challenges/layer-norm-backward",
+    "updatedAt": "2026-11-12"
+  },
+  "paged-chunked-prefill-attention": {
+    "leetgpuId": 145,
+    "title": "Paged Chunked Prefill Attention（分页分块预填充注意力）",
+    "titleEn": "Paged Chunked Prefill Attention",
+    "titleZh": "分页分块预填充注意力",
+    "description": "使用 CUDA 按 block table 访问分页 KV Cache，并应用 chunk 绝对位置因果边界和 GQA 映射",
+    "problemId": "paged-chunked-prefill-attention",
+    "problemUrl": "https://leetgpu.com/challenges/paged-chunked-prefill-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "fused-gate-up-projection-with-silu": {
+    "leetgpuId": 146,
+    "title": "Fused Gate-Up Projection with SiLU（融合 Gate-Up 投影与 SiLU）",
+    "titleEn": "Fused Gate-Up Projection with SiLU",
+    "titleZh": "融合 Gate-Up 投影与 SiLU",
+    "description": "使用共享内存分块同时计算 Gate 与 Up 投影并融合 SiLU 乘法",
+    "problemId": "fused-gate-up-projection-with-silu",
+    "problemUrl": "https://leetgpu.com/challenges/fused-gate-up-projection-with-silu",
+    "updatedAt": "2026-11-12"
+  },
+  "gated-attention": {
+    "leetgpuId": 147,
+    "title": "Gated Attention（门控注意力）",
+    "titleEn": "Gated Attention",
+    "titleZh": "门控注意力",
+    "description": "使用 CUDA 计算多头因果注意力，并在注意力输出之后应用 XW_g 的逐通道 Sigmoid 门控",
+    "problemId": "gated-attention",
+    "problemUrl": "https://leetgpu.com/challenges/gated-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "differential-attention": {
+    "leetgpuId": 148,
+    "title": "Differential Attention（差分注意力）",
+    "titleEn": "Differential Attention",
+    "titleZh": "差分注意力",
+    "description": "计算两张因果注意力图的加权差，对完整双倍 Head 特征执行 RMS 归一化",
+    "problemId": "differential-attention",
+    "problemUrl": "https://leetgpu.com/challenges/differential-attention",
+    "updatedAt": "2026-11-12"
   }
 }
 
@@ -1738,5 +1898,69 @@ export const markdownNavigation = [
   {
     "id": "row-wise-argmax",
     "title": "Row-wise Argmax（逐行最大值索引）"
+  },
+  {
+    "id": "fused-adamw",
+    "title": "Fused AdamW（融合 AdamW）"
+  },
+  {
+    "id": "split-kv-attention-reduction",
+    "title": "Split-KV Attention Reduction（Split-KV 注意力归约）"
+  },
+  {
+    "id": "fused-linear-cross-entropy",
+    "title": "Fused Linear Cross Entropy（融合线性投影与交叉熵）"
+  },
+  {
+    "id": "fused-moe-swiglu-layer",
+    "title": "Fused MoE SwiGLU Layer（融合 MoE SwiGLU 层）"
+  },
+  {
+    "id": "fused-layernorm-linear-gelu",
+    "title": "Fused LayerNorm Linear GELU（融合 LayerNorm、Linear 与 GELU）"
+  },
+  {
+    "id": "speculative-tree-attention",
+    "title": "Speculative Tree Attention（推测树注意力）"
+  },
+  {
+    "id": "multi-lora-batched-linear",
+    "title": "Multi-LoRA Batched Linear（多 LoRA 批量线性层）"
+  },
+  {
+    "id": "fp8-block-scaled-gemm",
+    "title": "FP8 Block-Scaled GEMM（FP8 分块缩放矩阵乘法）"
+  },
+  {
+    "id": "flash-decoding-attention",
+    "title": "Flash Decoding Attention（Flash 解码注意力）"
+  },
+  {
+    "id": "rms-norm-backward",
+    "title": "RMS Norm Backward（RMS Norm 反向传播）"
+  },
+  {
+    "id": "fused-residual-add-and-layernorm-with-saved-statistics",
+    "title": "Fused Residual Add and LayerNorm with Saved Statistics（融合残差加法与保存统计量的 LayerNorm）"
+  },
+  {
+    "id": "layer-norm-backward",
+    "title": "Layer Norm Backward（Layer Norm 反向传播）"
+  },
+  {
+    "id": "paged-chunked-prefill-attention",
+    "title": "Paged Chunked Prefill Attention（分页分块预填充注意力）"
+  },
+  {
+    "id": "fused-gate-up-projection-with-silu",
+    "title": "Fused Gate-Up Projection with SiLU（融合 Gate-Up 投影与 SiLU）"
+  },
+  {
+    "id": "gated-attention",
+    "title": "Gated Attention（门控注意力）"
+  },
+  {
+    "id": "differential-attention",
+    "title": "Differential Attention（差分注意力）"
   }
 ]
