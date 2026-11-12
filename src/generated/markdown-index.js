@@ -1399,6 +1399,76 @@ export const markdownPages = {
     "problemId": "differential-attention",
     "problemUrl": "https://leetgpu.com/challenges/differential-attention",
     "updatedAt": "2026-11-12"
+  },
+  "fused-rmsnorm-and-w8a8-linear": {
+    "leetgpuId": 149,
+    "title": "Fused RMSNorm and W8A8 Linear（融合 RMSNorm 与 W8A8 线性层）",
+    "titleEn": "Fused RMSNorm and W8A8 Linear",
+    "titleZh": "融合 RMSNorm 与 W8A8 线性层",
+    "description": "对每个 token 执行 RMSNorm 和对称 INT8 动态量化，再与逐输出通道量化权重相乘",
+    "problemId": "fused-rmsnorm-and-w8a8-linear",
+    "problemUrl": "https://leetgpu.com/challenges/fused-rmsnorm-and-w8a8-linear",
+    "updatedAt": "2026-11-12"
+  },
+  "distillation-kl-divergence": {
+    "leetgpuId": 150,
+    "title": "Distillation KL Divergence（蒸馏 KL 散度）",
+    "titleEn": "Distillation KL Divergence",
+    "titleZh": "蒸馏 KL 散度",
+    "description": "使用 CUDA 稳定计算教师与学生温度软化分布的逐行前向 KL 散度",
+    "problemId": "distillation-kl-divergence",
+    "problemUrl": "https://leetgpu.com/challenges/distillation-kl-divergence",
+    "updatedAt": "2026-11-12"
+  },
+  "muon-optimizer": {
+    "leetgpuId": 151,
+    "title": "Muon Optimizer（Muon 优化器）",
+    "titleEn": "Muon Optimizer",
+    "titleZh": "Muon 优化器",
+    "description": "使用 CUDA 实现动量更新方向和五步 Newton–Schulz 正交化",
+    "problemId": "muon-optimizer",
+    "problemUrl": "https://leetgpu.com/challenges/muon-optimizer",
+    "updatedAt": "2026-11-12"
+  },
+  "softcapped-sliding-window-attention": {
+    "leetgpuId": 152,
+    "title": "Softcapped Sliding Window Attention（Softcap 滑动窗口注意力）",
+    "titleEn": "Softcapped Sliding Window Attention",
+    "titleZh": "Softcap 滑动窗口注意力",
+    "description": "使用 CUDA 实现带 GQA、因果滑动窗口及 score softcap 的稳定注意力",
+    "problemId": "softcapped-sliding-window-attention",
+    "problemUrl": "https://leetgpu.com/challenges/softcapped-sliding-window-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "fused-rope-causal-attention": {
+    "leetgpuId": 153,
+    "title": "Fused RoPE Causal Attention（融合 RoPE 因果注意力）",
+    "titleEn": "Fused RoPE Causal Attention",
+    "titleZh": "融合 RoPE 因果注意力",
+    "description": "使用 CUDA 融合 rotate-half RoPE、GQA 映射及稳定因果注意力",
+    "problemId": "fused-rope-causal-attention",
+    "problemUrl": "https://leetgpu.com/challenges/fused-rope-causal-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "fused-mamba-2-ssd-scan": {
+    "leetgpuId": 154,
+    "title": "Fused Mamba-2 SSD Scan（融合 Mamba-2 SSD 扫描）",
+    "titleEn": "Fused Mamba-2 SSD Scan",
+    "titleZh": "融合 Mamba-2 SSD 扫描",
+    "description": "使用 CUDA 分块状态递推计算 Mamba-2 选择性状态空间层",
+    "problemId": "fused-mamba-2-ssd-scan",
+    "problemUrl": "https://leetgpu.com/challenges/fused-mamba-2-ssd-scan",
+    "updatedAt": "2026-11-12"
+  },
+  "moe-expert-weight-gradient": {
+    "leetgpuId": 155,
+    "title": "MoE Expert Weight Gradient（MoE 专家权重梯度）",
+    "titleEn": "MoE Expert Weight Gradient",
+    "titleZh": "MoE 专家权重梯度",
+    "description": "按已排序的专家路由区间，对每个专家确定性归约激活与上游梯度的外积",
+    "problemId": "moe-expert-weight-gradient",
+    "problemUrl": "https://leetgpu.com/challenges/moe-expert-weight-gradient",
+    "updatedAt": "2026-11-12"
   }
 }
 
@@ -1962,5 +2032,33 @@ export const markdownNavigation = [
   {
     "id": "differential-attention",
     "title": "Differential Attention（差分注意力）"
+  },
+  {
+    "id": "fused-rmsnorm-and-w8a8-linear",
+    "title": "Fused RMSNorm and W8A8 Linear（融合 RMSNorm 与 W8A8 线性层）"
+  },
+  {
+    "id": "distillation-kl-divergence",
+    "title": "Distillation KL Divergence（蒸馏 KL 散度）"
+  },
+  {
+    "id": "muon-optimizer",
+    "title": "Muon Optimizer（Muon 优化器）"
+  },
+  {
+    "id": "softcapped-sliding-window-attention",
+    "title": "Softcapped Sliding Window Attention（Softcap 滑动窗口注意力）"
+  },
+  {
+    "id": "fused-rope-causal-attention",
+    "title": "Fused RoPE Causal Attention（融合 RoPE 因果注意力）"
+  },
+  {
+    "id": "fused-mamba-2-ssd-scan",
+    "title": "Fused Mamba-2 SSD Scan（融合 Mamba-2 SSD 扫描）"
+  },
+  {
+    "id": "moe-expert-weight-gradient",
+    "title": "MoE Expert Weight Gradient（MoE 专家权重梯度）"
   }
 ]

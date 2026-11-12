@@ -140,4 +140,11 @@ export const markdownPageLoaders = {
   "fused-gate-up-projection-with-silu": () => import("./pages/fused-gate-up-projection-with-silu.js"),
   "gated-attention": () => import("./pages/gated-attention.js"),
   "differential-attention": () => import("./pages/differential-attention.js"),
+  "fused-rmsnorm-and-w8a8-linear": () => import("./pages/fused-rmsnorm-and-w8a8-linear.js"),
+  "distillation-kl-divergence": () => import("./pages/distillation-kl-divergence.js"),
+  "muon-optimizer": () => import("./pages/muon-optimizer.js"),
+  "softcapped-sliding-window-attention": () => import("./pages/softcapped-sliding-window-attention.js"),
+  "fused-rope-causal-attention": () => import("./pages/fused-rope-causal-attention.js"),
+  "fused-mamba-2-ssd-scan": () => import("./pages/fused-mamba-2-ssd-scan.js"),
+  "moe-expert-weight-gradient": () => import("./pages/moe-expert-weight-gradient.js"),
 }

@@ -839,5 +839,47 @@ export const markdownSearchIndex = [
     "title": "Differential Attention（差分注意力）",
     "description": "计算两张因果注意力图的加权差，对完整双倍 Head 特征执行 RMS 归一化",
     "text": "Differential Attention 差分注意力 计算两张因果注意力图的加权差，对完整双倍 Head 特征执行 RMS 归一化 ## 题目定义 Q/K/V/output 形状均为 `[S,H,2D]`。Q、K 沿最后一维连续拆成前 D 维和后 D 维，分别计算两张 causal Softmax 图： λ 是直接传入的每 Head 标量，不由向量指数公式重新计算。RMSNorm 覆盖完整 `2D`，V 也保留完整 `2D`。 ### 官方示例 ### 完整约束 - `1 ≤ S ≤ 8192`，`1 ≤ H ≤ 64`，`1 ≤ D ≤ 128` - `-1 ≤ lambdas[h] ≤ 1`，`0 ≤ lambda_init < 1` - 所有张量为 FP32；Q/K/V 来自标准正态分布，Q 可能被放大，使 score 约落在 `[-30,30]`；score 和累加使用 FP32 或更高 - O 全零时输出全零 - 性能测试为 `S=4096,H=32,D=64` - 容差为 `1e-3` ## 模板代码解析 布局是 `[sequence,head,feature]`，不是 `[head,sequence,feature]`。每张图只看 Key `0..query`。 ## 实现思路 `attn_part` 每个 `(query,head)` 使用一个 Block，动态 Shared Memory只保存这一行最多 S 个 score。线程协作计算 score，归约最大值和指数和，再把 Shared Memory原地改为 Softmax 权重；输出 feature 线程直接复用这组权重累加 V，不按 feature 重算 dot 或 exp。S=8192 时动态 Shared Memory为 32 KiB，加上固定归约槽仍低于 48 KiB。 同一默认流先对 Q1/K1 启动一次 `attn_part`，覆盖写入 `A1@V`；再对 Q2/K2 启动一次，以 `-lambdas[h]` 累加 `A2@V`。因此无需 `[H,S,S]` 全局临时权重。最后独立 RMS kernel 对 `2D` 输出归约平方和，按 `mean+1e-5` 归一化并乘 `1-lambda_init`。 ## 参考实现"
+  },
+  {
+    "id": "fused-rmsnorm-and-w8a8-linear",
+    "title": "Fused RMSNorm and W8A8 Linear（融合 RMSNorm 与 W8A8 线性层）",
+    "description": "对每个 token 执行 RMSNorm 和对称 INT8 动态量化，再与逐输出通道量化权重相乘",
+    "text": "Fused RMSNorm and W8A8 Linear 融合 RMSNorm 与 W8A8 线性层 对每个 token 执行 RMSNorm 和对称 INT8 动态量化，再与逐输出通道量化权重相乘 ## 题目定义 先对 `x[M,K]` 每行做带 gamma 的 RMSNorm，epsilon 为 `1e-6`。再按行求独立 activation scale，将归一化结果对称量化到有符号 `[-127,127]`： 零行的 scale 为 0，所有 q 为 0。W 是 `[N,K]` 的 int8，每个输出通道有一个 `w_scale[N]`；累加器必须至少为 int32，输出为 FP32。 ### 官方示例 ### 完整约束 - `1 ≤ M,K ≤ 8192`，`1 ≤ N ≤ 16384` - x/gamma/w_scale/output 为 FP32；W 为 int8，值域 `[-127,127]` - gamma 在 `[0.5,1.5]`；w_scale 约为 `1/(127*sqrt(K))` - x 可含约 60 倍 outlier，也可能有全零行；测试还覆盖较大 token/通道规模和非二次幂尾部 - 性能测试为 `M=N=K=4096` - 容差为 `1e-2` ## 模板代码解析 权重方向是输出通道行主序 `W[j*K+k]`，不是 `[K,N]`。activation scale 按 token 行布局，weight scale 按输出通道布局。 ## 实现思路 第一阶段一个 Block 处理一行，用 256 线程归约平方和与归一化后绝对最大值，然后用 `__float2int_rn` 做 ties-to-even 舍入并写 int8 q 与行 scale。第二阶段二维 Grid 一线程计算一个 `(i,j)`，以 int32 精确累加 `q*W`，最后乘两种 scale。 最大单项为 `127²`，K≤8192 时和小于 2³¹，int32 不溢出。性能规模两个阶段均并行，没有单线程处理整张矩阵。 ## 参考实现"
+  },
+  {
+    "id": "distillation-kl-divergence",
+    "title": "Distillation KL Divergence（蒸馏 KL 散度）",
+    "description": "使用 CUDA 稳定计算教师与学生温度软化分布的逐行前向 KL 散度",
+    "text": "Distillation KL Divergence 蒸馏 KL 散度 使用 CUDA 稳定计算教师与学生温度软化分布的逐行前向 KL 散度 ## 题目定义 输入是两组 `(N,V)` FP32 logits，而不是概率或对数概率。令 `a=teacher_logits/T`、`b=student_logits/T`，逐行计算： 方向是 `KL(teacher || student)`。输出不做 batch 归约，也不乘常见蒸馏损失中的 `T²`。 ### 示例 **约束与测试** - `1≤N≤65,536`，`1≤V≤262,144`，`0.5≤T≤10` - logits 为 `[-500,500]` 内的 FP32 - 测试覆盖 `V=1`、相同分布的行偏移、反向 KL 区分、大 logits、小温度和超长行 - 性能测试 `N=2048,V=128256,T=2`，容差 `atol=rtol=1e-3` ## 模板代码解析 官方 starter 只给出空入口。kl 预填了垃圾值，每一行都要直接写出结果。 ## 实现思路 利用恒等式： 每个 Block 处理一行，分三遍扫描：先分别求 a、b 的最大值，再求两个平移后的指数和，最后求教师概率加权的 `a-b`。最大值平移可防止 `exp` 溢出；整个过程只使用固定大小共享内存，不会把最长可达 262144 的整行放入片上存储。 ## 参考实现"
+  },
+  {
+    "id": "muon-optimizer",
+    "title": "Muon Optimizer（Muon 优化器）",
+    "description": "使用 CUDA 实现动量更新方向和五步 Newton–Schulz 正交化",
+    "text": "Muon Optimizer Muon 优化器 使用 CUDA 实现动量更新方向和五步 Newton–Schulz 正交化 ## 题目定义 输入 G、Buf 均为只读 `(M,N)` FP32 矩阵。先计算 `V=momentum*Buf+G`，再令： 当 `M>N` 时，先转置 X，使 Gram 矩阵使用较小维度。题目只计算更新方向：不修改 Buf，不更新参数，也不包含权重衰减或 Nesterov。 ### 示例 **约束与测试** - `1≤M,N≤1024`，`0≤momentum N`，工作矩阵按转置布局保存；设其形状为 `R×C`，始终满足 `R≤C`。 每轮用朴素 tiled-free kernel 依次计算 `A=X*Xᵀ`、`A²`、`B=-4.775A+2.0315A²` 和 `X=3.4445X+BX`。它执行指定的 15 次矩阵乘法等价链，内存规模可覆盖 1024×1024。生产性能通常还会采用共享内存分块，但不能启用 TF32 或半精度运算。 ## 参考实现"
+  },
+  {
+    "id": "softcapped-sliding-window-attention",
+    "title": "Softcapped Sliding Window Attention（Softcap 滑动窗口注意力）",
+    "description": "使用 CUDA 实现带 GQA、因果滑动窗口及 score softcap 的稳定注意力",
+    "text": "Softcapped Sliding Window Attention Softcap 滑动窗口注意力 使用 CUDA 实现带 GQA、因果滑动窗口及 score softcap 的稳定注意力 ## 题目定义 布局为 `Q:[Hq,S,D]`、`K/V:[Hkv,S,D]`、`output:[Hq,S,D]`。查询头 h 映射到 `kv_head=h/(Hq/Hkv)`。查询位置 i 只访问： 先缩放原始点积，再做 softcap： 最后仅在可见窗口内计算 Softmax 与 V 加权和。softcap 不能放到缩放之前。 ### 实现要求与约束 - 所有张量均为 FP32 - `1≤Hkv≤Hq≤32`，且 Hq 能被 Hkv 整除 - `1≤S≤4096`，`1≤D≤128` - `1≤window_size≤8192`，允许大于 S - `0<softcap≤50` - 每个输出元素都必须写入 - 性能测试 `Hq=16,Hkv=4,S=4096,D=64,window=1024,softcap=10` - 绝对误差和相对误差均为 `1e-5` 官方示例 `Hq=2,Hkv=1,S=3,D=2,window=2,softcap=1`；第 2 行只访问键 1、2。 ## 模板代码解析 ## 实现思路 一个 128 线程 Block 负责 `(query_head,position)`。对窗口中每个 key，所有 lane 协作计算一次 Q·K，并保存 softcap score。窗口最大 4096，因此动态 Shared Memory 最多 16 KiB。随后 128 lane 归约 score 最大值；计算指数和时把未归一化权重回写 score，之后由 lane 分担 D 个输出维并复用这些权重。点积不会因每个输出维重复计算，复杂度为 `O(Hq×S×window×D)`。 ## 参考实现"
+  },
+  {
+    "id": "fused-rope-causal-attention",
+    "title": "Fused RoPE Causal Attention（融合 RoPE 因果注意力）",
+    "description": "使用 CUDA 融合 rotate-half RoPE、GQA 映射及稳定因果注意力",
+    "text": "Fused RoPE Causal Attention 融合 RoPE 因果注意力 使用 CUDA 融合 rotate-half RoPE、GQA 映射及稳定因果注意力 ## 题目定义 `Q:[Hq,S,D]`、`K/V:[Hkv,S,D]`，`cos/sin:[S,D/2]`，输出 `[Hq,S,D]`。采用 Llama/GPT-NeoX 的 rotate-half 配对：维 k 与 `k+D/2` 组成一对，位置 p 使用 `cos[p,k]`、`sin[p,k]`： Q 与 K 都旋转，V 不旋转。查询头 h 使用 `kv_head=h/(Hq/Hkv)`，位置 i 只访问 `0≤j≤i`。score 缩放为 `1/√D`。 ### 实现要求与约束 - 所有张量均为 FP32，输入不可修改 - `1≤Hkv≤Hq≤32`，且 Hq 能被 Hkv 整除 - `1≤S≤4096` - D 为偶数，`2≤D≤128` - `cos/sin` 值位于 `[-1,1]` - 每个输出元素都必须写入 - 性能测试 `Hq=16,Hkv=4,S=4096,D=64` - 绝对误差和相对误差均为 `1e-5` 官方示例为 `Hq=Hkv=1,S=3,D=4`，按前后半区配对旋转；若误用相邻维交错配对，结果不同。 ## 模板代码解析 ## 实现思路 先用并行 kernel 生成旋转后的 Q/K，避免在每个 score 与输出维中重复 RoPE。随后一个 128 线程 Block 负责 `(query_head,position)`：对每个因果 key 协作计算一次点积并把 score 存入 Shared Memory，归约最大值，并在分母阶段将未归一化权重回写 score；输出维直接复用权重并除以总分母。最大 score 缓冲 4096 个 float，连同 128 个归约槽约 16.5 KiB；性能规模可直接启动。 ## 参考实现"
+  },
+  {
+    "id": "fused-mamba-2-ssd-scan",
+    "title": "Fused Mamba-2 SSD Scan（融合 Mamba-2 SSD 扫描）",
+    "description": "使用 CUDA 分块状态递推计算 Mamba-2 选择性状态空间层",
+    "text": "Fused Mamba-2 SSD Scan 融合 Mamba-2 SSD 扫描 使用 CUDA 分块状态递推计算 Mamba-2 选择性状态空间层 ## 题目定义 每个 `(batch,head)` 维护 `S(head_dim,state_dim)`，初值为零。Head h 使用连续分组 `g=h/(num_heads/num_groups)`： 状态先衰减再加入当前 Token，当前更新参与当前输出。Batch 之间互不共享状态。 ### 示例 官方示例 `delta=ln(2)`、`A=-1`，故每步 decay=0.5。给定三步 x、B、C 后，输出为 `[[0.8722605,1.7445210],[0.2533656,-0.3655293],[1.7445210,-0.2533656]]`。 约束：全 FP32；`batch≤4`、`seq_len≤4096`、`groups≤heads≤32` 且整除、`head_dim,state_dim≤128`、`-16≤A<0`、`dt+dt_bias∈[-30,30]`。性能用例为 `2×4096×32×64`、4 groups、state_dim=128，容差 `1e-4`。 ## 模板代码解析 签名为： x/z/y 是 `(b,L,H,P)`；dt 是 `(b,L,H)`；B/C 是 `(b,L,G,N)`。题目没有 initial/final state 指针，每条序列总从零开始，也不输出最终状态。 ## 实现思路 参考实现以 64 Token 为 Chunk。第一阶段让每个 `(batch,head,chunk,p)` Block 顺序扫描该 Chunk，线程并行 state_dim，生成“零初态下的局部输出”、Chunk 最终状态和总 decay。第二阶段每个 `(batch,head,p)` Block 仅扫描至多 64 个 Chunk，记录每个 Chunk 的输入 carry。第三阶段并行修正各 Token：carry 在 Chunk 内乘截至当前 Token 的 decay，再与 C 点积，加到局部 SSM 输出，最后融合 D skip 与 SiLU gate。 这样不会串行全部输出：Chunk 内不同 p、head、batch 并行，跨 Chunk 只递推最多 64 项。尾 Chunk 严格使用 `min(64,L-start)`，不让 padding 更新状态；Chunk carry 先乘当前 Chunk 总 decay再加局部末状态，与逐 Token recurrence 一致。 ## 参考实现"
+  },
+  {
+    "id": "moe-expert-weight-gradient",
+    "title": "MoE Expert Weight Gradient（MoE 专家权重梯度）",
+    "description": "按已排序的专家路由区间，对每个专家确定性归约激活与上游梯度的外积",
+    "text": "MoE Expert Weight Gradient MoE 专家权重梯度 按已排序的专家路由区间，对每个专家确定性归约激活与上游梯度的外积 ## 题目定义 路由后的 token 已按专家连续排列。专家 `g` 占用 `[group_offsets[g],group_offsets[g+1])`，其梯度布局为 `[G,K,N]` 行主序： 归约范围仅是该专家的行。Router top-k 权重已经折入 dY，不应再次乘 gate weight。空专家必须把完整 `[K,N]` 梯度写为 0，因为输入 dW 预填了非零垃圾值。 ### 官方示例 ### 完整约束 - `1 ≤ G ≤ 128`，`1 ≤ M_total ≤ 65536` - `1 ≤ K,N ≤ 4096` - offsets 长度 G+1，首项 0、末项 M_total，单调非递减，允许空组 - X/dY/dW 为 FP32，offsets 为 int32；X 与 dY 元素在 `[-1,1]` - 使用 FP32 或更高精度，不把操作数降为 TF32/FP16/BF16 - 性能测试为 `G=64,M_total=32768,K=1024,N=512`，含两个空专家 - 容差为 `1e-4` ## 模板代码解析 `M_total` 是所有 top-k 路由副本合计的行数，不是原 token 数。接口没有 route weights 或 expert ids；分组和权重信息已分别体现在 offsets 与 dY 中。 ## 实现思路 二维输出 tile 与 expert 组成三维 Grid。每个线程负责一个 `(g,k,n)`，从 `start` 到 `end` 按固定行序进行 double 累加，最后转为 FP32 覆盖 dW。这样结果确定，不依赖 atomic 的调度顺序；空专家循环零次，自然写出 0。 性能用例产生约 3355 万个输出线程，每线程只处理对应专家的路由行。偏斜负载只改变单个线程的归约长度，不改变布局或权重语义。 ## 参考实现"
   }
 ]
