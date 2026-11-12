@@ -420,6 +420,96 @@ export const markdownPages = {
     "problemUrl": "https://leetgpu.com/challenges/2d-max-pooling",
     "updatedAt": "2026-11-12"
   },
+  "count-array-element": {
+    "leetgpuId": 43,
+    "title": "Count Array Element（统计一维数组元素）",
+    "titleEn": "Count Array Element",
+    "titleZh": "统计一维数组元素",
+    "description": "使用 CUDA 归约统计一维 int32 数组中等于目标值 K 的元素数量",
+    "problemId": "count-array-element",
+    "problemUrl": "https://leetgpu.com/challenges/count-array-element",
+    "updatedAt": "2026-11-12"
+  },
+  "count-2d-array-element": {
+    "leetgpuId": 44,
+    "title": "Count 2D Array Element（统计二维数组元素）",
+    "titleEn": "Count 2D Array Element",
+    "titleZh": "统计二维数组元素",
+    "description": "将 N×M 的 int32 数组展平后使用 CUDA 并行归约，统计等于 K 的元素数量",
+    "problemId": "count-2d-array-element",
+    "problemUrl": "https://leetgpu.com/challenges/count-2d-array-element",
+    "updatedAt": "2026-11-12"
+  },
+  "count-3d-array-element": {
+    "leetgpuId": 45,
+    "title": "Count 3D Array Element（统计三维数组元素）",
+    "titleEn": "Count 3D Array Element",
+    "titleZh": "统计三维数组元素",
+    "description": "将 N×M×K 的 int32 数组线性化后使用 CUDA 归约，统计目标值 P 的出现次数",
+    "problemId": "count-3d-array-element",
+    "problemUrl": "https://leetgpu.com/challenges/count-3d-array-element",
+    "updatedAt": "2026-11-12"
+  },
+  "bfs-shortest-path": {
+    "leetgpuId": 46,
+    "title": "BFS Shortest Path（BFS 最短路径）",
+    "titleEn": "BFS Shortest Path",
+    "titleZh": "BFS 最短路径",
+    "description": "使用 CUDA 在含障碍物的二维网格中逐层执行 BFS，求四方向移动的最短步数",
+    "problemId": "bfs-shortest-path",
+    "problemUrl": "https://leetgpu.com/challenges/bfs-shortest-path",
+    "updatedAt": "2026-11-12"
+  },
+  "subarray-sum": {
+    "leetgpuId": 47,
+    "title": "Subarray Sum（一维子数组求和）",
+    "titleEn": "Subarray Sum",
+    "titleZh": "一维子数组求和",
+    "description": "使用 CUDA 对闭区间内的 int32 元素执行并行归约，介绍区间映射、Grid-stride 遍历和 Block 部分和合并",
+    "problemId": "subarray-sum",
+    "problemUrl": "https://leetgpu.com/challenges/subarray-sum",
+    "updatedAt": "2026-11-12"
+  },
+  "2d-subarray-sum": {
+    "leetgpuId": 48,
+    "title": "2D Subarray Sum（二维子数组求和）",
+    "titleEn": "2D Subarray Sum",
+    "titleZh": "二维子数组求和",
+    "description": "使用 CUDA 对行主序矩阵中的闭区间矩形执行并行归约，介绍局部坐标映射、行跨度和部分和合并",
+    "problemId": "2d-subarray-sum",
+    "problemUrl": "https://leetgpu.com/challenges/2d-subarray-sum",
+    "updatedAt": "2026-11-12"
+  },
+  "3d-subarray-sum": {
+    "leetgpuId": 49,
+    "title": "3D Subarray Sum（三维子数组求和）",
+    "titleEn": "3D Subarray Sum",
+    "titleZh": "三维子数组求和",
+    "description": "使用 CUDA 对三维张量中的闭区间长方体执行并行归约，介绍局部三维坐标与完整张量行主序地址的转换",
+    "problemId": "3d-subarray-sum",
+    "problemUrl": "https://leetgpu.com/challenges/3d-subarray-sum",
+    "updatedAt": "2026-11-12"
+  },
+  "rms-normalization": {
+    "leetgpuId": 50,
+    "title": "RMS Normalization（RMS 归一化）",
+    "titleEn": "RMS Normalization",
+    "titleZh": "RMS 归一化",
+    "description": "使用 CUDA 完成一维 RMSNorm 前向计算，通过平方和归约获得全局均方根，再应用标量 gamma 和 beta",
+    "problemId": "rms-normalization",
+    "problemUrl": "https://leetgpu.com/challenges/rms-normalization",
+    "updatedAt": "2026-11-12"
+  },
+  "max-subarray-sum": {
+    "leetgpuId": 51,
+    "title": "Max Subarray Sum（固定窗口最大子数组和）",
+    "titleEn": "Max Subarray Sum",
+    "titleZh": "固定窗口最大子数组和",
+    "description": "使用 CUDA 计算长度恰好为 window_size 的连续子数组最大和",
+    "problemId": "max-subarray-sum",
+    "problemUrl": "https://leetgpu.com/challenges/max-subarray-sum",
+    "updatedAt": "2026-11-12"
+  },
   "sigmoid-linear-unit": {
     "leetgpuId": 52,
     "title": "Sigmoid Linear Unit（SiLU 激活函数）",
@@ -430,6 +520,16 @@ export const markdownPages = {
     "problemUrl": "https://leetgpu.com/challenges/sigmoid-linear-unit",
     "updatedAt": "2026-11-12"
   },
+  "causal-self-attention": {
+    "leetgpuId": 53,
+    "title": "Causal Self-Attention（因果自注意力）",
+    "titleEn": "Causal Self-Attention",
+    "titleZh": "因果自注意力",
+    "description": "使用 CUDA 在线 Softmax 实现带上三角掩码的缩放点积自注意力",
+    "problemId": "causal-self-attention",
+    "problemUrl": "https://leetgpu.com/challenges/causal-self-attention",
+    "updatedAt": "2026-11-12"
+  },
   "swish-gated-linear-unit": {
     "leetgpuId": 54,
     "title": "Swish-Gated Linear Unit（SWiGLU 激活函数）",
@@ -438,6 +538,66 @@ export const markdownPages = {
     "description": "使用 CUDA 将浮点向量分成两半并计算 SWiGLU，练习半区索引、SiLU 门控和输出长度映射",
     "problemId": "swish-gated-linear-unit",
     "problemUrl": "https://leetgpu.com/challenges/swish-gated-linear-unit",
+    "updatedAt": "2026-11-12"
+  },
+  "attention-with-linear-biases": {
+    "leetgpuId": 55,
+    "title": "Attention with Linear Biases（带线性偏置的注意力）",
+    "titleEn": "Attention with Linear Biases",
+    "titleZh": "带线性偏置的注意力",
+    "description": "使用 CUDA 在线 Softmax 实现加入 alpha(i-j) 位置偏置的缩放点积注意力",
+    "problemId": "attention-with-linear-biases",
+    "problemUrl": "https://leetgpu.com/challenges/attention-with-linear-biases",
+    "updatedAt": "2026-11-12"
+  },
+  "linear-self-attention": {
+    "leetgpuId": 56,
+    "title": "Linear Self-Attention（线性自注意力）",
+    "titleEn": "Linear Self-Attention",
+    "titleZh": "线性自注意力",
+    "description": "使用 CUDA 按 ELU+1 特征映射计算线性自注意力的归一化输出",
+    "problemId": "linear-self-attention",
+    "problemUrl": "https://leetgpu.com/challenges/linear-self-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "fp16-batched-matrix-multiplication": {
+    "leetgpuId": 57,
+    "title": "FP16 Batched Matrix Multiplication（FP16 批量矩阵乘法）",
+    "titleEn": "FP16 Batched Matrix Multiplication",
+    "titleZh": "FP16 批量矩阵乘法",
+    "description": "对成批的 FP16 矩阵执行独立乘法，使用 FP32 累加并将最终结果转换回 half",
+    "problemId": "fp16-batched-matrix-multiplication",
+    "problemUrl": "https://leetgpu.com/challenges/fp16-batched-matrix-multiplication",
+    "updatedAt": "2026-11-12"
+  },
+  "fp16-dot-product": {
+    "leetgpuId": 58,
+    "title": "FP16 Dot Product（FP16 向量点积）",
+    "titleEn": "FP16 Dot Product",
+    "titleZh": "FP16 向量点积",
+    "description": "使用 FP32 完成 FP16 向量乘积的确定性归约，并将唯一结果转换回 half",
+    "problemId": "fp16-dot-product",
+    "problemUrl": "https://leetgpu.com/challenges/fp16-dot-product",
+    "updatedAt": "2026-11-12"
+  },
+  "sliding-window-self-attention": {
+    "leetgpuId": 59,
+    "title": "Sliding Window Self-Attention（滑动窗口自注意力）",
+    "titleEn": "Sliding Window Self-Attention",
+    "titleZh": "滑动窗口自注意力",
+    "description": "将缩放点积注意力限制在查询位置左右 window_size 范围内，并以稳定 Softmax 聚合局部 Value",
+    "problemId": "sliding-window-self-attention",
+    "problemUrl": "https://leetgpu.com/challenges/sliding-window-self-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "top-p-sampling": {
+    "leetgpuId": 60,
+    "title": "Top-p Sampling（Top-p 采样）",
+    "titleEn": "Top-p Sampling",
+    "titleZh": "Top-p 采样",
+    "description": "对 logits 执行稳定 Softmax、确定性排序与 nucleus 截断，再按指定 PCG 哈希和指数竞赛采样",
+    "problemId": "top-p-sampling",
+    "problemUrl": "https://leetgpu.com/challenges/top-p-sampling",
     "updatedAt": "2026-11-12"
   }
 }
@@ -612,11 +772,75 @@ export const markdownNavigation = [
     "title": "2D Max Pooling（二维最大池化）"
   },
   {
+    "id": "count-array-element",
+    "title": "Count Array Element（统计一维数组元素）"
+  },
+  {
+    "id": "count-2d-array-element",
+    "title": "Count 2D Array Element（统计二维数组元素）"
+  },
+  {
+    "id": "count-3d-array-element",
+    "title": "Count 3D Array Element（统计三维数组元素）"
+  },
+  {
+    "id": "bfs-shortest-path",
+    "title": "BFS Shortest Path（BFS 最短路径）"
+  },
+  {
+    "id": "subarray-sum",
+    "title": "Subarray Sum（一维子数组求和）"
+  },
+  {
+    "id": "2d-subarray-sum",
+    "title": "2D Subarray Sum（二维子数组求和）"
+  },
+  {
+    "id": "3d-subarray-sum",
+    "title": "3D Subarray Sum（三维子数组求和）"
+  },
+  {
+    "id": "rms-normalization",
+    "title": "RMS Normalization（RMS 归一化）"
+  },
+  {
+    "id": "max-subarray-sum",
+    "title": "Max Subarray Sum（固定窗口最大子数组和）"
+  },
+  {
     "id": "sigmoid-linear-unit",
     "title": "Sigmoid Linear Unit（SiLU 激活函数）"
   },
   {
+    "id": "causal-self-attention",
+    "title": "Causal Self-Attention（因果自注意力）"
+  },
+  {
     "id": "swish-gated-linear-unit",
     "title": "Swish-Gated Linear Unit（SWiGLU 激活函数）"
+  },
+  {
+    "id": "attention-with-linear-biases",
+    "title": "Attention with Linear Biases（带线性偏置的注意力）"
+  },
+  {
+    "id": "linear-self-attention",
+    "title": "Linear Self-Attention（线性自注意力）"
+  },
+  {
+    "id": "fp16-batched-matrix-multiplication",
+    "title": "FP16 Batched Matrix Multiplication（FP16 批量矩阵乘法）"
+  },
+  {
+    "id": "fp16-dot-product",
+    "title": "FP16 Dot Product（FP16 向量点积）"
+  },
+  {
+    "id": "sliding-window-self-attention",
+    "title": "Sliding Window Self-Attention（滑动窗口自注意力）"
+  },
+  {
+    "id": "top-p-sampling",
+    "title": "Top-p Sampling（Top-p 采样）"
   }
 ]
