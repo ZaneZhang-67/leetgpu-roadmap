@@ -1,0 +1,1036 @@
+{
+  "schemaVersion": 1,
+  "source": "https://api.leetgpu.com/api/v1/challenges",
+  "count": 147,
+  "challenges": [
+    {
+      "id": 1,
+      "slug": "vector-addition",
+      "title": "Vector Addition",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 2,
+      "slug": "matrix-multiplication",
+      "title": "Matrix Multiplication",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 3,
+      "slug": "matrix-transpose",
+      "title": "Matrix Transpose",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 4,
+      "slug": "reduction",
+      "title": "Reduction",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 5,
+      "slug": "softmax",
+      "title": "Softmax",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 6,
+      "slug": "softmax-attention",
+      "title": "Softmax Attention",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 7,
+      "slug": "color-inversion",
+      "title": "Color Inversion",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 8,
+      "slug": "matrix-addition",
+      "title": "Matrix Addition",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 9,
+      "slug": "1d-convolution",
+      "title": "1D Convolution",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 10,
+      "slug": "2d-convolution",
+      "title": "2D Convolution",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 11,
+      "slug": "3d-convolution",
+      "title": "3D Convolution",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 12,
+      "slug": "multi-head-attention",
+      "title": "Multi-Head Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 13,
+      "slug": "histogramming",
+      "title": "Histogramming",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 14,
+      "slug": "multi-agent-simulation",
+      "title": "Multi-Agent Simulation",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 15,
+      "slug": "sorting",
+      "title": "Sorting",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 16,
+      "slug": "prefix-sum",
+      "title": "Prefix Sum",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 17,
+      "slug": "dot-product",
+      "title": "Dot Product",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 18,
+      "slug": "sparse-matrix-vector-multiplication",
+      "title": "Sparse Matrix-Vector Multiplication",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 19,
+      "slug": "reverse-array",
+      "title": "Reverse Array",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 20,
+      "slug": "k-means-clustering",
+      "title": "K-Means Clustering",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 21,
+      "slug": "relu",
+      "title": "ReLU",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 22,
+      "slug": "general-matrix-multiplication-gemm",
+      "title": "General Matrix Multiplication (GEMM)",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 23,
+      "slug": "leaky-relu",
+      "title": "Leaky ReLU",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 24,
+      "slug": "rainbow-table",
+      "title": "Rainbow Table",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 25,
+      "slug": "categorical-cross-entropy-loss",
+      "title": "Categorical Cross Entropy Loss",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 26,
+      "slug": "multi-head-cross-attention",
+      "title": "Multi-Head Cross-Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 27,
+      "slug": "mean-squared-error",
+      "title": "Mean Squared Error",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 28,
+      "slug": "gaussian-blur",
+      "title": "Gaussian Blur",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 29,
+      "slug": "top-k-selection",
+      "title": "Top K Selection",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 30,
+      "slug": "batched-matrix-multiplication",
+      "title": "Batched Matrix Multiplication",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 31,
+      "slug": "matrix-copy",
+      "title": "Matrix Copy",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 32,
+      "slug": "int8-quantized-matmul",
+      "title": "INT8 Quantized MatMul",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 33,
+      "slug": "ordinary-least-squares",
+      "title": "Ordinary Least Squares",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 34,
+      "slug": "logistic-regression",
+      "title": "Logistic Regression",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 35,
+      "slug": "monte-carlo-integration",
+      "title": "Monte Carlo Integration",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 36,
+      "slug": "radix-sort",
+      "title": "Radix Sort",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 37,
+      "slug": "matrix-power",
+      "title": "Matrix Power",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 38,
+      "slug": "nearest-neighbor",
+      "title": "Nearest Neighbor",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 39,
+      "slug": "fast-fourier-transform",
+      "title": "Fast Fourier Transform",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 40,
+      "slug": "batch-normalization",
+      "title": "Batch Normalization",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 41,
+      "slug": "simple-inference",
+      "title": "Simple Inference",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 42,
+      "slug": "2d-max-pooling",
+      "title": "2D Max Pooling",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 43,
+      "slug": "count-array-element",
+      "title": "Count Array Element",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 44,
+      "slug": "count-2d-array-element",
+      "title": "Count 2D Array Element",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 45,
+      "slug": "count-3d-array-element",
+      "title": "Count 3D Array Element",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 46,
+      "slug": "bfs-shortest-path",
+      "title": "BFS Shortest Path",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 47,
+      "slug": "subarray-sum",
+      "title": "Subarray Sum",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 48,
+      "slug": "2d-subarray-sum",
+      "title": "2D Subarray Sum",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 49,
+      "slug": "3d-subarray-sum",
+      "title": "3D Subarray Sum",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 50,
+      "slug": "rms-normalization",
+      "title": "RMS Normalization",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 51,
+      "slug": "max-subarray-sum",
+      "title": "Max Subarray Sum",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 52,
+      "slug": "sigmoid-linear-unit",
+      "title": "Sigmoid Linear Unit",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 53,
+      "slug": "causal-self-attention",
+      "title": "Causal Self-Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 54,
+      "slug": "swish-gated-linear-unit",
+      "title": "Swish-Gated Linear Unit",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 55,
+      "slug": "attention-with-linear-biases",
+      "title": "Attention with Linear Biases",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 56,
+      "slug": "linear-self-attention",
+      "title": "Linear Self-Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 57,
+      "slug": "fp16-batched-matrix-multiplication",
+      "title": "FP16 Batched Matrix Multiplication",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 58,
+      "slug": "fp16-dot-product",
+      "title": "FP16 Dot Product",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 59,
+      "slug": "sliding-window-self-attention",
+      "title": "Sliding Window Self-Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 60,
+      "slug": "top-p-sampling",
+      "title": "Top-p Sampling",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 61,
+      "slug": "rotary-positional-embedding",
+      "title": "Rotary Positional Embedding",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 62,
+      "slug": "value-clipping",
+      "title": "Value Clipping",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 63,
+      "slug": "interleave-arrays",
+      "title": "Interleave Arrays",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 64,
+      "slug": "weight-dequantization",
+      "title": "Weight Dequantization",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 65,
+      "slug": "gaussian-error-gated-linear-unit",
+      "title": "Gaussian Error Gated Linear Unit",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 66,
+      "slug": "rgb-to-grayscale",
+      "title": "RGB to Grayscale",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 67,
+      "slug": "moe-top-k-gating",
+      "title": "MoE Top-K Gating",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 68,
+      "slug": "sigmoid-activation",
+      "title": "Sigmoid Activation",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 69,
+      "slug": "2d-jacobi-stencil",
+      "title": "2D Jacobi Stencil",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 70,
+      "slug": "segmented-exclusive-prefix-sum",
+      "title": "Segmented Exclusive Prefix Sum",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 71,
+      "slug": "parallel-merge",
+      "title": "Parallel Merge",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 72,
+      "slug": "stream-compaction",
+      "title": "Stream Compaction",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 73,
+      "slug": "all-pairs-shortest-paths",
+      "title": "All-Pairs Shortest Paths",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 74,
+      "slug": "gpt-2-transformer-block",
+      "title": "GPT-2 Transformer Block",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 75,
+      "slug": "sparse-matrix-dense-matrix-multiplication",
+      "title": "Sparse Matrix-Dense Matrix Multiplication",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 76,
+      "slug": "adder-transformer-inference",
+      "title": "Adder Transformer Inference",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 77,
+      "slug": "integral-image",
+      "title": "Integral Image",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 78,
+      "slug": "2d-fft",
+      "title": "2D FFT",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 79,
+      "slug": "connected-components",
+      "title": "Connected Components",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 80,
+      "slug": "grouped-query-attention",
+      "title": "Grouped Query Attention",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 81,
+      "slug": "int4-weight-only-quantized-matmul",
+      "title": "INT4 Weight-Only Quantized MatMul",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 82,
+      "slug": "linear-recurrence",
+      "title": "Linear Recurrence",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 83,
+      "slug": "fused-residual-add-and-rms-norm",
+      "title": "Fused Residual Add and RMS Norm",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 84,
+      "slug": "swiglu-mlp-block",
+      "title": "SwiGLU MLP Block",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 85,
+      "slug": "lora-linear",
+      "title": "LoRA Linear",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 86,
+      "slug": "paged-kv-cache-attention",
+      "title": "Paged KV-Cache Attention",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 87,
+      "slug": "speculative-decoding-verification",
+      "title": "Speculative Decoding Verification",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 88,
+      "slug": "shared-prefix-cascade-attention",
+      "title": "Shared-Prefix Cascade Attention",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 89,
+      "slug": "nvfp4-matrix-multiplication",
+      "title": "NVFP4 Matrix Multiplication",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 90,
+      "slug": "causal-depthwise-conv1d",
+      "title": "Causal Depthwise Conv1d",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 91,
+      "slug": "moe-token-dispatch",
+      "title": "MoE Token Dispatch",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 92,
+      "slug": "decaying-causal-attention",
+      "title": "Decaying Causal Attention",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 93,
+      "slug": "llama-transformer-block",
+      "title": "Llama Transformer Block",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 94,
+      "slug": "ssm-selective-scan",
+      "title": "SSM Selective Scan",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 95,
+      "slug": "turboquant-kv-cache-attention",
+      "title": "TurboQuant KV Cache Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 96,
+      "slug": "int8-kv-cache-attention",
+      "title": "INT8 KV-Cache Attention",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 98,
+      "slug": "beam-search-step",
+      "title": "Beam Search Step",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 99,
+      "slug": "grouped-gemm",
+      "title": "Grouped GEMM",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 101,
+      "slug": "n-body-gravitational-force",
+      "title": "N-body Gravitational Force",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 102,
+      "slug": "variable-length-causal-attention",
+      "title": "Variable-Length Causal Attention",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 103,
+      "slug": "hadamard-transform",
+      "title": "Hadamard Transform",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 104,
+      "slug": "min-p-sampling",
+      "title": "Min-P Sampling",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 105,
+      "slug": "group-normalization",
+      "title": "Group Normalization",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 106,
+      "slug": "token-embedding-layer",
+      "title": "Token Embedding Layer",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 107,
+      "slug": "ppo-clipped-surrogate-loss",
+      "title": "PPO Clipped Surrogate Loss",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 108,
+      "slug": "dpo-sequence-loss",
+      "title": "DPO Sequence Loss",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 109,
+      "slug": "grpo-surrogate-loss",
+      "title": "GRPO Surrogate Loss",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 110,
+      "slug": "parallel-reverse-scan-gae",
+      "title": "Parallel Reverse Scan (GAE)",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 111,
+      "slug": "softmax-attention-backward",
+      "title": "Softmax Attention Backward",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 112,
+      "slug": "attention-with-sinks",
+      "title": "Attention with Sinks",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 113,
+      "slug": "layer-normalization",
+      "title": "Layer Normalization",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 114,
+      "slug": "multi-head-latent-attention-decode",
+      "title": "Multi-Head Latent Attention Decode",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 115,
+      "slug": "fused-qkv-projection-with-rope-and-kv-cache-update",
+      "title": "Fused QKV Projection with RoPE and KV Cache Update",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 116,
+      "slug": "diffusion-transformer-block",
+      "title": "Diffusion Transformer Block",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 117,
+      "slug": "non-maximum-suppression",
+      "title": "Non-Maximum Suppression",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 118,
+      "slug": "vision-transformer-patch-embedding",
+      "title": "Vision Transformer Patch Embedding",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 119,
+      "slug": "block-sparse-kv-selection-attention",
+      "title": "Block-Sparse KV Selection Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 120,
+      "slug": "kimi-delta-attention",
+      "title": "Kimi Delta Attention",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 121,
+      "slug": "fused-logit-penalties",
+      "title": "Fused Logit Penalties",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 122,
+      "slug": "hamming-top-k-search",
+      "title": "Hamming Top-K Search",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 123,
+      "slug": "multi-scale-deformable-attention",
+      "title": "Multi-Scale Deformable Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 124,
+      "slug": "gelu-activation",
+      "title": "GELU Activation",
+      "difficulty": "easy",
+      "accessTier": "free"
+    },
+    {
+      "id": 125,
+      "slug": "scatter-add",
+      "title": "Scatter Add",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 126,
+      "slug": "row-wise-argmax",
+      "title": "Row-wise Argmax",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 127,
+      "slug": "fused-adamw",
+      "title": "Fused AdamW",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 128,
+      "slug": "split-kv-attention-reduction",
+      "title": "Split-KV Attention Reduction",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 129,
+      "slug": "fused-linear-cross-entropy",
+      "title": "Fused Linear Cross Entropy",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 130,
+      "slug": "fused-moe-swiglu-layer",
+      "title": "Fused MoE SwiGLU Layer",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 131,
+      "slug": "fused-layernorm-linear-gelu",
+      "title": "Fused LayerNorm Linear GELU",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 132,
+      "slug": "speculative-tree-attention",
+      "title": "Speculative Tree Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 133,
+      "slug": "multi-lora-batched-linear",
+      "title": "Multi-LoRA Batched Linear",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 140,
+      "slug": "fp8-block-scaled-gemm",
+      "title": "FP8 Block-Scaled GEMM",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 141,
+      "slug": "flash-decoding-attention",
+      "title": "Flash Decoding Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 142,
+      "slug": "rms-norm-backward",
+      "title": "RMS Norm Backward",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 143,
+      "slug": "fused-residual-add-and-layernorm-with-saved-statistics",
+      "title": "Fused Residual Add and LayerNorm with Saved Statistics",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 144,
+      "slug": "layer-norm-backward",
+      "title": "Layer Norm Backward",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 145,
+      "slug": "paged-chunked-prefill-attention",
+      "title": "Paged Chunked Prefill Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 146,
+      "slug": "fused-gate-up-projection-with-silu",
+      "title": "Fused Gate-Up Projection with SiLU",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 147,
+      "slug": "gated-attention",
+      "title": "Gated Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 148,
+      "slug": "differential-attention",
+      "title": "Differential Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 149,
+      "slug": "fused-rmsnorm-and-w8a8-linear",
+      "title": "Fused RMSNorm and W8A8 Linear",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 150,
+      "slug": "distillation-kl-divergence",
+      "title": "Distillation KL Divergence",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 151,
+      "slug": "muon-optimizer",
+      "title": "Muon Optimizer",
+      "difficulty": "medium",
+      "accessTier": "free"
+    },
+    {
+      "id": 152,
+      "slug": "softcapped-sliding-window-attention",
+      "title": "Softcapped Sliding Window Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 153,
+      "slug": "fused-rope-causal-attention",
+      "title": "Fused RoPE Causal Attention",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 154,
+      "slug": "fused-mamba-2-ssd-scan",
+      "title": "Fused Mamba-2 SSD Scan",
+      "difficulty": "hard",
+      "accessTier": "free"
+    },
+    {
+      "id": 155,
+      "slug": "moe-expert-weight-gradient",
+      "title": "MoE Expert Weight Gradient",
+      "difficulty": "medium",
+      "accessTier": "free"
+    }
+  ]
+}

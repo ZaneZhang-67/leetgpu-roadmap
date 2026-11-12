@@ -1,5 +1,6 @@
 ---
 id: matrix-transpose
+leetgpuId: 3
 titleEn: Matrix Transpose
 titleZh: 矩阵转置
 description: 使用原生 CUDA 转置行主序浮点矩阵，介绍二维线程映射、输入输出坐标交换、行主序索引和边界判断

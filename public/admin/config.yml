@@ -27,7 +27,8 @@ collections:
     identifier_field: id
     summary: "{{titleEn}}（{{titleZh}}）"
     fields:
-      - { label: 题目 ID, name: id, widget: string, hint: 使用小写 kebab-case，例如 vector-addition }
+      - { label: 页面 ID, name: id, widget: string, hint: 使用小写 kebab-case，例如 vector-addition }
+      - { label: LeetGPU 题号, name: leetgpuId, widget: number, value_type: int, min: 1 }
       - { label: 英文题名, name: titleEn, widget: string }
       - { label: 中文题名, name: titleZh, widget: string }
       - { label: 页面摘要, name: description, widget: text }

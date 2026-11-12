@@ -1,5 +1,6 @@
 ---
 id: matrix-addition
+leetgpuId: 8
 titleEn: Matrix Addition
 titleZh: 矩阵加法
 description: 使用原生 CUDA 对两个 N×N 浮点矩阵执行逐元素加法，介绍矩阵线性化、一维线程映射、Grid 覆盖和边界判断

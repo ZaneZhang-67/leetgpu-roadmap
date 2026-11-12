@@ -1,5 +1,6 @@
 ---
 id: 1d-convolution
+leetgpuId: 9
 titleEn: 1D Convolution
 titleZh: 一维卷积
 description: 使用原生 CUDA 实现 valid 边界的一维卷积，介绍输出长度、滑动窗口、线程映射、边界判断和逐项乘加

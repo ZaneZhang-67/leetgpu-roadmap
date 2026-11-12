@@ -1,5 +1,6 @@
 ---
 id: naive-gemm
+leetgpuId: 2
 titleEn: Matrix Multiplication
 titleZh: 矩阵乘法
 description: 使用原生 CUDA 计算两个行主序存储的 32 位浮点矩阵的乘积，介绍二维线程映射、Grid 覆盖、边界判断和行主序索引，并给出完整参考实现

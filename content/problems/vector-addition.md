@@ -1,5 +1,6 @@
 ---
 id: vector-addition
+leetgpuId: 1
 titleEn: Vector Addition
 titleZh: 向量加法
 description: 编写一个 GPU 程序，对两个包含 32 位浮点数的向量执行逐元素加法程序接收两个长度相同的输入向量，并生成一个包含它们之和的输出向量

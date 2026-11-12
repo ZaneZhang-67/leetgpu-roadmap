@@ -1,18 +1,39 @@
-import { markdownPages } from "../generated/markdown-pages.js"
+import { markdownNavigation, markdownPages } from "../generated/markdown-index.js"
+import { markdownPageLoaders } from "../generated/markdown-pages.js"
 
-export const navigation = [
-  { id: "vector-addition", title: "Vector Addition（向量加法）" },
-  { id: "matrix-addition", title: "Matrix Addition（矩阵加法）" },
-  { id: "naive-gemm", title: "Matrix Multiplication（矩阵乘法）" },
-  { id: "matrix-transpose", title: "Matrix Transpose（矩阵转置）" },
-  { id: "color-inversion", title: "Color Inversion（图像颜色反转）" },
-  { id: "1d-convolution", title: "1D Convolution（一维卷积）" },
-]
-
+export const navigation = markdownNavigation
+export const pages = markdownPages
 export const defaultPageId = navigation[0].id
 
-export const pages = Object.fromEntries(navigation.map(({ id }) => {
-  const page = markdownPages[id]
-  if (!page) throw new Error(`目录对应的文章不存在：${id}`)
-  return [id, page]
-}))
+const pagePromises = new Map()
+let searchIndexPromise
+
+export function loadPage(id) {
+  const loader = markdownPageLoaders[id]
+  if (!loader) return Promise.reject(new Error(`文章加载器不存在：${id}`))
+  if (!pagePromises.has(id)) {
+    pagePromises.set(id, loader().then(({ default: page }) => {
+      if (!page || page.problemId !== id) throw new Error(`文章模块 ID 不匹配：期望 ${id}，实际 ${page?.problemId ?? "空"}`)
+      return page
+    }).catch((error) => {
+      pagePromises.delete(id)
+      throw error
+    }))
+  }
+  return pagePromises.get(id)
+}
+
+export function loadSearchIndex() {
+  if (!searchIndexPromise) {
+    searchIndexPromise = import("../generated/markdown-search-index.js")
+      .then(({ markdownSearchIndex }) => {
+        if (!Array.isArray(markdownSearchIndex)) throw new TypeError("全文搜索索引格式错误")
+        return markdownSearchIndex
+      })
+      .catch((error) => {
+        searchIndexPromise = undefined
+        throw error
+      })
+  }
+  return searchIndexPromise
+}

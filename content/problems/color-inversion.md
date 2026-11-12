@@ -1,5 +1,6 @@
 ---
 id: color-inversion
+leetgpuId: 7
 titleEn: Color Inversion
 titleZh: 图像颜色反转
 description: 使用原生 CUDA 原地反转 RGBA 图像的 RGB 分量，介绍一维 RGBA 内存布局、通道判断、边界检查和模板中 Block 数少乘 4 的问题
