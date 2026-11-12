@@ -117,7 +117,13 @@ if (violations.length) {
 
 const missing = catalog.challenges.filter(({ id }) => !seenLeetgpuIds.has(id))
 const covered = catalog.challenges.length - missing.length
+const difficultyCoverage = Object.fromEntries(["easy", "medium", "hard"].map((difficulty) => {
+  const challenges = catalog.challenges.filter((challenge) => challenge.difficulty === difficulty)
+  const completed = challenges.filter(({ id }) => seenLeetgpuIds.has(id)).length
+  return [difficulty, `${completed}/${challenges.length}`]
+}))
 console.log(`LeetGPU challenge coverage: ${covered}/${catalog.challenges.length}`)
+console.log(`Coverage by difficulty: easy=${difficultyCoverage.easy}, medium=${difficultyCoverage.medium}, hard=${difficultyCoverage.hard}`)
 
 if (missing.length) {
   console.log(`Missing ${missing.length}: ${missing.map(({ id, title }) => `${id} ${title}`).join(" | ")}`)

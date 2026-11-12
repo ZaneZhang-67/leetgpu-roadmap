@@ -110,6 +110,16 @@ export const markdownPages = {
     "problemUrl": "https://leetgpu.com/challenges/3d-convolution",
     "updatedAt": "2026-11-12"
   },
+  "multi-head-attention": {
+    "leetgpuId": 12,
+    "title": "Multi-Head Attention（多头自注意力）",
+    "titleEn": "Multi-Head Attention",
+    "titleZh": "多头自注意力",
+    "description": "使用 CUDA 实现按特征连续分头的缩放点积自注意力，并在线完成稳定 Softmax",
+    "problemId": "multi-head-attention",
+    "problemUrl": "https://leetgpu.com/challenges/multi-head-attention",
+    "updatedAt": "2026-11-12"
+  },
   "histogramming": {
     "leetgpuId": 13,
     "title": "Histogramming（直方图统计）",
@@ -118,6 +128,16 @@ export const markdownPages = {
     "description": "使用 CUDA 原子操作统计整数数组中各个取值的出现次数，并说明并发写冲突与输出初始化",
     "problemId": "histogramming",
     "problemUrl": "https://leetgpu.com/challenges/histogramming",
+    "updatedAt": "2026-11-12"
+  },
+  "multi-agent-simulation": {
+    "leetgpuId": 14,
+    "title": "Multi-Agent Simulation（多智能体模拟）",
+    "titleEn": "Multi-Agent Simulation",
+    "titleZh": "多智能体模拟",
+    "description": "使用 CUDA 并行执行一次 Boids 状态更新，严格处理邻居半径、自身排除、无邻居回退以及速度和位置的更新顺序",
+    "problemId": "multi-agent-simulation",
+    "problemUrl": "https://leetgpu.com/challenges/multi-agent-simulation",
     "updatedAt": "2026-11-12"
   },
   "sorting": {
@@ -230,6 +250,16 @@ export const markdownPages = {
     "problemUrl": "https://leetgpu.com/challenges/categorical-cross-entropy-loss",
     "updatedAt": "2026-11-12"
   },
+  "multi-head-cross-attention": {
+    "leetgpuId": 26,
+    "title": "Multi-Head Cross-Attention（多头交叉注意力）",
+    "titleEn": "Multi-Head Cross-Attention",
+    "titleZh": "多头交叉注意力",
+    "description": "使用 CUDA 实现查询长度与键值长度不同的多头交叉注意力，并在线完成稳定 Softmax",
+    "problemId": "multi-head-cross-attention",
+    "problemUrl": "https://leetgpu.com/challenges/multi-head-cross-attention",
+    "updatedAt": "2026-11-12"
+  },
   "mean-squared-error": {
     "leetgpuId": 27,
     "title": "Mean Squared Error（均方误差）",
@@ -238,6 +268,36 @@ export const markdownPages = {
     "description": "使用 CUDA 计算预测值与目标值之间平方误差的平均值，并处理大规模并行归约",
     "problemId": "mean-squared-error",
     "problemUrl": "https://leetgpu.com/challenges/mean-squared-error",
+    "updatedAt": "2026-11-12"
+  },
+  "gaussian-blur": {
+    "leetgpuId": 28,
+    "title": "Gaussian Blur（高斯模糊）",
+    "titleEn": "Gaussian Blur",
+    "titleZh": "高斯模糊",
+    "description": "使用 CUDA 对行主序二维图像执行零填充卷积，理解二维索引、核中心和边界处理",
+    "problemId": "gaussian-blur",
+    "problemUrl": "https://leetgpu.com/challenges/gaussian-blur",
+    "updatedAt": "2026-11-12"
+  },
+  "top-k-selection": {
+    "leetgpuId": 29,
+    "title": "Top K Selection（Top-K 选择）",
+    "titleEn": "Top K Selection",
+    "titleZh": "Top-K 选择",
+    "description": "使用 CUDA 分块维护候选集并逐层归并，保留重复值并按降序输出任意合法数量的最大元素",
+    "problemId": "top-k-selection",
+    "problemUrl": "https://leetgpu.com/challenges/top-k-selection",
+    "updatedAt": "2026-11-12"
+  },
+  "batched-matrix-multiplication": {
+    "leetgpuId": 30,
+    "title": "Batched Matrix Multiplication（批量矩阵乘法）",
+    "titleEn": "Batched Matrix Multiplication",
+    "titleZh": "批量矩阵乘法",
+    "description": "使用 CUDA 对 FP32 行主序矩阵批次执行独立矩阵乘法",
+    "problemId": "batched-matrix-multiplication",
+    "problemUrl": "https://leetgpu.com/challenges/batched-matrix-multiplication",
     "updatedAt": "2026-11-12"
   },
   "matrix-copy": {
@@ -250,6 +310,96 @@ export const markdownPages = {
     "problemUrl": "https://leetgpu.com/challenges/matrix-copy",
     "updatedAt": "2026-11-12"
   },
+  "int8-quantized-matmul": {
+    "leetgpuId": 32,
+    "title": "INT8 Quantized MatMul（INT8 量化矩阵乘法）",
+    "titleEn": "INT8 Quantized MatMul",
+    "titleZh": "INT8 量化矩阵乘法",
+    "description": "使用 CUDA 完成带 scale 与 zero-point 的 INT8 行主序矩阵乘法、偶数舍入和饱和截断",
+    "problemId": "int8-quantized-matmul",
+    "problemUrl": "https://leetgpu.com/challenges/int8-quantized-matmul",
+    "updatedAt": "2026-11-12"
+  },
+  "ordinary-least-squares": {
+    "leetgpuId": 33,
+    "title": "Ordinary Least Squares（普通最小二乘）",
+    "titleEn": "Ordinary Least Squares",
+    "titleZh": "普通最小二乘",
+    "description": "使用 CUDA 计算 XᵀX 与 Xᵀy，并通过带主元高斯消元求解普通最小二乘系数",
+    "problemId": "ordinary-least-squares",
+    "problemUrl": "https://leetgpu.com/challenges/ordinary-least-squares",
+    "updatedAt": "2026-11-12"
+  },
+  "logistic-regression": {
+    "leetgpuId": 34,
+    "title": "Logistic Regression（逻辑回归）",
+    "titleEn": "Logistic Regression",
+    "titleZh": "逻辑回归",
+    "description": "使用 CUDA 通过 Newton-Raphson 迭代训练逻辑回归，计算梯度、Hessian 与系数更新",
+    "problemId": "logistic-regression",
+    "problemUrl": "https://leetgpu.com/challenges/logistic-regression",
+    "updatedAt": "2026-11-12"
+  },
+  "monte-carlo-integration": {
+    "leetgpuId": 35,
+    "title": "Monte Carlo Integration（蒙特卡洛积分）",
+    "titleEn": "Monte Carlo Integration",
+    "titleZh": "蒙特卡洛积分",
+    "description": "使用 CUDA 归约随机采样点的函数值，并按区间宽度计算蒙特卡洛积分估计",
+    "problemId": "monte-carlo-integration",
+    "problemUrl": "https://leetgpu.com/challenges/monte-carlo-integration",
+    "updatedAt": "2026-11-12"
+  },
+  "radix-sort": {
+    "leetgpuId": 36,
+    "title": "Radix Sort（基数排序）",
+    "titleEn": "Radix Sort",
+    "titleZh": "基数排序",
+    "description": "使用 CUDA 对完整 uint32 范围执行稳定的逐位基数排序，通过零位计数、前缀扫描和稳定散射生成升序结果",
+    "problemId": "radix-sort",
+    "problemUrl": "https://leetgpu.com/challenges/radix-sort",
+    "updatedAt": "2026-11-12"
+  },
+  "matrix-power": {
+    "leetgpuId": 37,
+    "title": "Matrix Power（矩阵幂）",
+    "titleEn": "Matrix Power",
+    "titleZh": "矩阵幂",
+    "description": "使用原生 CUDA 计算方阵的正整数次幂，理解矩阵乘法、幂语义、设备端临时缓冲与多轮 kernel 调度",
+    "problemId": "matrix-power",
+    "problemUrl": "https://leetgpu.com/challenges/matrix-power",
+    "updatedAt": "2026-11-12"
+  },
+  "nearest-neighbor": {
+    "leetgpuId": 38,
+    "title": "Nearest Neighbor（最近邻）",
+    "titleEn": "Nearest Neighbor",
+    "titleZh": "最近邻",
+    "description": "为每个三维点寻找距离最近的其他点，理解展平坐标、平方欧氏距离、自身排除与确定的平局规则",
+    "problemId": "nearest-neighbor",
+    "problemUrl": "https://leetgpu.com/challenges/nearest-neighbor",
+    "updatedAt": "2026-11-12"
+  },
+  "fast-fourier-transform": {
+    "leetgpuId": 39,
+    "title": "Fast Fourier Transform（快速傅里叶变换）",
+    "titleEn": "Fast Fourier Transform",
+    "titleZh": "快速傅里叶变换",
+    "description": "使用 CUDA 计算任意合法长度的一维复数 DFT，结合 radix-2 FFT 与 Bluestein 卷积保持 O(N log N) 复杂度",
+    "problemId": "fast-fourier-transform",
+    "problemUrl": "https://leetgpu.com/challenges/fast-fourier-transform",
+    "updatedAt": "2026-11-12"
+  },
+  "batch-normalization": {
+    "leetgpuId": 40,
+    "title": "Batch Normalization（批归一化）",
+    "titleEn": "Batch Normalization",
+    "titleZh": "批归一化",
+    "description": "对 N×C 输入按特征列计算总体均值与方差，再使用 gamma、beta 和 epsilon 完成 BatchNorm 前向传播",
+    "problemId": "batch-normalization",
+    "problemUrl": "https://leetgpu.com/challenges/batch-normalization",
+    "updatedAt": "2026-11-12"
+  },
   "simple-inference": {
     "leetgpuId": 41,
     "title": "Simple Inference（简单模型推理）",
@@ -258,6 +408,16 @@ export const markdownPages = {
     "description": "使用 PyTorch 对已加载的线性层执行前向推理，并将结果写入平台提供的输出张量",
     "problemId": "simple-inference",
     "problemUrl": "https://leetgpu.com/challenges/simple-inference",
+    "updatedAt": "2026-11-12"
+  },
+  "2d-max-pooling": {
+    "leetgpuId": 42,
+    "title": "2D Max Pooling（二维最大池化）",
+    "titleEn": "2D Max Pooling",
+    "titleZh": "二维最大池化",
+    "description": "在 NCHW 张量上实现带步幅和填充的二维最大池化，推导输出形状、窗口坐标与边界处理",
+    "problemId": "2d-max-pooling",
+    "problemUrl": "https://leetgpu.com/challenges/2d-max-pooling",
     "updatedAt": "2026-11-12"
   },
   "sigmoid-linear-unit": {
@@ -328,8 +488,16 @@ export const markdownNavigation = [
     "title": "3D Convolution（三维卷积）"
   },
   {
+    "id": "multi-head-attention",
+    "title": "Multi-Head Attention（多头自注意力）"
+  },
+  {
     "id": "histogramming",
     "title": "Histogramming（直方图统计）"
+  },
+  {
+    "id": "multi-agent-simulation",
+    "title": "Multi-Agent Simulation（多智能体模拟）"
   },
   {
     "id": "sorting",
@@ -376,16 +544,72 @@ export const markdownNavigation = [
     "title": "Categorical Cross Entropy Loss（分类交叉熵损失）"
   },
   {
+    "id": "multi-head-cross-attention",
+    "title": "Multi-Head Cross-Attention（多头交叉注意力）"
+  },
+  {
     "id": "mean-squared-error",
     "title": "Mean Squared Error（均方误差）"
+  },
+  {
+    "id": "gaussian-blur",
+    "title": "Gaussian Blur（高斯模糊）"
+  },
+  {
+    "id": "top-k-selection",
+    "title": "Top K Selection（Top-K 选择）"
+  },
+  {
+    "id": "batched-matrix-multiplication",
+    "title": "Batched Matrix Multiplication（批量矩阵乘法）"
   },
   {
     "id": "matrix-copy",
     "title": "Matrix Copy（矩阵复制）"
   },
   {
+    "id": "int8-quantized-matmul",
+    "title": "INT8 Quantized MatMul（INT8 量化矩阵乘法）"
+  },
+  {
+    "id": "ordinary-least-squares",
+    "title": "Ordinary Least Squares（普通最小二乘）"
+  },
+  {
+    "id": "logistic-regression",
+    "title": "Logistic Regression（逻辑回归）"
+  },
+  {
+    "id": "monte-carlo-integration",
+    "title": "Monte Carlo Integration（蒙特卡洛积分）"
+  },
+  {
+    "id": "radix-sort",
+    "title": "Radix Sort（基数排序）"
+  },
+  {
+    "id": "matrix-power",
+    "title": "Matrix Power（矩阵幂）"
+  },
+  {
+    "id": "nearest-neighbor",
+    "title": "Nearest Neighbor（最近邻）"
+  },
+  {
+    "id": "fast-fourier-transform",
+    "title": "Fast Fourier Transform（快速傅里叶变换）"
+  },
+  {
+    "id": "batch-normalization",
+    "title": "Batch Normalization（批归一化）"
+  },
+  {
     "id": "simple-inference",
     "title": "Simple Inference（简单模型推理）"
+  },
+  {
+    "id": "2d-max-pooling",
+    "title": "2D Max Pooling（二维最大池化）"
   },
   {
     "id": "sigmoid-linear-unit",
