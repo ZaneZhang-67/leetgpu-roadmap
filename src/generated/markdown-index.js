@@ -759,6 +759,166 @@ export const markdownPages = {
     "problemId": "adder-transformer-inference",
     "problemUrl": "https://leetgpu.com/challenges/adder-transformer-inference",
     "updatedAt": "2026-11-12"
+  },
+  "integral-image": {
+    "leetgpuId": 77,
+    "title": "Integral Image（积分图）",
+    "titleEn": "Integral Image",
+    "titleZh": "积分图",
+    "description": "使用 CUDA 计算二维 FP32 图像的横向与纵向前缀和",
+    "problemId": "integral-image",
+    "problemUrl": "https://leetgpu.com/challenges/integral-image",
+    "updatedAt": "2026-11-12"
+  },
+  "2d-fft": {
+    "leetgpuId": 78,
+    "title": "2D FFT（二维快速傅里叶变换）",
+    "titleEn": "2D FFT",
+    "titleZh": "二维快速傅里叶变换",
+    "description": "使用 CUDA 对实部与虚部交错存储的复数矩阵执行二维快速傅里叶变换，覆盖任意允许尺寸",
+    "problemId": "2d-fft",
+    "problemUrl": "https://leetgpu.com/challenges/2d-fft",
+    "updatedAt": "2026-11-12"
+  },
+  "connected-components": {
+    "leetgpuId": 79,
+    "title": "Connected Components（连通分量）",
+    "titleEn": "Connected Components",
+    "titleZh": "连通分量",
+    "description": "使用 CUDA 标签传播求无向图连通分量中的最小顶点编号",
+    "problemId": "connected-components",
+    "problemUrl": "https://leetgpu.com/challenges/connected-components",
+    "updatedAt": "2026-11-12"
+  },
+  "grouped-query-attention": {
+    "leetgpuId": 80,
+    "title": "Grouped Query Attention（分组查询注意力）",
+    "titleEn": "Grouped Query Attention",
+    "titleZh": "分组查询注意力",
+    "description": "让连续的 Query 头分组共享较少的 Key/Value 头，并计算无掩码缩放点积注意力",
+    "problemId": "grouped-query-attention",
+    "problemUrl": "https://leetgpu.com/challenges/grouped-query-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "int4-weight-only-quantized-matmul": {
+    "leetgpuId": 81,
+    "title": "INT4 Weight-Only Quantized MatMul（INT4 仅权重量化矩阵乘法）",
+    "titleEn": "INT4 Weight-Only Quantized MatMul",
+    "titleZh": "INT4 仅权重量化矩阵乘法",
+    "description": "使用 CUDA 解包带偏移的 INT4 权重，按组反量化并完成 W4A16 矩阵乘法",
+    "problemId": "int4-weight-only-quantized-matmul",
+    "problemUrl": "https://leetgpu.com/challenges/int4-weight-only-quantized-matmul",
+    "updatedAt": "2026-11-12"
+  },
+  "linear-recurrence": {
+    "leetgpuId": 82,
+    "title": "Linear Recurrence（线性递推）",
+    "titleEn": "Linear Recurrence",
+    "titleZh": "线性递推",
+    "description": "使用 CUDA 按时间顺序计算批量线性递推，说明序列内依赖和批次间并行",
+    "problemId": "linear-recurrence",
+    "problemUrl": "https://leetgpu.com/challenges/linear-recurrence",
+    "updatedAt": "2026-11-12"
+  },
+  "fused-residual-add-and-rms-norm": {
+    "leetgpuId": 83,
+    "title": "Fused Residual Add and RMS Norm（融合残差加法与 RMS 归一化）",
+    "titleEn": "Fused Residual Add and RMS Norm",
+    "titleZh": "融合残差加法与 RMS 归一化",
+    "description": "使用单个 CUDA kernel 融合逐元素残差加法、逐行 RMS 归一化和特征缩放",
+    "problemId": "fused-residual-add-and-rms-norm",
+    "problemUrl": "https://leetgpu.com/challenges/fused-residual-add-and-rms-norm",
+    "updatedAt": "2026-11-12"
+  },
+  "swiglu-mlp-block": {
+    "leetgpuId": 84,
+    "title": "SwiGLU MLP Block（SwiGLU MLP 模块）",
+    "titleEn": "SwiGLU MLP Block",
+    "titleZh": "SwiGLU MLP 模块",
+    "description": "使用 CUDA 实现门控投影、上投影、SiLU 门控和下投影组成的完整 SwiGLU MLP",
+    "problemId": "swiglu-mlp-block",
+    "problemUrl": "https://leetgpu.com/challenges/swiglu-mlp-block",
+    "updatedAt": "2026-11-12"
+  },
+  "lora-linear": {
+    "leetgpuId": 85,
+    "title": "LoRA Linear（LoRA 线性层）",
+    "titleEn": "LoRA Linear",
+    "titleZh": "LoRA 线性层",
+    "description": "使用 CUDA 计算基础线性变换与低秩 LoRA 残差分支",
+    "problemId": "lora-linear",
+    "problemUrl": "https://leetgpu.com/challenges/lora-linear",
+    "updatedAt": "2026-11-12"
+  },
+  "paged-kv-cache-attention": {
+    "leetgpuId": 86,
+    "title": "Paged KV-Cache Attention（分页 KV Cache 注意力）",
+    "titleEn": "Paged KV-Cache Attention",
+    "titleZh": "分页 KV Cache 注意力",
+    "description": "通过逻辑块表访问离散物理 KV Cache 页面，为每个序列与注意力头计算解码阶段注意力",
+    "problemId": "paged-kv-cache-attention",
+    "problemUrl": "https://leetgpu.com/challenges/paged-kv-cache-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "speculative-decoding-verification": {
+    "leetgpuId": 87,
+    "title": "Speculative Decoding Verification（推测解码验证）",
+    "titleEn": "Speculative Decoding Verification",
+    "titleZh": "推测解码验证",
+    "description": "使用 CUDA 完成草稿 token 的顺序接受、拒绝重采样与全接受奖励采样",
+    "problemId": "speculative-decoding-verification",
+    "problemUrl": "https://leetgpu.com/challenges/speculative-decoding-verification",
+    "updatedAt": "2026-11-12"
+  },
+  "shared-prefix-cascade-attention": {
+    "leetgpuId": 88,
+    "title": "Shared-Prefix Cascade Attention（共享前缀级联注意力）",
+    "titleEn": "Shared-Prefix Cascade Attention",
+    "titleZh": "共享前缀级联注意力",
+    "description": "合并共享前缀与每序列因果后缀的 Softmax 统计量，计算数值稳定的级联注意力",
+    "problemId": "shared-prefix-cascade-attention",
+    "problemUrl": "https://leetgpu.com/challenges/shared-prefix-cascade-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "nvfp4-matrix-multiplication": {
+    "leetgpuId": 89,
+    "title": "NVFP4 Matrix Multiplication（NVFP4 矩阵乘法）",
+    "titleEn": "NVFP4 Matrix Multiplication",
+    "titleZh": "NVFP4 矩阵乘法",
+    "description": "解码打包的 E2M1 FP4 操作数和原始 E4M3 块缩放字节，计算带 FP32 alpha 的 FP16 矩阵乘法",
+    "problemId": "nvfp4-matrix-multiplication",
+    "problemUrl": "https://leetgpu.com/challenges/nvfp4-matrix-multiplication",
+    "updatedAt": "2026-11-12"
+  },
+  "causal-depthwise-conv1d": {
+    "leetgpuId": 90,
+    "title": "Causal Depthwise Conv1d（因果深度可分离一维卷积）",
+    "titleEn": "Causal Depthwise Conv1d",
+    "titleZh": "因果深度可分离一维卷积",
+    "description": "在 channels-last 序列上按通道独立执行只访问当前与历史位置的一维卷积",
+    "problemId": "causal-depthwise-conv1d",
+    "problemUrl": "https://leetgpu.com/challenges/causal-depthwise-conv1d",
+    "updatedAt": "2026-11-12"
+  },
+  "moe-token-dispatch": {
+    "leetgpuId": 91,
+    "title": "MoE Token Dispatch（MoE Token 分发）",
+    "titleEn": "MoE Token Dispatch",
+    "titleZh": "MoE Token 分发",
+    "description": "使用 CUDA 按专家稳定分组 Token，并生成每个专家的 Token 数量",
+    "problemId": "moe-token-dispatch",
+    "problemUrl": "https://leetgpu.com/challenges/moe-token-dispatch",
+    "updatedAt": "2026-11-12"
+  },
+  "decaying-causal-attention": {
+    "leetgpuId": 92,
+    "title": "Decaying Causal Attention（衰减因果注意力）",
+    "titleEn": "Decaying Causal Attention",
+    "titleZh": "衰减因果注意力",
+    "description": "使用 CUDA 计算带几何距离衰减且不经过 softmax 的因果注意力",
+    "problemId": "decaying-causal-attention",
+    "problemUrl": "https://leetgpu.com/challenges/decaying-causal-attention",
+    "updatedAt": "2026-11-12"
   }
 }
 
@@ -1066,5 +1226,69 @@ export const markdownNavigation = [
   {
     "id": "adder-transformer-inference",
     "title": "Adder Transformer Inference（加法器 Transformer 推理）"
+  },
+  {
+    "id": "integral-image",
+    "title": "Integral Image（积分图）"
+  },
+  {
+    "id": "2d-fft",
+    "title": "2D FFT（二维快速傅里叶变换）"
+  },
+  {
+    "id": "connected-components",
+    "title": "Connected Components（连通分量）"
+  },
+  {
+    "id": "grouped-query-attention",
+    "title": "Grouped Query Attention（分组查询注意力）"
+  },
+  {
+    "id": "int4-weight-only-quantized-matmul",
+    "title": "INT4 Weight-Only Quantized MatMul（INT4 仅权重量化矩阵乘法）"
+  },
+  {
+    "id": "linear-recurrence",
+    "title": "Linear Recurrence（线性递推）"
+  },
+  {
+    "id": "fused-residual-add-and-rms-norm",
+    "title": "Fused Residual Add and RMS Norm（融合残差加法与 RMS 归一化）"
+  },
+  {
+    "id": "swiglu-mlp-block",
+    "title": "SwiGLU MLP Block（SwiGLU MLP 模块）"
+  },
+  {
+    "id": "lora-linear",
+    "title": "LoRA Linear（LoRA 线性层）"
+  },
+  {
+    "id": "paged-kv-cache-attention",
+    "title": "Paged KV-Cache Attention（分页 KV Cache 注意力）"
+  },
+  {
+    "id": "speculative-decoding-verification",
+    "title": "Speculative Decoding Verification（推测解码验证）"
+  },
+  {
+    "id": "shared-prefix-cascade-attention",
+    "title": "Shared-Prefix Cascade Attention（共享前缀级联注意力）"
+  },
+  {
+    "id": "nvfp4-matrix-multiplication",
+    "title": "NVFP4 Matrix Multiplication（NVFP4 矩阵乘法）"
+  },
+  {
+    "id": "causal-depthwise-conv1d",
+    "title": "Causal Depthwise Conv1d（因果深度可分离一维卷积）"
+  },
+  {
+    "id": "moe-token-dispatch",
+    "title": "MoE Token Dispatch（MoE Token 分发）"
+  },
+  {
+    "id": "decaying-causal-attention",
+    "title": "Decaying Causal Attention（衰减因果注意力）"
   }
 ]
