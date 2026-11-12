@@ -647,5 +647,101 @@ export const markdownSearchIndex = [
     "title": "Parallel Reverse Scan (GAE)（并行反向扫描（GAE））",
     "description": "沿时间维保持 FP32 递推顺序，并行处理批内序列以计算广义优势估计",
     "text": "Parallel Reverse Scan (GAE) 并行反向扫描（GAE） 沿时间维保持 FP32 递推顺序，并行处理批内序列以计算广义优势估计 ## 题目定义 对 `rewards(B,S)`、`values(B,S)` 计算 GAE，序列末尾的 next value 取零： 每条序列都在 S 处结束。题目没有提供 done、padding 或 mask 输入，也不应自行加入终止掩码。 ### 示例 约束为 `1≤B≤256`、`1≤S≤65536`，gamma、lambda 位于 `[0,1]`，所有张量均为 FP32。性能用例为 `B=64`、`S=4096`，容差为 `1e-3`。 ## 模板代码解析 starter 签名为： 数组按 `(B,S)` 行主序保存。gamma 同时用于 TD bootstrap 和反向衰减，反向衰减系数为 `gamma*lam`。 ## 实现思路 时间维上存在严格依赖：`A[t]` 只有在 `A[t+1]` 产生后才能计算。递推在实数代数中虽可改写为仿射扫描，但 FP32 加法不满足结合律；树形扫描会改变舍入顺序，并在大数抵消输入下产生不同结果。 参考实现因此让一个线程负责一条 Batch 序列，严格从 `S-1` 递推到 0，并在 Batch 维并行。`__fmul_rn`、`__fadd_rn` 与 `__fsub_rn` 明确复现 runtime 中“乘、加、减”分步执行的 FP32 舍入顺序。性能用例共有 `64×4096` 个时间步，64 条依赖链可在一个 Block 中并行执行，无需额外工作区或跨 kernel carry。 ## 参考实现"
+  },
+  {
+    "id": "softmax-attention-backward",
+    "title": "Softmax Attention Backward（Softmax 注意力反向传播）",
+    "description": "使用流式重计算与行统计计算 Softmax 注意力的 Q、K、V 梯度，避免 M×N 工作区",
+    "text": "Softmax Attention Backward Softmax 注意力反向传播 使用流式重计算与行统计计算 Softmax 注意力的 Q、K、V 梯度，避免 M×N 工作区 ## 题目定义 `Q:[M,d]`、`K/V:[N,d]`、`dO:[M,d]`。前向没有因果 mask： ### 实现要求与约束 - 保持 starter 签名，只使用 GPU 原生功能 - `1≤M,N≤100,000`，`1≤d≤128`，输入均为 FP32 - 输出分别为 `[M,d]`、`[N,d]`、`[N,d]` - 性能测试 `M=8192,N=4096,d=128` - 绝对误差和相对误差均为 `1e-4` ## 模板代码解析 `M×N` 最多达到一百亿，不能用 int 计算该乘积，也不能分配完整 score/probability 矩阵。 ## 实现思路 工作区只有三个长度 M 的 double 行统计：score 最大值、指数和，以及 `Σ_j P_ij dP_ij`。每行一个 Block 并行扫描 N 得到稳定 Softmax 统计及 softmax-Jacobian 行点积。 随后每行一个 128 线程 Block 计算 dQ。每个 `(row,column)` 只由 128 个 lane 协作归约一次 score 和一次 dP；线程 `k` 随即把同一个 dS 累加到自己的 `dQ[row,k]`。每列一个 Block 以相同方式沿 M 计算 dK 与 dV。这样每个 pass 内，每个注意力元素的长度 d 点积由各 lane 协作完成，不会按输出维重复；三个 pass 的总复杂度仍为 `O(MNd)`。 工作区为 O(M) 的 double 数组，索引统一使用 `size_t`，覆盖 `M×N>INT_MAX`。三个内部 kernel 的参数都实际参与计算：row kernels 只接收 N，column kernel 只接收 M，避免未使用形参触发严格编译警告。 ## 参考实现"
+  },
+  {
+    "id": "attention-with-sinks",
+    "title": "Attention with Sinks（带注意力汇聚点的滑动窗口注意力）",
+    "description": "使用 CUDA 实现同时保留因果汇聚点与局部窗口的稳定 Softmax 注意力",
+    "text": "Attention with Sinks 带注意力汇聚点的滑动窗口注意力 使用 CUDA 实现同时保留因果汇聚点与局部窗口的稳定 Softmax 注意力 ## 题目定义 `Q/K/V/output` 均为 `[M,d]`。对查询位置 `i`，键位置 `j` 仅在以下条件下可见： 在该可见集合上计算 `QKᵀ/√d`、Softmax 和对 V 的加权和。sink 仍受因果条件约束，未来 sink 不可见；sink 与窗口重叠时只计一次。 ### 实现要求 - 保持 `solve` 签名不变，仅使用原生功能 - Softmax 只归一化可见位置 - 结果写入 `[M,d]` 的 `output` ### 示例 官方示例为 `M=4,d=4,num_sinks=1,window_size=2`。位置 3 可见 sink 0 和窗口位置 2、3。 ### 约束 - `1≤M≤10,000`，`1≤d≤128` - `1≤num_sinks≤min(16,M)`，`1≤window_size≤M` - Q、K、V 和 output 均为 `[M,d]` FP32，输入值位于 `[-1,1]` - 功能测试覆盖单 token、窗口覆盖完整前缀、`window_size=1`、非 2 的幂尺寸 - 性能测试为 `M=5000,d=128,num_sinks=4,window_size=1024` - 绝对误差和相对误差均为 `1e-5` ## 模板代码解析 starter 未提供中间 score 或 probability 缓冲区。 ## 实现思路 一个 Block 处理一个查询行，128 个线程协作计算每个可见键的 score；线程分别保存自己的输出维累加器。每读入一个键，线程 0 更新在线 Softmax 的最大值与分母，所有线程用同一对缩放因子更新分子，因此无需随窗口长度增长的权重缓冲。 可见键按升序生成：先加入不在窗口内的历史 sink，再加入窗口与因果前缀的交集，从而避免重复。归约槽、分母和分子都用 FP64，Block 的 Shared Memory 占用固定，不受最大窗口 10000 影响。 ## 参考实现"
+  },
+  {
+    "id": "layer-normalization",
+    "title": "Layer Normalization（层归一化）",
+    "description": "使用 CUDA 按行计算稳定均值与总体方差，并应用逐特征仿射变换",
+    "text": "Layer Normalization 层归一化 使用 CUDA 按行计算稳定均值与总体方差，并应用逐特征仿射变换 ## 题目定义 对 `(N,C)` FP32 输入的每一行独立归一化： 方差是总体方差，weight 和 bias 长度均为 `C`，在所有行间共享。 ### 示例 **约束与测试** - `1≤N≤65,536`，`1≤C≤4096`，`eps=1e-5` - 输入 `[-100,100]`，weight `[0.1,10]`，bias `[-10,10]` - 测试覆盖 `C=1`、全零、负数、`C=4096` 和非二次幂 `C=30/100/255` - 性能测试 `N=65,536,C=512`，容差 `atol=rtol=1e-4` ## 模板代码解析 官方 starter 只提供空入口。输入输出按行主序存储，需要自行实现按行统计、仿射变换和启动配置。 ## 实现思路 均值与方差分别启动归约 kernel，保持官方 runtime 的两次独立统计。启动配置按输入长度与输出行数选择最多 512 个线程；连续长行的均值使用四元素向量载入和四路局部累加，方差使用两元素向量载入及 FP32 Welford `(count,mean,M2)`，随后按相同二叉树拓扑合并。未对齐行首、尾元素和同一 Block 内的多行也分别处理。 总体方差为 `M2/C`。第三个 kernel 按 FP32 顺序执行 `sqrt(var+eps)`、减法、除法和仿射变换。它避免 `E[x²]-E[x]²` 的抵消，也避免用更高精度数学结果替代 runtime 在大偏置低方差输入上的规定舍入路径。 ## 参考实现"
+  },
+  {
+    "id": "multi-head-latent-attention-decode",
+    "title": "Multi-Head Latent Attention Decode（多头潜变量注意力解码）",
+    "description": "使用 CUDA 通过权重吸收、潜变量缓存和解耦 RoPE 键完成 MLA 解码注意力",
+    "text": "Multi-Head Latent Attention Decode 多头潜变量注意力解码 使用 CUDA 通过权重吸收、潜变量缓存和解耦 RoPE 键完成 MLA 解码注意力 ## 题目定义 布局：`q:[H,head_dim+rope_dim]`，`kv_cache:[S,rank+rope_dim]`，`W_UK:[H,head_dim,rank]`，`W_UV:[H,rank,head_dim]`，输出 `[H,head_dim]`。 ### 实现要求 - 保持 starter 签名 - 对完整 `seq_len` 做稳定 Softmax - 不显式展开每个位置的完整 K/V ### 示例与约束 官方示例为 `H=2,S=2,rank=2,head_dim=2,rope_dim=1`。 - `1≤num_heads≤128` - `1≤seq_len≤8192` - `1≤kv_lora_rank≤512` - `1≤head_dim≤128` - `1≤rope_dim≤64` - 所有张量均为 FP32 - 功能测试覆盖零 query、零 cache 与非 2 的幂尺寸 - 性能测试为 `H=128,S=4096,rank=512,head_dim=128,rope_dim=64` - 绝对误差和相对误差均为 `1e-3` ## 模板代码解析 ## 实现思路 分五个并行 kernel：一维 Grid 展平元素，计算每个 head 的 `q_latent`；二维 Grid 计算所有 head-position score；每个 head 一个 Block 完成稳定 Softmax；二维 Grid 用概率直接计算每个 `(head,latent)` 的加权缓存，再用一维 Grid 展平 `(head,output_dim)` 上投影到输出。这样性能规模有数十万线程参与，而不是让单线程串行完成整个 head。 中间缓冲区为 `H×rank` 的 q/latent 和 `H×S` 的 score/probability。 ## 参考实现"
+  },
+  {
+    "id": "fused-qkv-projection-with-rope-and-kv-cache-update",
+    "title": "Fused QKV Projection with RoPE and KV Cache Update（融合 QKV 投影、RoPE 与 KV Cache 更新）",
+    "description": "使用 CUDA 完成 packed QKV 投影、半区式 RoPE，并更新指定解码位置的 KV Cache",
+    "text": "Fused QKV Projection with RoPE and KV Cache Update 融合 QKV 投影、RoPE 与 KV Cache 更新 使用 CUDA 完成 packed QKV 投影、半区式 RoPE，并更新指定解码位置的 KV Cache ## 题目定义 `x:[B,d_model]`，`W_qkv:[d_model,(H_q+2H_kv)D]`。投影输出按连续列打包为 Q、K、V：Q 占前 `H_q D`，K 接着占 `H_kv D`，V 占最后 `H_kv D`。 RoPE cache `[S_max,D]` 的前 `D/2` 是 cos，后 `D/2` 是 sin。向量前后半区配对： Q 写入 `[B,H_q,D]`；旋转后的 K 和未旋转的 V 写入 cache 的 `[b,h,positions[b],:]`，其他 cache 位置保持原值。 ### 实现要求与约束 保持 starter 签名，并满足： - `1≤B≤1024`，`1≤d_model≤8192` - `1≤H_kv≤H_q≤128`，且 `H_q` 是 `H_kv` 的倍数 - `D` 为偶数，`2≤D≤128` - `1≤S_max≤4096`，且 `0≤positions[b]<S_max` - `positions` 为 int32，其余张量为 FP32 - x、W_qkv、K_cache、V_cache 的值位于 `[-10,10]` - 功能测试含 GQA、MHA、零输入和非 2 的幂维度 - 性能测试 `B=64,d_model=4096,H_q=32,H_kv=8,D=128,S_max=2048` - 绝对误差和相对误差均为 `1e-4` ## 模板代码解析 ## 实现思路 先用 `16×16` Shared Memory tiled GEMM 计算 packed qkv，Shared Memory 输入保持 float，跨 K tile 的 sum 使用 double 累加并在写入 qkv 时转回 float，避免每个输出独立反复读取 x/W。第二个 kernel 以线程映射 Q/KV 元素：Q 和 K 按半区配对读取临时投影及 cos/sin，V 直接写入指定 cache slot。每个输出位置只有一个 writer，任意维度边缘加载置零。 ## 参考实现"
+  },
+  {
+    "id": "diffusion-transformer-block",
+    "title": "Diffusion Transformer Block（Diffusion Transformer Block）",
+    "description": "使用 CUDA 实现带 adaLN 调制的双向自注意力与 GELU MLP 残差块",
+    "text": "Diffusion Transformer Block Diffusion Transformer Block 使用 CUDA 实现带 adaLN 调制的双向自注意力与 GELU MLP 残差块 ## 题目定义 固定 `D=512`、8 heads、head_dim=64、MLP=2048。先由 `SiLU(c)W_adaᵀ+b` 生成六组 `(shift_msa,scale_msa,gate_msa,shift_mlp,scale_mlp,gate_mlp)`。两条子层均使用无仿射 LayerNorm、`eps=1e-6`，调制为 `norm*(1+scale)+shift`。 注意力为无 causal mask 的双向注意力，输出经 `W_o` 后以 `gate_msa` 加到 x。MLP 使用 tanh 近似 GELU，经 `W_fc2` 后以 `gate_mlp` 加到第一条残差。 ### 示例 官方示例形状：`x(1,4,512)`、`c(1,512)`、packed weights 长度 4,726,272，输出 `(1,4,512)`。所有张量均为 FP32，`1 ≤ batch_size ≤ 16`、`1 ≤ seq_len ≤ 4096`。性能用例为 batch=4、seq=1024，容差 `1e-3`。 ## 模板代码解析 签名为： packed 顺序依次是 Wada/bada、Wqkv/bqkv、Wo/bo、Wfc1/bfc1、Wfc2/bfc2；矩阵均为 `(out,in)` 行主序。关键偏移为 0、1572864、1575936、2362368、2363904、2626048、2626560、3675136、3677184、4725760。 ## 实现思路 参考实现采用 16×16 Shared Memory tiled GEMM 与逐 Token kernel，分配 mod、h、qkv、attention、x1、MLP 临时缓冲。注意力为每个 `(batch,head,query)` 一个 Block，在线稳定 Softmax 扫描 key，避免 `S×S` 分数矩阵。 同一 tiled kernel 覆盖 adaLN、QKV、输出投影和两层 MLP，边缘 Tile 补零。其余 kernel 固定 packed layout、两遍中心方差、调制、无 mask、残差门控和 tanh GELU 的数值顺序。 ## 参考实现"
+  },
+  {
+    "id": "non-maximum-suppression",
+    "title": "Non-Maximum Suppression（非极大值抑制）",
+    "description": "按稳定分数顺序执行贪心框抑制，并把存活标记写回原始索引",
+    "text": "Non-Maximum Suppression 非极大值抑制 按稳定分数顺序执行贪心框抑制，并把存活标记写回原始索引 ## 题目定义 输入 `N` 个 `[x1,y1,x2,y2]` 框及分数。先按分数降序排列；分数相同时，原始索引小者优先。依序访问，尚未被抑制的框写 `keep=1`，并抑制后续所有与它的 IoU **严格大于**阈值的框。已被抑制的框不会再抑制其他框。 `keep[N]` 按原始框顺序写入，每项必须是 0 或 1，而不是紧凑的存活索引列表。 ### 官方示例 ### 完整约束 - `1 ≤ N ≤ 20000` - boxes 为 FP32 `[N,4]` 行主序，满足 `x1 threshold` 才抑制 - keep 为 int32；判定容差为 0 - 性能测试使用 `N=16384,threshold=0.5` ## 模板代码解析 稳定排序和贪心链式依赖都需要自行实现。参考实现先在 GPU 上按 `(-score,index)` 归并排序，再让一个 kernel 按排序结果执行严格的贪心语义。 ## 实现思路 先用并行归并排序得到稳定的 score 顺序。随后构造标准 NMS bitmask：每个二维 tile 比较 64 个行框和 64 个列框，列框位于排序后更晚位置且 `IoU>threshold` 时，在对应行的 uint64 mask 中置位。这里仍严格使用原始索引 tie 和严格大于阈值。 消去阶段只顺序扫描 N 个 rank，但不再逐对计算 IoU。它维护长度 `ceil(N/64)` 的 removed bitset；存活框只需把预计算 mask 按 64 位字 OR 进去。计算密集的 `O(N²)` IoU 已由大量 tile Block 并行完成，顺序部分为 `O(N²/64)` 位运算，并按原索引写 keep。 ## 参考实现"
+  },
+  {
+    "id": "vision-transformer-patch-embedding",
+    "title": "Vision Transformer Patch Embedding（Vision Transformer Patch Embedding）",
+    "description": "使用 CUDA 将 NCHW 图像切分为 Patch、线性投影并加入 CLS 与位置嵌入",
+    "text": "Vision Transformer Patch Embedding Vision Transformer Patch Embedding 使用 CUDA 将 NCHW 图像切分为 Patch、线性投影并加入 CLS 与位置嵌入 ## 题目定义 输入 `images(B,C,H,W)`，按不重叠 `P×P` Patch 切分，行优先排列为 `N=(H/P)(W/P)` 个 Token。权重布局为 `patch_weight(D,C,P,P)`： CLS 不参与投影。 ### 示例 官方 `1×1×4×4`、`P=2`、`D=2` 示例中，两个滤波器分别取每个 Patch 左上、右下像素，最终输出为 `[[0.5,-0.5],[2,5],[5,6],[12,11],[15,12]]`。 约束为 `B≤128`、`C≤4`、`H,W≤1024` 且可被 P 整除、`P≤32`、`D≤1024`，图像值位于 `[-10,10]`。性能用例为 `B=64,C=3,H=W=224,P=16,D=768`，绝对与相对容差均为 `1e-4`。 ## 模板代码解析 签名为： 图像是 NCHW 连续布局；Patch 展平顺序为 C、patch row、patch col。输出序号 0 留给 CLS，Patch n 写入 n+1。 ## 实现思路 每个线程负责一个 `(batch,patch,d)` 输出，并沿 `C×P×P` 累加。Patch、D、Batch 三维拥有充分并行度；性能用例会启动约 963 万个输出线程，不存在串行占位。权重对不同 Batch 与 Patch 复用，可进一步通过 Shared Memory tiled GEMM 优化；这里保持直接地址映射，避免物化 Patch 矩阵。 另一个 kernel 写 CLS 行。两者都直接加入位置嵌入。 ## 参考实现"
+  },
+  {
+    "id": "block-sparse-kv-selection-attention",
+    "title": "Block-Sparse KV Selection Attention（块稀疏 KV 选择注意力）",
+    "description": "按均值 Key 对连续缓存块评分并确定性选择 Top-K，再对选中位置执行注意力",
+    "text": "Block-Sparse KV Selection Attention 块稀疏 KV 选择注意力 按均值 Key 对连续缓存块评分并确定性选择 Top-K，再对选中位置执行注意力 ## 题目定义 每个 Head 有一个 decode Query，K/V 为 `[heads,seq_len,head_dim]`。把序列按连续的 `block_size` 分块，尾块只平均真实位置；块评分是 `Q·mean(K_block)`，不缩放。每个 Head 选择最高的 `min(num_selected,num_blocks)` 块，分数相同时块索引小者优先。 选择后，将各选中块中的全部真实位置合并，使用 `1/sqrt(head_dim)` 的缩放分数做一个统一 Softmax，再加权 V。这里没有额外 causal mask：输入 K/V 已是当前 decode step 可用的缓存。 ### 官方示例 ### 完整约束 - `1 ≤ num_heads ≤ 64`，`1 ≤ seq_len ≤ 8192` - `1 ≤ head_dim ≤ 128`，`1 ≤ block_size ≤ 256` - `num_selected ≥ 1`；超过块数时选择全部块 - 所有张量为 FP32 - 性能测试为 `heads=32,seq_len=8192,dim=128,block_size=64,selected=32` - 判定容差为 `1e-4` ## 模板代码解析 块索引由逻辑位置直接计算：块 `b` 覆盖 `[b*block_size,min((b+1)*block_size,seq_len))`。平台不传选择索引，需要实现评分和确定性 Top-K。 ## 实现思路 一个 Block 处理一个 Head。线程并行计算各块均值分数，尾块上界使用 `min(end,seq_len)`。块数最大为 8192（`block_size=1` 是正式边界），因此把 `(score,index)` 存入全局临时数组，并对每个 Head 做确定性的并行 bitonic sort；比较器按 score 降序、块索引升序。排序长度补到下一个 2 的幂，padding 使用负无穷。 排序后前 `min(num_selected,num_blocks)` 个块写入选择标记。接着在选中位置上计算统一的稳定 Softmax，权重保存在 `[heads,seq_len]` 临时数组；最后线程按 feature 并行累加 V。选择由 `O(NB log²NB)` 比较完成，不再做 `NB²` rank；Block 内 Shared Memory 只用于归约，最大规模合法。 ## 参考实现"
+  },
+  {
+    "id": "kimi-delta-attention",
+    "title": "Kimi Delta Attention（Kimi Delta Attention）",
+    "description": "使用 CUDA 按序递推通道衰减与 Delta Rule 快速权重状态",
+    "text": "Kimi Delta Attention Kimi Delta Attention 使用 CUDA 按序递推通道衰减与 Delta Rule 快速权重状态 ## 题目定义 每个 Batch 维护 `S(d,d)`，初值为零。对每个时刻： `alpha(batch,seq,d)` 是按 S 行通道的衰减，不能按列缩放；`beta(batch,seq)` 是标量门。Q/K/V/output 均为 `(batch,seq,d)`。K 已归一化或为零。 约束为 `batch≤8`、`seq_len≤16384`、`d≤128`，alpha 位于 `(0,1]`、beta 位于 `[0,1]`。性能用例 `4×8192×128`，容差 `1e-3`。 ## 模板代码解析 签名为： 时间维有真实递推依赖，不能并行交换步骤。并行度来自 Batch 和状态矩阵的 d² 元素。 ## 实现思路 每个 Batch 一个 Block，256 线程共同维护全局状态 S。每个时刻先并行做逐行衰减；Block 内 8 个 Warp 分摊输出列，并在 Warp 内用 Shuffle 归约 `kᵀS[:,j]`。随后 d² 状态元素并行执行 Delta 更新，最后用同样的 Warp-per-column 映射计算 `qᵀS[:,j]`。 时间循环仍按顺序，但每步最重的 `O(d²)` 工作由 256 线程并行，覆盖最大 `d=128`。列归约只需 Warp 级同步，每个时间步仅保留阶段间的 Block 屏障。状态只分配 `batch*d*d`，不随序列长度增长。 ## 参考实现"
+  },
+  {
+    "id": "fused-logit-penalties",
+    "title": "Fused Logit Penalties（融合 Logit 惩罚）",
+    "description": "汇总提示词与生成历史，并按固定顺序融合重复、频率和存在惩罚",
+    "text": "Fused Logit Penalties 融合 Logit 惩罚 汇总提示词与生成历史，并按固定顺序融合重复、频率和存在惩罚 ## 题目定义 对每个请求和词元，先统计该词元是否出现在 prompt 或生成历史中，并单独统计它在 `output_tokens` 中的出现次数。`-1` 是任意位置都可能出现的 padding，不计数。 惩罚顺序固定：已见词元先执行 repetition，正 logit 除以 `r`，零或负 logit 乘以 `r`；再减 `frequency_penalty*生成次数`；生成过至少一次时再减一次 presence penalty。Prompt 中重复出现只影响“已见”状态，不增加 frequency 或 presence。 ### 官方示例 完整两行官方输出为 `[[1,-4,0.5,0.25,0,-2.75],[2,1,-1,0,2.5,-3]]`。 ### 完整约束 - `1 ≤ B ≤ 256`，`1 ≤ V ≤ 131072` - `1 ≤ P ≤ 1024`，`1 ≤ G ≤ 512` - token id 为 `-1` 或 `[0,V)`；logit 范围 `[-50,50]` - presence/frequency 在 `[0,2]`，repetition 在 `[0.5,2]` - logits、惩罚向量、output 为 FP32；token 数组为 int32 - 性能测试为 `B=256,V=128256,P=1024,G=512` - 判定容差为 `1e-5` ## 模板代码解析 输入 logits 必须保持不变。每个请求有独立的三个惩罚系数。 ## 实现思路 分配 `B*V` 的 int32 计数表并清零。每个请求由唯一线程顺序扫描最多 1536 个历史位置：prompt 直接写入 seen 位，generated 同时累加 count；重复 token 会正确累加。 第二个 kernel 一线程处理一个 `(b,v)`，先根据 seen 应用有符号 repetition，再根据 count 依次应用 frequency 和 presence。词表阶段可并行覆盖最大约 3283 万个输出，避免逐 vocabulary entry 重扫历史。 ## 参考实现"
+  },
+  {
+    "id": "hamming-top-k-search",
+    "title": "Hamming Top-K Search（汉明距离 Top-K 搜索）",
+    "description": "对 256 位二进制编码并行计算汉明距离，并按距离与原始索引确定唯一 Top-K",
+    "text": "Hamming Top-K Search 汉明距离 Top-K 搜索 对 256 位二进制编码并行计算汉明距离，并按距离与原始索引确定唯一 Top-K ## 题目定义 每个编码由 8 个 `int32` 字存储，共 256 位。编码 `i` 位于 `codes[8*i..8*i+7]`，距离为 8 个 XOR 结果的 popcount 之和，范围 `0..256`。有符号整数只作为存储类型，符号位也参与计数。 输出距离最小的 `k` 个原始索引，按 `(distance,index)` 升序排列。距离相同时，小索引优先，因此截止位置的 tie 也有唯一结果。 ### 官方示例 第二个官方示例的距离为 `[2,0,32,2]`、`k=2`，输出 `[1,0]`，索引 0 在距离 2 的 tie 中优先于索引 3。 ### 完整约束 - `1 ≤ N ≤ 10000000` - `1 ≤ k ≤ min(N,1024)` - `codes` 有 `8*N` 个 int32，`query` 有 8 个 int32 - 32 位全部参与 XOR/popcount，包括符号位 - 性能测试使用 `N=4000000,k=128` - 输出要求精确一致，容差为 0 ## 模板代码解析 输出只保存索引，不保存距离。参考实现额外保存 `N` 个 uint16 距离，以及每个 256 元素 Tile 的 257 个距离桶计数。 ## 实现思路 汉明距离只有 `0..256` 共 257 个值，因此无需对 N 个元素全排序。第一阶段一线程计算一个编码的距离，同时累加全局桶和所属 256 元素 Tile 的桶计数。单 Block 对全局桶做前缀和，得到每个距离在最终有序序列中的起点。 第二阶段让 257 个线程分别沿 Tile 维计算同一距离的前缀计数。稳定写回时，每个 Tile Block 处理连续 256 个原索引；Shared Memory 记录各 Warp 的桶计数，`__match_any_sync` 给出 Warp 内同距离的先后排名。最终位置由“距离起点 + 更早 Tile 数量 + Tile 内更早索引数量”唯一确定，天然保持同距离小索引优先，不依赖跨 Block 自旋或调度顺序。 ## 参考实现"
+  },
+  {
+    "id": "multi-scale-deformable-attention",
+    "title": "Multi-Scale Deformable Attention（多尺度可变形注意力）",
+    "description": "使用 CUDA 按多尺度归一化坐标执行零填充双线性采样与加权汇总",
+    "text": "Multi-Scale Deformable Attention 多尺度可变形注意力 使用 CUDA 按多尺度归一化坐标执行零填充双线性采样与加权汇总 ## 题目定义 多层特征图沿空间维拼接为 `value(total_spatial,num_heads,head_dim)`。`spatial_shapes(l,2)` 给出每层 `(H,W)`。对每个 `(query,head,level,point)`，归一化坐标 `(x_norm,y_norm)` 转换为： 在四个角上双线性插值；单个角越界时该角贡献零。采样结果乘题目给定的 `attn_weight` 后对 level、point 求和，权重不再归一化。 ### 示例 两层为 `2×2:[[1,2],[3,4]]` 和 `1×1:[[10]]`。中心采样得到 2.5 与 10，权重各 0.5，Query 0 输出 6.25；边缘 `(1,1)` 采样只剩一个有效角，Query 1 输出 3.25。 约束为 queries≤25000、heads≤16、head_dim≤64、levels≤8、points≤8、每层 `1≤H_l,W_l≤128`，总空间≤25000；`sampling_loc∈[-0.25,1.25]`，`attn_weight∈[-5,5]`。value、sampling_loc、attn_weight、output 为 FP32，spatial_shapes 为 INT32。性能用例 queries=21760、heads=8、dim=32、4层、4点，容差 `1e-4`。 ## 模板代码解析 签名为： sampling_loc 最后一维顺序为 x、y；value 每个空间位置内按 head、dim 连续。层起点是此前各层 `H*W` 的前缀和。 ## 实现思路 先在 host 读取最多 8 个 shape，计算 level start，再复制到小型设备数组。每个线程负责一个 `(query,head,dim)` 输出，循环 levels×points 与四个角。几何和注意力权重会在 dim 线程间重复计算，但最大额外维只有 64；整个输出有数百万线程，避免按 Query 串行。 使用 `floorf` 而不是整数截断，保证负坐标正确。每个角独立判断范围，坐标落在边界外半个像素内时仍保留有效角的部分权重。 ## 参考实现"
+  },
+  {
+    "id": "gelu-activation",
+    "title": "GELU Activation（GELU 激活函数）",
+    "description": "使用 CUDA erf 精确公式逐元素计算 Gaussian Error Linear Unit",
+    "text": "GELU Activation GELU 激活函数 使用 CUDA erf 精确公式逐元素计算 Gaussian Error Linear Unit ## 题目定义 对长度为 `N` 的 FP32 向量逐元素计算精确 GELU： 运行时使用 `torch.nn.functional.gelu(..., approximate=\"none\")`，因此不能替换为 tanh 近似。 ### 示例 **约束与测试** - `1≤N≤100,000,000`，输入为有限 FP32 - 测试覆盖零、正负值、绝对值 50 和非二次幂长度 255 - 性能测试 `N=50,000,000`，容差 `atol=rtol=1e-5` ## 模板代码解析 官方 starter 已提供空 kernel、256 线程启动配置和同步调用，只需补全逐元素 kernel。 ## 实现思路 一个线程处理一个元素，检查下标后调用单精度 `erff`。常量 `1/sqrt(2)` 写为 FP32，表达式严格对应 exact GELU。线程之间没有数据依赖，读写均连续。 ## 参考实现"
+  },
+  {
+    "id": "scatter-add",
+    "title": "Scatter Add（散射加法）",
+    "description": "使用 CUDA 原子加法将源矩阵行累加到指定输出行",
+    "text": "Scatter Add 散射加法 使用 CUDA 原子加法将源矩阵行累加到指定输出行 ## 题目定义 给定 `src(N,D)` 和 INT32 `index(N)`，将每个源行累加到零初始化的 `output(M,D)`： 多个源行可以映射到同一输出行；没有源行映射的输出行必须为零。输入输出均按行主序存储。 ### 示例 **约束与测试** - `1≤N≤2,000,000`，`1≤D≤1024`，`1≤M≤1,000,000` - `0≤index[i]<M`，src 位于 `[-10,10]` - 测试覆盖无人映射行、全零、全部映射同一行和非二次幂形状 - 性能测试 `N=1,000,000,D=128,M=50,000`，容差 `atol=rtol=1e-4` ## 模板代码解析 官方 starter 只提供空入口。output 的初始内容未定义，因此累加前必须清零全部 `M*D` 个元素。 ## 实现思路 先用 `cudaMemset` 把 output 清零。随后把 `(i,d)` 展平为 `N*D` 个任务，每个线程读取 `index[i]`，对 `output[index[i],d]` 执行 `atomicAdd`。重复索引会让多个线程写同一地址，普通加法会产生数据竞争，必须使用原子操作。 无映射行保留 memset 得到的零。线性元素数可能超过 32 位乘法的安全范围，因此总量和偏移使用 `size_t`。 ## 参考实现"
+  },
+  {
+    "id": "row-wise-argmax",
+    "title": "Row-wise Argmax（逐行最大值索引）",
+    "description": "使用 CUDA 对 FP32 矩阵逐行归约，并在并列最大值时返回最小列索引",
+    "text": "Row-wise Argmax 逐行最大值索引 使用 CUDA 对 FP32 矩阵逐行归约，并在并列最大值时返回最小列索引 ## 题目定义 对形状 `(B,V)` 的 FP32 logits 每行求最大值所在列，并把 INT32 索引写入 `output(B)`。若多个元素并列最大，返回最小列索引。 ### 示例 第二行第 1、2 列并列，选择较小的索引 1。 **约束与测试** - `1≤B≤1024`，`1≤V≤262,144`，不存在空行 - logits 全部是有限 FP32，官方契约和测试都不包含 NaN - 测试覆盖 `V=1`、全零、全负、末列最大、重复最大值和 `V=32,000` - 性能测试 `B=256,V=128,000`，输出要求完全一致，`atol=rtol=0` ## 模板代码解析 官方 starter 只提供空入口。logits 按行主序存储，output 是每行一个 INT32 索引。 ## 实现思路 每个 Block 处理一行。每个线程从自己的第一列开始跨步扫描，维护局部 `(value,index)`。比较规则为：值更大者胜出；值相等时索引更小者胜出。共享内存归约同样使用该规则，因此与线程划分和归约树无关，始终得到首个最大值。 `V≥1` 且输入有限，可以用负无穷初始化局部最大值。官方不包含 NaN，无需定义 NaN 比较行为。 ## 参考实现"
   }
 ]

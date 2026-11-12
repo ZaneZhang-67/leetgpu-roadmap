@@ -1079,6 +1079,166 @@ export const markdownPages = {
     "problemId": "parallel-reverse-scan-gae",
     "problemUrl": "https://leetgpu.com/challenges/parallel-reverse-scan-gae",
     "updatedAt": "2026-11-12"
+  },
+  "softmax-attention-backward": {
+    "leetgpuId": 111,
+    "title": "Softmax Attention Backward（Softmax 注意力反向传播）",
+    "titleEn": "Softmax Attention Backward",
+    "titleZh": "Softmax 注意力反向传播",
+    "description": "使用流式重计算与行统计计算 Softmax 注意力的 Q、K、V 梯度，避免 M×N 工作区",
+    "problemId": "softmax-attention-backward",
+    "problemUrl": "https://leetgpu.com/challenges/softmax-attention-backward",
+    "updatedAt": "2026-11-12"
+  },
+  "attention-with-sinks": {
+    "leetgpuId": 112,
+    "title": "Attention with Sinks（带注意力汇聚点的滑动窗口注意力）",
+    "titleEn": "Attention with Sinks",
+    "titleZh": "带注意力汇聚点的滑动窗口注意力",
+    "description": "使用 CUDA 实现同时保留因果汇聚点与局部窗口的稳定 Softmax 注意力",
+    "problemId": "attention-with-sinks",
+    "problemUrl": "https://leetgpu.com/challenges/attention-with-sinks",
+    "updatedAt": "2026-11-12"
+  },
+  "layer-normalization": {
+    "leetgpuId": 113,
+    "title": "Layer Normalization（层归一化）",
+    "titleEn": "Layer Normalization",
+    "titleZh": "层归一化",
+    "description": "使用 CUDA 按行计算稳定均值与总体方差，并应用逐特征仿射变换",
+    "problemId": "layer-normalization",
+    "problemUrl": "https://leetgpu.com/challenges/layer-normalization",
+    "updatedAt": "2026-11-12"
+  },
+  "multi-head-latent-attention-decode": {
+    "leetgpuId": 114,
+    "title": "Multi-Head Latent Attention Decode（多头潜变量注意力解码）",
+    "titleEn": "Multi-Head Latent Attention Decode",
+    "titleZh": "多头潜变量注意力解码",
+    "description": "使用 CUDA 通过权重吸收、潜变量缓存和解耦 RoPE 键完成 MLA 解码注意力",
+    "problemId": "multi-head-latent-attention-decode",
+    "problemUrl": "https://leetgpu.com/challenges/multi-head-latent-attention-decode",
+    "updatedAt": "2026-11-12"
+  },
+  "fused-qkv-projection-with-rope-and-kv-cache-update": {
+    "leetgpuId": 115,
+    "title": "Fused QKV Projection with RoPE and KV Cache Update（融合 QKV 投影、RoPE 与 KV Cache 更新）",
+    "titleEn": "Fused QKV Projection with RoPE and KV Cache Update",
+    "titleZh": "融合 QKV 投影、RoPE 与 KV Cache 更新",
+    "description": "使用 CUDA 完成 packed QKV 投影、半区式 RoPE，并更新指定解码位置的 KV Cache",
+    "problemId": "fused-qkv-projection-with-rope-and-kv-cache-update",
+    "problemUrl": "https://leetgpu.com/challenges/fused-qkv-projection-with-rope-and-kv-cache-update",
+    "updatedAt": "2026-11-12"
+  },
+  "diffusion-transformer-block": {
+    "leetgpuId": 116,
+    "title": "Diffusion Transformer Block（Diffusion Transformer Block）",
+    "titleEn": "Diffusion Transformer Block",
+    "titleZh": "Diffusion Transformer Block",
+    "description": "使用 CUDA 实现带 adaLN 调制的双向自注意力与 GELU MLP 残差块",
+    "problemId": "diffusion-transformer-block",
+    "problemUrl": "https://leetgpu.com/challenges/diffusion-transformer-block",
+    "updatedAt": "2026-11-12"
+  },
+  "non-maximum-suppression": {
+    "leetgpuId": 117,
+    "title": "Non-Maximum Suppression（非极大值抑制）",
+    "titleEn": "Non-Maximum Suppression",
+    "titleZh": "非极大值抑制",
+    "description": "按稳定分数顺序执行贪心框抑制，并把存活标记写回原始索引",
+    "problemId": "non-maximum-suppression",
+    "problemUrl": "https://leetgpu.com/challenges/non-maximum-suppression",
+    "updatedAt": "2026-11-12"
+  },
+  "vision-transformer-patch-embedding": {
+    "leetgpuId": 118,
+    "title": "Vision Transformer Patch Embedding（Vision Transformer Patch Embedding）",
+    "titleEn": "Vision Transformer Patch Embedding",
+    "titleZh": "Vision Transformer Patch Embedding",
+    "description": "使用 CUDA 将 NCHW 图像切分为 Patch、线性投影并加入 CLS 与位置嵌入",
+    "problemId": "vision-transformer-patch-embedding",
+    "problemUrl": "https://leetgpu.com/challenges/vision-transformer-patch-embedding",
+    "updatedAt": "2026-11-12"
+  },
+  "block-sparse-kv-selection-attention": {
+    "leetgpuId": 119,
+    "title": "Block-Sparse KV Selection Attention（块稀疏 KV 选择注意力）",
+    "titleEn": "Block-Sparse KV Selection Attention",
+    "titleZh": "块稀疏 KV 选择注意力",
+    "description": "按均值 Key 对连续缓存块评分并确定性选择 Top-K，再对选中位置执行注意力",
+    "problemId": "block-sparse-kv-selection-attention",
+    "problemUrl": "https://leetgpu.com/challenges/block-sparse-kv-selection-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "kimi-delta-attention": {
+    "leetgpuId": 120,
+    "title": "Kimi Delta Attention（Kimi Delta Attention）",
+    "titleEn": "Kimi Delta Attention",
+    "titleZh": "Kimi Delta Attention",
+    "description": "使用 CUDA 按序递推通道衰减与 Delta Rule 快速权重状态",
+    "problemId": "kimi-delta-attention",
+    "problemUrl": "https://leetgpu.com/challenges/kimi-delta-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "fused-logit-penalties": {
+    "leetgpuId": 121,
+    "title": "Fused Logit Penalties（融合 Logit 惩罚）",
+    "titleEn": "Fused Logit Penalties",
+    "titleZh": "融合 Logit 惩罚",
+    "description": "汇总提示词与生成历史，并按固定顺序融合重复、频率和存在惩罚",
+    "problemId": "fused-logit-penalties",
+    "problemUrl": "https://leetgpu.com/challenges/fused-logit-penalties",
+    "updatedAt": "2026-11-12"
+  },
+  "hamming-top-k-search": {
+    "leetgpuId": 122,
+    "title": "Hamming Top-K Search（汉明距离 Top-K 搜索）",
+    "titleEn": "Hamming Top-K Search",
+    "titleZh": "汉明距离 Top-K 搜索",
+    "description": "对 256 位二进制编码并行计算汉明距离，并按距离与原始索引确定唯一 Top-K",
+    "problemId": "hamming-top-k-search",
+    "problemUrl": "https://leetgpu.com/challenges/hamming-top-k-search",
+    "updatedAt": "2026-11-12"
+  },
+  "multi-scale-deformable-attention": {
+    "leetgpuId": 123,
+    "title": "Multi-Scale Deformable Attention（多尺度可变形注意力）",
+    "titleEn": "Multi-Scale Deformable Attention",
+    "titleZh": "多尺度可变形注意力",
+    "description": "使用 CUDA 按多尺度归一化坐标执行零填充双线性采样与加权汇总",
+    "problemId": "multi-scale-deformable-attention",
+    "problemUrl": "https://leetgpu.com/challenges/multi-scale-deformable-attention",
+    "updatedAt": "2026-11-12"
+  },
+  "gelu-activation": {
+    "leetgpuId": 124,
+    "title": "GELU Activation（GELU 激活函数）",
+    "titleEn": "GELU Activation",
+    "titleZh": "GELU 激活函数",
+    "description": "使用 CUDA erf 精确公式逐元素计算 Gaussian Error Linear Unit",
+    "problemId": "gelu-activation",
+    "problemUrl": "https://leetgpu.com/challenges/gelu-activation",
+    "updatedAt": "2026-11-12"
+  },
+  "scatter-add": {
+    "leetgpuId": 125,
+    "title": "Scatter Add（散射加法）",
+    "titleEn": "Scatter Add",
+    "titleZh": "散射加法",
+    "description": "使用 CUDA 原子加法将源矩阵行累加到指定输出行",
+    "problemId": "scatter-add",
+    "problemUrl": "https://leetgpu.com/challenges/scatter-add",
+    "updatedAt": "2026-11-12"
+  },
+  "row-wise-argmax": {
+    "leetgpuId": 126,
+    "title": "Row-wise Argmax（逐行最大值索引）",
+    "titleEn": "Row-wise Argmax",
+    "titleZh": "逐行最大值索引",
+    "description": "使用 CUDA 对 FP32 矩阵逐行归约，并在并列最大值时返回最小列索引",
+    "problemId": "row-wise-argmax",
+    "problemUrl": "https://leetgpu.com/challenges/row-wise-argmax",
+    "updatedAt": "2026-11-12"
   }
 }
 
@@ -1514,5 +1674,69 @@ export const markdownNavigation = [
   {
     "id": "parallel-reverse-scan-gae",
     "title": "Parallel Reverse Scan (GAE)（并行反向扫描（GAE））"
+  },
+  {
+    "id": "softmax-attention-backward",
+    "title": "Softmax Attention Backward（Softmax 注意力反向传播）"
+  },
+  {
+    "id": "attention-with-sinks",
+    "title": "Attention with Sinks（带注意力汇聚点的滑动窗口注意力）"
+  },
+  {
+    "id": "layer-normalization",
+    "title": "Layer Normalization（层归一化）"
+  },
+  {
+    "id": "multi-head-latent-attention-decode",
+    "title": "Multi-Head Latent Attention Decode（多头潜变量注意力解码）"
+  },
+  {
+    "id": "fused-qkv-projection-with-rope-and-kv-cache-update",
+    "title": "Fused QKV Projection with RoPE and KV Cache Update（融合 QKV 投影、RoPE 与 KV Cache 更新）"
+  },
+  {
+    "id": "diffusion-transformer-block",
+    "title": "Diffusion Transformer Block（Diffusion Transformer Block）"
+  },
+  {
+    "id": "non-maximum-suppression",
+    "title": "Non-Maximum Suppression（非极大值抑制）"
+  },
+  {
+    "id": "vision-transformer-patch-embedding",
+    "title": "Vision Transformer Patch Embedding（Vision Transformer Patch Embedding）"
+  },
+  {
+    "id": "block-sparse-kv-selection-attention",
+    "title": "Block-Sparse KV Selection Attention（块稀疏 KV 选择注意力）"
+  },
+  {
+    "id": "kimi-delta-attention",
+    "title": "Kimi Delta Attention（Kimi Delta Attention）"
+  },
+  {
+    "id": "fused-logit-penalties",
+    "title": "Fused Logit Penalties（融合 Logit 惩罚）"
+  },
+  {
+    "id": "hamming-top-k-search",
+    "title": "Hamming Top-K Search（汉明距离 Top-K 搜索）"
+  },
+  {
+    "id": "multi-scale-deformable-attention",
+    "title": "Multi-Scale Deformable Attention（多尺度可变形注意力）"
+  },
+  {
+    "id": "gelu-activation",
+    "title": "GELU Activation（GELU 激活函数）"
+  },
+  {
+    "id": "scatter-add",
+    "title": "Scatter Add（散射加法）"
+  },
+  {
+    "id": "row-wise-argmax",
+    "title": "Row-wise Argmax（逐行最大值索引）"
   }
 ]
