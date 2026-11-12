@@ -122,7 +122,7 @@ b[m] = exp(+jπm²/N)
 X[k] = exp(-jπk²/N) × (a * b)[k]
 ```
 
-取 `M` 为不小于 `2N-1` 的最小 2 的幂，把正负下标的 `b` 映射到长度 `M` 的循环数组卷积由两次长度 `M` 的正向 FFT、逐点复乘和一次逆向 FFT 完成，复杂度保持 `O(N log N)`，最大合法长度只需 `M = 524,288`
+取 `M` 为不小于 `2N-1` 的最小 2 的幂，把正负下标的 `b` 映射到长度 `M` 的循环数组卷积由两次长度 `M` 的正向 FFT、逐点复乘和一次逆向 FFT 完成，复杂度保持 `O(N log N)`最大合法长度只需 `M = 524,288`，三份双精度复数工作区共约 24 MiB
 
 逆向 FFT 使用共轭恒等式 `IFFT(z) = conj(FFT(conj(z))) / M`，因此可以复用同一个 radix-2 kernel
 
@@ -138,15 +138,13 @@ angle = -2πkn / N;
 
 ### 5. 数值输出
 
-FFT 工作数组与输出使用 32 位浮点数，以匹配 starter 和 reference 数据类型Bluestein 的 `n²` 相位先在 64 位整数中对 `2N` 取模，再用双精度 `sincos` 生成 chirp，避免大下标相乘和巨大角度约简带来的相位误差
+输入与输出保持 FP32，但 FFT 工作数组统一使用 FP64，再在最终写回时舍入为 FP32这样既抑制 Bluestein 三次 FFT 的累计误差，也避免大规模单频信号在理论零频点留下超过绝对容差的单精度残差2 的幂路径只需一份约 4 MiB 的双精度工作区；`n²` 相位先在 64 位整数中对 `2N` 取模，并用双精度 `sincos` 生成 chirp
 
 ## 参考实现
 
 ```cpp
 #include <cuda_runtime.h>
 #include <math.h>
-
-constexpr float kTwoPi = 6.28318530717958647692f;
 
 __device__ unsigned int reverse_bits(
     unsigned int value,
@@ -160,9 +158,9 @@ __device__ unsigned int reverse_bits(
     return reversed;
 }
 
-__global__ void bit_reverse_copy(
+__global__ void bit_reverse_copy_to_double(
     const float* signal,
-    float* data,
+    double* data,
     int N,
     int bits
 ) {
@@ -176,43 +174,25 @@ __global__ void bit_reverse_copy(
     data[2 * destination + 1] = signal[2 * index + 1];
 }
 
-__global__ void fft_stage(
-    float* data,
+__global__ void bit_reverse_copy_double(
+    const double* source,
+    double* destination,
     int N,
-    int length
+    int bits
 ) {
-    int butterfly = blockIdx.x * blockDim.x + threadIdx.x;
-    if (butterfly >= N / 2) return;
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index >= N) return;
 
-    int half = length / 2;
-    int group = butterfly / half;
-    int offset = butterfly % half;
-    int left = group * length + offset;
-    int right = left + half;
-
-    float angle = -kTwoPi * static_cast<float>(offset)
-        / static_cast<float>(length);
-    float sine;
-    float cosine;
-    sincosf(angle, &sine, &cosine);
-
-    float rightReal = data[2 * right];
-    float rightImag = data[2 * right + 1];
-    float twiddledReal = cosine * rightReal - sine * rightImag;
-    float twiddledImag = sine * rightReal + cosine * rightImag;
-
-    float leftReal = data[2 * left];
-    float leftImag = data[2 * left + 1];
-
-    data[2 * left] = leftReal + twiddledReal;
-    data[2 * left + 1] = leftImag + twiddledImag;
-    data[2 * right] = leftReal - twiddledReal;
-    data[2 * right + 1] = leftImag - twiddledImag;
+    unsigned int reversed = reverse_bits(
+        static_cast<unsigned int>(index), bits
+    );
+    destination[2 * reversed] = source[2 * index];
+    destination[2 * reversed + 1] = source[2 * index + 1];
 }
 
-__global__ void bit_reverse_conjugate_copy(
-    const float* source,
-    float* destination,
+__global__ void bit_reverse_conjugate_copy_double(
+    const double* source,
+    double* destination,
     int N,
     int bits
 ) {
@@ -226,10 +206,42 @@ __global__ void bit_reverse_conjugate_copy(
     destination[2 * reversed + 1] = -source[2 * index + 1];
 }
 
+__global__ void fft_stage_double(
+    double* data,
+    int N,
+    int length
+) {
+    int butterfly = blockIdx.x * blockDim.x + threadIdx.x;
+    if (butterfly >= N / 2) return;
+
+    int half = length / 2;
+    int group = butterfly / half;
+    int offset = butterfly % half;
+    int left = group * length + offset;
+    int right = left + half;
+
+    double angle = -6.28318530717958647692 * static_cast<double>(offset) / length;
+    double sine;
+    double cosine;
+    sincos(angle, &sine, &cosine);
+
+    double rightReal = data[2 * right];
+    double rightImag = data[2 * right + 1];
+    double twiddledReal = cosine * rightReal - sine * rightImag;
+    double twiddledImag = sine * rightReal + cosine * rightImag;
+    double leftReal = data[2 * left];
+    double leftImag = data[2 * left + 1];
+
+    data[2 * left] = leftReal + twiddledReal;
+    data[2 * left + 1] = leftImag + twiddledImag;
+    data[2 * right] = leftReal - twiddledReal;
+    data[2 * right + 1] = leftImag - twiddledImag;
+}
+
 __global__ void initialize_bluestein(
     const float* signal,
-    float* a,
-    float* b,
+    double* a,
+    double* b,
     int N,
     int M
 ) {
@@ -244,10 +256,10 @@ __global__ void initialize_bluestein(
     double cosine;
     sincos(angle, &sine, &cosine);
 
-    float chirpReal = static_cast<float>(cosine);
-    float chirpImag = static_cast<float>(sine);
-    float inputReal = signal[2 * n];
-    float inputImag = signal[2 * n + 1];
+    double chirpReal = cosine;
+    double chirpImag = sine;
+    double inputReal = signal[2 * n];
+    double inputImag = signal[2 * n + 1];
 
     a[2 * n] = inputReal * chirpReal + inputImag * chirpImag;
     a[2 * n + 1] = inputImag * chirpReal - inputReal * chirpImag;
@@ -260,25 +272,25 @@ __global__ void initialize_bluestein(
     }
 }
 
-__global__ void multiply_complex(
-    const float* left,
-    const float* right,
-    float* output,
+__global__ void multiply_complex_double(
+    const double* left,
+    const double* right,
+    double* output,
     int N
 ) {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= N) return;
 
-    float leftReal = left[2 * index];
-    float leftImag = left[2 * index + 1];
-    float rightReal = right[2 * index];
-    float rightImag = right[2 * index + 1];
+    double leftReal = left[2 * index];
+    double leftImag = left[2 * index + 1];
+    double rightReal = right[2 * index];
+    double rightImag = right[2 * index + 1];
     output[2 * index] = leftReal * rightReal - leftImag * rightImag;
     output[2 * index + 1] = leftReal * rightImag + leftImag * rightReal;
 }
 
 __global__ void finish_bluestein(
-    const float* inverseWork,
+    const double* inverseWork,
     float* spectrum,
     int N,
     int M
@@ -294,17 +306,51 @@ __global__ void finish_bluestein(
     double cosine;
     sincos(angle, &sine, &cosine);
 
-    float valueReal = inverseWork[2 * k] / M;
-    float valueImag = -inverseWork[2 * k + 1] / M;
-    float chirpReal = static_cast<float>(cosine);
-    float chirpImag = static_cast<float>(sine);
-    spectrum[2 * k] = valueReal * chirpReal + valueImag * chirpImag;
-    spectrum[2 * k + 1] = valueImag * chirpReal - valueReal * chirpImag;
+    double valueReal = inverseWork[2 * k] / M;
+    double valueImag = -inverseWork[2 * k + 1] / M;
+    double outputReal = valueReal * cosine + valueImag * sine;
+    double outputImag = valueImag * cosine - valueReal * sine;
+    spectrum[2 * k] = static_cast<float>(outputReal);
+    spectrum[2 * k + 1] = static_cast<float>(outputImag);
 }
 
-void launch_fft(
+__global__ void store_double_as_float(
+    const double* data,
+    float* spectrum,
+    int N
+) {
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index >= N) return;
+    spectrum[2 * index] = static_cast<float>(data[2 * index]);
+    spectrum[2 * index + 1] = static_cast<float>(data[2 * index + 1]);
+}
+
+void launch_fft_from_float(
     const float* source,
-    float* destination,
+    double* destination,
+    int N,
+    int threads
+) {
+    int bits = 0;
+    for (int value = N; value > 1; value >>= 1) ++bits;
+    int blocks = (N + threads - 1) / threads;
+    bit_reverse_copy_to_double<<<blocks, threads>>>(
+        source, destination, N, bits
+    );
+
+    int butterflies = N / 2;
+    int butterflyBlocks =
+        (butterflies + threads - 1) / threads;
+    for (int length = 2; length <= N; length <<= 1) {
+        fft_stage_double<<<butterflyBlocks, threads>>>(
+            destination, N, length
+        );
+    }
+}
+
+void launch_fft_double(
+    const double* source,
+    double* destination,
     int N,
     int threads,
     bool conjugateInput
@@ -312,13 +358,12 @@ void launch_fft(
     int bits = 0;
     for (int value = N; value > 1; value >>= 1) ++bits;
     int blocks = (N + threads - 1) / threads;
-
     if (conjugateInput) {
-        bit_reverse_conjugate_copy<<<blocks, threads>>>(
+        bit_reverse_conjugate_copy_double<<<blocks, threads>>>(
             source, destination, N, bits
         );
     } else {
-        bit_reverse_copy<<<blocks, threads>>>(
+        bit_reverse_copy_double<<<blocks, threads>>>(
             source, destination, N, bits
         );
     }
@@ -327,7 +372,7 @@ void launch_fft(
     int butterflyBlocks =
         (butterflies + threads - 1) / threads;
     for (int length = 2; length <= N; length <<= 1) {
-        fft_stage<<<butterflyBlocks, threads>>>(
+        fft_stage_double<<<butterflyBlocks, threads>>>(
             destination, N, length
         );
     }
@@ -343,17 +388,23 @@ extern "C" void solve(
     bool powerOfTwo = N > 0 && (N & (N - 1)) == 0;
 
     if (powerOfTwo) {
-        launch_fft(signal, spectrum, N, threadsPerBlock, false);
+        size_t bytes = static_cast<size_t>(2) * N * sizeof(double);
+        double* work = nullptr;
+        cudaMalloc(&work, bytes);
+        launch_fft_from_float(signal, work, N, threadsPerBlock);
+        int blocks = (N + threadsPerBlock - 1) / threadsPerBlock;
+        store_double_as_float<<<blocks, threadsPerBlock>>>(work, spectrum, N);
         cudaDeviceSynchronize();
+        cudaFree(work);
         return;
     }
 
     int M = 1;
     while (M < 2 * N - 1) M <<= 1;
-    size_t bytes = static_cast<size_t>(2) * M * sizeof(float);
-    float* a = nullptr;
-    float* b = nullptr;
-    float* scratch = nullptr;
+    size_t bytes = static_cast<size_t>(2) * M * sizeof(double);
+    double* a = nullptr;
+    double* b = nullptr;
+    double* scratch = nullptr;
     cudaMalloc(&a, bytes);
     cudaMalloc(&b, bytes);
     cudaMalloc(&scratch, bytes);
@@ -366,12 +417,12 @@ extern "C" void solve(
         signal, a, b, N, M
     );
 
-    launch_fft(a, scratch, M, threadsPerBlock, false);
-    launch_fft(b, a, M, threadsPerBlock, false);
-    multiply_complex<<<workBlocks, threadsPerBlock>>>(
+    launch_fft_double(a, scratch, M, threadsPerBlock, false);
+    launch_fft_double(b, a, M, threadsPerBlock, false);
+    multiply_complex_double<<<workBlocks, threadsPerBlock>>>(
         scratch, a, b, M
     );
-    launch_fft(b, a, M, threadsPerBlock, true);
+    launch_fft_double(b, a, M, threadsPerBlock, true);
     finish_bluestein<<<inputBlocks, threadsPerBlock>>>(
         a, spectrum, N, M
     );
