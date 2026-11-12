@@ -69,22 +69,24 @@ __global__ void fused_rms_kernel(const float* x, const float* residual,
     int row = blockIdx.x;
     if (row >= N) return;
     extern __shared__ float shared[];
+    int tid = static_cast<int>(threadIdx.x);
+    int block_size = static_cast<int>(blockDim.x);
     float sum = 0.0f;
     size_t base = (size_t)row * C;
-    for (int col = threadIdx.x; col < C; col += blockDim.x) {
+    for (int col = tid; col < C; col += block_size) {
         float z = x[base + col] + residual[base + col];
         sum += z * z;
     }
-    shared[threadIdx.x] = sum;
+    shared[tid] = sum;
     __syncthreads();
-    for (int offset = blockDim.x / 2; offset > 0; offset >>= 1) {
-        if (threadIdx.x < offset) shared[threadIdx.x] += shared[threadIdx.x + offset];
+    for (int offset = block_size / 2; offset > 0; offset >>= 1) {
+        if (tid < offset) shared[tid] += shared[tid + offset];
         __syncthreads();
     }
-    if (threadIdx.x == 0) shared[0] = rsqrtf(shared[0] / C + eps);
+    if (tid == 0) shared[0] = rsqrtf(shared[0] / C + eps);
     __syncthreads();
     float inv_rms = shared[0];
-    for (int col = threadIdx.x; col < C; col += blockDim.x) {
+    for (int col = tid; col < C; col += block_size) {
         float z = x[base + col] + residual[base + col];
         out[base + col] = z * inv_rms * weight[col];
     }
