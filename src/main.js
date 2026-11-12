@@ -38,7 +38,6 @@ function shell(id) {
     <header class="topbar">
       <button class="icon-button mobile-menu" id="mobile-menu" aria-label="打开目录">${icons.menu}</button>
       <a href="#/${defaultPageId}" class="site-logo"><span class="logo-cube">K</span><span><strong>Kernel 随想录</strong><small>LEETGPU 系统学习路线</small></span></a>
-      <nav>${allPages.map((item) => `<a href="#/${item.id}">${item.title}</a>`).join("")}</nav>
       <div class="top-actions">
         <button class="search-trigger" id="search-trigger">${icons.search}<span>搜索文档</span><kbd>⌘ K</kbd></button>
         <button class="icon-button" id="theme-toggle" aria-label="切换主题">${icons.moon}</button>

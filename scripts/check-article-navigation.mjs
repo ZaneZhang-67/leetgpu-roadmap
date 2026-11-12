@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import { navigation, pages, defaultPageId } from "../src/data/docs.js"
 
-const expectedIds = ["vector-addition", "naive-gemm", "matrix-transpose", "color-inversion"]
+const expectedIds = ["vector-addition", "matrix-addition", "naive-gemm", "matrix-transpose", "color-inversion"]
 assert.deepEqual(navigation.map(({ id }) => id), expectedIds)
 assert.deepEqual(Object.keys(pages), expectedIds)
 assert.equal(defaultPageId, "vector-addition")
@@ -16,4 +16,4 @@ for (const { id, title } of navigation) {
   assert.ok(!page.body.includes("章节建设中"), `${id}: placeholder content is still visible`)
 }
 
-console.log("Article navigation contains Vector Addition, Matrix Multiplication, Matrix Transpose, and Color Inversion")
+console.log("Article navigation contains Vector Addition, Matrix Addition, Matrix Multiplication, Matrix Transpose, and Color Inversion")
