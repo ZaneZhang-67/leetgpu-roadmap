@@ -25,7 +25,8 @@ collections:
     format: frontmatter
     slug: "{{fields.leetgpuId}}_{{fields.id}}"
     identifier_field: id
-    summary: "{{titleEn}}（{{titleZh}}）"
+    summary: "#{{leetgpuId}} · {{titleEn}}（{{titleZh}}）"
+    sortable_fields: [leetgpuId, titleEn, updatedAt]
     fields:
       - { label: 页面 ID, name: id, widget: string, hint: 使用小写 kebab-case，例如 vector-addition }
       - { label: LeetGPU 题号, name: leetgpuId, widget: number, value_type: int, min: 1 }
@@ -33,5 +34,25 @@ collections:
       - { label: 中文题名, name: titleZh, widget: string }
       - { label: 页面摘要, name: description, widget: text }
       - { label: LeetGPU 链接, name: problemUrl, widget: string }
+      - { label: 更新日期, name: updatedAt, widget: datetime, date_format: YYYY-MM-DD, time_format: false, format: YYYY-MM-DD }
+      - { label: 正文, name: body, widget: markdown, modes: [rich_text, raw] }
+
+  - name: guides
+    label: 基础教程
+    label_singular: 基础教程
+    folder: content/guides
+    create: true
+    extension: md
+    format: frontmatter
+    slug: "{{fields.id}}"
+    identifier_field: id
+    summary: "#{{order}} · {{titleEn}}（{{titleZh}}）"
+    sortable_fields: [order, titleEn, updatedAt]
+    fields:
+      - { label: 页面 ID, name: id, widget: string, hint: 使用小写 kebab-case，例如 cuda-thread-hierarchy }
+      - { label: 导航顺序, name: order, widget: number, value_type: int, min: 0 }
+      - { label: 英文标题, name: titleEn, widget: string }
+      - { label: 中文标题, name: titleZh, widget: string }
+      - { label: 页面摘要, name: description, widget: text }
       - { label: 更新日期, name: updatedAt, widget: datetime, date_format: YYYY-MM-DD, time_format: false, format: YYYY-MM-DD }
       - { label: 正文, name: body, widget: markdown, modes: [rich_text, raw] }
