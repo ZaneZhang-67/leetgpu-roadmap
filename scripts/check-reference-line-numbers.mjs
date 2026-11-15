@@ -1,8 +1,11 @@
-import { navigation, loadPage } from "../src/data/docs.js"
+import { navigation, pages, loadPage } from "../src/data/docs.js"
 
 const violations = []
+let checkedPages = 0
 
 for (const { id } of navigation) {
+  if (pages[id].kind === "guide") continue
+  checkedPages += 1
   const page = await loadPage(id)
   const referenceHeading = page.body.search(/<h2 id="[^"]+">参考实现<\/h2>/)
   const nextHeading = referenceHeading === -1 ? -1 : page.body.indexOf("<h2 ", referenceHeading + 1)
@@ -37,4 +40,4 @@ if (violations.length) {
   process.exit(1)
 }
 
-console.log(`All ${navigation.length} lazy Markdown reference implementations include complete line numbers`)
+console.log(`All ${checkedPages} lazy Markdown reference implementations include complete line numbers`)

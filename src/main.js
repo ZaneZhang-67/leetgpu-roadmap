@@ -71,7 +71,7 @@ function shell(id, page, state = "ready") {
                 </label>
               </div>
             </div>
-            <a class="problem-link-button" href="${meta.problemUrl}" target="_blank" rel="noreferrer">在 LeetGPU 中练习 <span aria-hidden="true">↗</span></a>
+            ${meta.kind !== "guide" ? `<a class="problem-link-button" href="${meta.problemUrl}" target="_blank" rel="noreferrer">在 LeetGPU 中练习 <span aria-hidden="true">↗</span></a>` : ""}
           </div>
           <div class="problem-hero-divider" aria-hidden="true"></div>
           <div class="article-body">${readyBody}</div>
