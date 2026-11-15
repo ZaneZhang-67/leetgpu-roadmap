@@ -37,8 +37,9 @@ for (const file of files) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pageId)) {
     violations.push(`${path}: id 必须使用小写 kebab-case`)
   }
-  if (basename(file) !== `${pageId}.md`) {
-    violations.push(`${path}: 文件名必须与 id 一致，应为 ${pageId}.md`)
+  const expectedFilename = `${String(leetgpuId).padStart(3, "0")}_${pageId}.md`
+  if (basename(file) !== expectedFilename) {
+    violations.push(`${path}: 文件名必须使用 LeetGPU 题号前缀，应为 ${expectedFilename}`)
   }
   if (seenPageIds.has(pageId)) {
     violations.push(`${path}: 与 ${seenPageIds.get(pageId)} 重复使用页面 ID ${pageId}`)

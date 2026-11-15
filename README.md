@@ -41,7 +41,7 @@ pnpm run preview
 
 ## 在线编辑文章
 
-题目正文保存在 `content/problems/*.md`，可以直接通过 GitHub 网页或 [github.dev](https://github.dev/ZaneZhang-67/leetgpu-roadmap) 编辑
+题目正文保存在 `content/problems/*.md`，文件名使用三位 LeetGPU 题号前缀，例如 `001_vector-addition.md`，因此在文件列表中会按官网题号排列，并可直接通过 GitHub 网页或 [github.dev](https://github.dev/ZaneZhang-67/leetgpu-roadmap) 编辑
 
 站点同时提供 Decap CMS 后台：
 

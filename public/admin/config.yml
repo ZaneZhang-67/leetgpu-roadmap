@@ -23,7 +23,7 @@ collections:
     create: true
     extension: md
     format: frontmatter
-    slug: "{{fields.id}}"
+    slug: "{{fields.leetgpuId}}_{{fields.id}}"
     identifier_field: id
     summary: "{{titleEn}}（{{titleZh}}）"
     fields:
