@@ -150,7 +150,7 @@ Grid.y = ceil(M / 16)
 
 ## 实现思路
 
-![矩阵乘法中一个线程如何选择 A 的一行和 B 的一列，沿 N 维累加并写入 C](../../public/naive-gemm-thread-indexing.svg)
+![矩阵乘法中一个线程如何选择 A 的一行和 B 的一列，沿 N 维累加并写入 C](uploads/naive-gemm-thread-indexing.svg)
 
 朴素矩阵乘法可以让一个 GPU 线程负责计算输出矩阵 `C` 的一个元素。
 

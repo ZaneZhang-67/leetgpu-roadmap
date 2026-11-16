@@ -10,7 +10,7 @@ backend:
 locale: zh_Hans
 site_url: https://zanezhang-67.github.io/leetgpu-roadmap/
 display_url: https://zanezhang-67.github.io/leetgpu-roadmap/
-logo_url: https://zanezhang-67.github.io/leetgpu-roadmap/vector-addition-template.png
+logo_url: ../uploads/vector-addition-template.png
 publish_mode: simple
 media_folder: public/uploads
 public_folder: ./uploads

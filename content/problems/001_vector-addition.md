@@ -41,7 +41,7 @@ updatedAt: 2026-11-10
 
 ## 模板代码解析
 
-![Vector Addition 模板代码，包含 GPU 上执行的 vector_add 和 CPU 端启动 kernel 的 solve](../../public/vector-addition-template.png)
+![Vector Addition 模板代码，包含 GPU 上执行的 vector_add 和 CPU 端启动 kernel 的 solve](uploads/vector-addition-template.png)
 
 模板已经提供了完整的调用框架，只需补全 `vector_add` 的函数体
 

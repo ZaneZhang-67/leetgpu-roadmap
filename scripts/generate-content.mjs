@@ -167,9 +167,8 @@ for (const file of files) {
   const usedHeadingIds = new Set()
   const renderer = new marked.Renderer()
   renderer.image = ({ href, title, text }) => {
-    const normalized = href.replace(/^\.\.\/\.\.\/public\//, "./")
     const titleAttribute = title ? ` title="${escapeHtml(title)}"` : ""
-    return `<img class="article-image" src="${escapeHtml(normalized)}" alt="${escapeHtml(text)}"${titleAttribute} loading="lazy">`
+    return `<img class="article-image" src="${escapeHtml(href)}" alt="${escapeHtml(text)}"${titleAttribute} loading="lazy">`
   }
   renderer.heading = ({ tokens: headingTokens, depth }) => {
     const text = renderer.parser.parseInline(headingTokens)

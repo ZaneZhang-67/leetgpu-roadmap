@@ -18,7 +18,9 @@
     "check:catalog": "node scripts/sync-leetgpu-catalog.mjs --check",
     "sync:catalog": "node scripts/sync-leetgpu-catalog.mjs",
     "cache:challenges": "node scripts/cache-leetgpu-challenges.mjs",
-    "generate:content": "node scripts/generate-content.mjs",
+    "check:images": "node scripts/check-article-images.mjs",
+    "test:images": "node --test scripts/check-article-images.test.mjs",
+    "generate:content": "npm run check:images && node scripts/generate-content.mjs",
     "check:navigation": "node scripts/check-article-navigation.mjs",
     "build": "npm run check:punctuation && npm run generate:content && npm run check:coverage && npm run check:navigation && npm run check:code-blocks && npm run check:line-numbers && vite build",
     "preview": "vite preview"

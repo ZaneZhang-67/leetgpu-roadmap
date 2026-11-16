@@ -65,6 +65,34 @@ Markdown 文件的 front matter 必须包含：
 
 构建时，`scripts/generate-content.mjs` 会生成轻量索引、搜索索引、动态加载器和 `src/generated/pages/*.js` 单页模块；`src/generated/` 下的这些产物均由脚本维护，不要手工修改
 
+## 文章配图
+
+文章配图统一保存在 `public/uploads/`，沿用后台的原生媒体库：
+
+```yaml
+media_folder: public/uploads
+public_folder: ./uploads
+```
+
+在正文编辑器中选择上传或插入图片，让后台自动生成引用；新上传图片可通过 CMS 的内存预览显示，不必等待网站部署
+
+```markdown
+![CUDA 线程层级示意图](uploads/cuda-grid-block-thread-indexing.png)
+```
+
+本地编辑时也使用 `uploads/文件名`（或 `./uploads/文件名`），不要写仓库路径 `../../public/`、网站根路径 `/uploads/` 或固定站点域名；后台按媒体目录和文件名取图，因此文章配图不放进子目录
+
+图片尽量用包含文章 ID 的小写 kebab-case 文件名；引用外部图片时保留来源链接，外链可访问性需单独确认
+
+```bash
+pnpm run check:images
+pnpm run test:images
+```
+
+开发启动和生产构建都会先检查文章配图，支持普通图片和引用式图片语法，忽略代码示例；缺图或路径不符合约定时，会报出文章文件、行号和图片路径，不生成新页面
+
+修改文件名或移动图片时，同步更新正文与后台 Logo 等引用；发布前检查后台旧文章、新上传图片的预览，以及正式页面的图片加载
+
 ## 题目清单与文章目录
 
 公开题目清单保存在 `data/leetgpu-challenges.json`，来源是 LeetGPU 的公开题目接口按当前线上数据重新同步：
