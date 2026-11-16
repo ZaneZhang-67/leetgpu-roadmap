@@ -11,7 +11,7 @@ updatedAt: 2026-11-15
 
 调用一次 CUDA kernel 时，GPU 会启动许多线程。CUDA 使用三层结构组织这些线程：一个 Grid 包含多个 Block，一个 Block 包含多个 Thread
 
-![CUDA 一维 Grid、Block 和 Thread 的索引关系](uploads/cuda-grid-block-thread-indexing.png)
+![Grid、Block 和 Thread 间的关系](uploads/grid-of-thread-blocks.png "Grid、Block 和 Thread 间的关系")
 
 图中每种颜色代表一个 Block，每个小格代表一个 Thread。同一个 Block 内，线程编号 `threadIdx.x` 从 `0` 开始；不同 Block 使用 `blockIdx.x` 区分
 
