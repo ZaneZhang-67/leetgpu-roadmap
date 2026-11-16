@@ -5,6 +5,12 @@ import { loadProgress, saveProgress } from "./utils/progress.js";
 
 const app = document.querySelector("#app");
 const allPages = navigation;
+const difficultyGroups = [
+  { id: "easy", label: "Easy" },
+  { id: "medium", label: "Medium" },
+  { id: "hard", label: "Hard" },
+];
+const sidebarGroupOpen = { easy: false, medium: false, hard: false };
 let progress = loadProgress(starterProgress);
 let sidebarOpen = false;
 let searchOpen = false;
@@ -20,6 +26,7 @@ const icons = {
   moon: `<svg viewBox="0 0 24 24"><path d="M20 15.7A8.5 8.5 0 0 1 8.3 4 8.5 8.5 0 1 0 20 15.7Z"/></svg>`,
   check: `<svg viewBox="0 0 20 20"><path d="m4 10 4 4 8-9"/></svg>`,
   close: `<svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>`,
+  chevron: `<svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg>`,
 };
 
 function routeId() {
@@ -29,6 +36,16 @@ function routeId() {
 
 function pageIndex(id) { return allPages.findIndex((page) => page.id === id); }
 function completedCount() { return allPages.filter((page) => progress[page.id]?.status === "done").length; }
+function sidebarNavigation(currentId) {
+  return difficultyGroups.map((group) => {
+    const items = allPages.filter((item) => item.difficulty === group.id);
+    const completed = items.filter((item) => progress[item.id]?.status === "done").length;
+    return `<details class="sidebar-group ${group.id}" data-difficulty="${group.id}" ${sidebarGroupOpen[group.id] ? "open" : ""}>
+      <summary><span><i aria-hidden="true"></i>${group.label}</span><small>${completed} / ${items.length}</small>${icons.chevron}</summary>
+      <div class="sidebar-group-items">${items.map((item) => `<a class="${item.id === currentId ? "active" : ""}" href="#/${item.id}"><span>${item.title}</span>${progress[item.id]?.status === "done" ? icons.check : ""}</a>`).join("")}</div>
+    </details>`;
+  }).join("");
+}
 
 function shell(id, page, state = "ready") {
   const meta = pages[id];
@@ -36,6 +53,8 @@ function shell(id, page, state = "ready") {
   const previous = allPages[index - 1];
   const next = allPages[index + 1];
   const done = progress[id]?.status === "done";
+  const currentDifficulty = allPages[index]?.difficulty;
+  if (currentDifficulty) sidebarGroupOpen[currentDifficulty] = true;
   const loadingBody = state === "loading" ? `<p role="status">正在加载文章：${meta.title}</p>` : "";
   const errorBody = state === "error" ? `<p role="alert">文章加载失败：${meta.title}（${id}），${page}</p>` : "";
   const readyBody = state === "ready" ? page.body : loadingBody || errorBody;
@@ -53,7 +72,7 @@ function shell(id, page, state = "ready") {
     <div class="docs-layout">
       <aside class="sidebar ${sidebarOpen ? "open" : ""}">
         <div class="sidebar-head"><span>教程目录</span><button id="close-sidebar">${icons.close}</button></div>
-        <nav class="sidebar-nav">${allPages.map((item) => `<a class="${item.id === id ? "active" : ""}" href="#/${item.id}"><span>${item.title}</span>${progress[item.id]?.status === "done" ? icons.check : ""}</a>`).join("")}</nav>
+        <nav class="sidebar-nav">${sidebarNavigation(id)}</nav>
         <div class="sidebar-progress"><div><span>路线进度</span><strong>${completedCount()} / ${allPages.length}</strong></div><i><b style="width:${Math.round(completedCount()/allPages.length*100)}%"></b></i></div>
       </aside>
       <div class="sidebar-mask ${sidebarOpen ? "show" : ""}" id="sidebar-mask"></div>
@@ -102,6 +121,9 @@ function bind() {
   document.querySelector("#mobile-menu")?.addEventListener("click", () => { sidebarOpen = true; renderCurrent(); });
   document.querySelector("#close-sidebar")?.addEventListener("click", () => { sidebarOpen = false; renderCurrent(); });
   document.querySelector("#sidebar-mask")?.addEventListener("click", () => { sidebarOpen = false; renderCurrent(); });
+  document.querySelectorAll(".sidebar-group").forEach((group) => group.addEventListener("toggle", () => {
+    sidebarGroupOpen[group.dataset.difficulty] = group.open;
+  }));
   document.querySelector("#search-trigger")?.addEventListener("click", openSearch);
   document.querySelector("#close-search")?.addEventListener("click", closeSearch);
   document.querySelector("#search-modal")?.addEventListener("click", (event) => { if (event.target.id === "search-modal") closeSearch(); });

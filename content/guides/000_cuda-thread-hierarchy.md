@@ -1,6 +1,7 @@
 ---
 id: cuda-thread-hierarchy
 order: 0
+difficulty: easy
 titleEn: CUDA Thread Hierarchy
 titleZh: CUDA 线程层级
 description: 通过一张图认识 CUDA 中 Grid、Block、Thread 的关系，并理解一维全局下标的计算方式

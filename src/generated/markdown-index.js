@@ -1487,594 +1487,742 @@ export const markdownPages = {
 export const markdownNavigation = [
   {
     "id": "cuda-thread-hierarchy",
-    "title": "CUDA Thread Hierarchy（CUDA 线程层级）"
+    "title": "CUDA Thread Hierarchy（CUDA 线程层级）",
+    "difficulty": "easy"
   },
   {
     "id": "vector-addition",
-    "title": "Vector Addition（向量加法）"
+    "title": "Vector Addition（向量加法）",
+    "difficulty": "easy"
   },
   {
     "id": "naive-gemm",
-    "title": "Matrix Multiplication（矩阵乘法）"
+    "title": "Matrix Multiplication（矩阵乘法）",
+    "difficulty": "easy"
   },
   {
     "id": "matrix-transpose",
-    "title": "Matrix Transpose（矩阵转置）"
+    "title": "Matrix Transpose（矩阵转置）",
+    "difficulty": "easy"
   },
   {
     "id": "reduction",
-    "title": "Reduction（并行归约求和）"
+    "title": "Reduction（并行归约求和）",
+    "difficulty": "medium"
   },
   {
     "id": "softmax",
-    "title": "Softmax（Softmax 归一化）"
+    "title": "Softmax（Softmax 归一化）",
+    "difficulty": "medium"
   },
   {
     "id": "softmax-attention",
-    "title": "Softmax Attention（Softmax 注意力）"
+    "title": "Softmax Attention（Softmax 注意力）",
+    "difficulty": "medium"
   },
   {
     "id": "color-inversion",
-    "title": "Color Inversion（图像颜色反转）"
+    "title": "Color Inversion（图像颜色反转）",
+    "difficulty": "easy"
   },
   {
     "id": "matrix-addition",
-    "title": "Matrix Addition（矩阵加法）"
+    "title": "Matrix Addition（矩阵加法）",
+    "difficulty": "easy"
   },
   {
     "id": "1d-convolution",
-    "title": "1D Convolution（一维卷积）"
+    "title": "1D Convolution（一维卷积）",
+    "difficulty": "easy"
   },
   {
     "id": "2d-convolution",
-    "title": "2D Convolution（二维卷积）"
+    "title": "2D Convolution（二维卷积）",
+    "difficulty": "medium"
   },
   {
     "id": "3d-convolution",
-    "title": "3D Convolution（三维卷积）"
+    "title": "3D Convolution（三维卷积）",
+    "difficulty": "medium"
   },
   {
     "id": "multi-head-attention",
-    "title": "Multi-Head Attention（多头自注意力）"
+    "title": "Multi-Head Attention（多头自注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "histogramming",
-    "title": "Histogramming（直方图统计）"
+    "title": "Histogramming（直方图统计）",
+    "difficulty": "medium"
   },
   {
     "id": "multi-agent-simulation",
-    "title": "Multi-Agent Simulation（多智能体模拟）"
+    "title": "Multi-Agent Simulation（多智能体模拟）",
+    "difficulty": "hard"
   },
   {
     "id": "sorting",
-    "title": "Sorting（并行排序）"
+    "title": "Sorting（并行排序）",
+    "difficulty": "hard"
   },
   {
     "id": "prefix-sum",
-    "title": "Prefix Sum（前缀和）"
+    "title": "Prefix Sum（前缀和）",
+    "difficulty": "medium"
   },
   {
     "id": "dot-product",
-    "title": "Dot Product（向量点积）"
+    "title": "Dot Product（向量点积）",
+    "difficulty": "medium"
   },
   {
     "id": "sparse-matrix-vector-multiplication",
-    "title": "Sparse Matrix-Vector Multiplication（稀疏矩阵向量乘法）"
+    "title": "Sparse Matrix-Vector Multiplication（稀疏矩阵向量乘法）",
+    "difficulty": "medium"
   },
   {
     "id": "reverse-array",
-    "title": "Reverse Array（数组反转）"
+    "title": "Reverse Array（数组反转）",
+    "difficulty": "easy"
   },
   {
     "id": "k-means-clustering",
-    "title": "K-Means Clustering（K 均值聚类）"
+    "title": "K-Means Clustering（K 均值聚类）",
+    "difficulty": "hard"
   },
   {
     "id": "relu",
-    "title": "ReLU（ReLU 激活函数）"
+    "title": "ReLU（ReLU 激活函数）",
+    "difficulty": "easy"
   },
   {
     "id": "general-matrix-multiplication-gemm",
-    "title": "General Matrix Multiplication (GEMM)（通用矩阵乘法）"
+    "title": "General Matrix Multiplication (GEMM)（通用矩阵乘法）",
+    "difficulty": "medium"
   },
   {
     "id": "leaky-relu",
-    "title": "Leaky ReLU（Leaky ReLU 激活函数）"
+    "title": "Leaky ReLU（Leaky ReLU 激活函数）",
+    "difficulty": "easy"
   },
   {
     "id": "rainbow-table",
-    "title": "Rainbow Table（彩虹表迭代哈希）"
+    "title": "Rainbow Table（彩虹表迭代哈希）",
+    "difficulty": "easy"
   },
   {
     "id": "categorical-cross-entropy-loss",
-    "title": "Categorical Cross Entropy Loss（分类交叉熵损失）"
+    "title": "Categorical Cross Entropy Loss（分类交叉熵损失）",
+    "difficulty": "medium"
   },
   {
     "id": "multi-head-cross-attention",
-    "title": "Multi-Head Cross-Attention（多头交叉注意力）"
+    "title": "Multi-Head Cross-Attention（多头交叉注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "mean-squared-error",
-    "title": "Mean Squared Error（均方误差）"
+    "title": "Mean Squared Error（均方误差）",
+    "difficulty": "medium"
   },
   {
     "id": "gaussian-blur",
-    "title": "Gaussian Blur（高斯模糊）"
+    "title": "Gaussian Blur（高斯模糊）",
+    "difficulty": "medium"
   },
   {
     "id": "top-k-selection",
-    "title": "Top K Selection（Top-K 选择）"
+    "title": "Top K Selection（Top-K 选择）",
+    "difficulty": "medium"
   },
   {
     "id": "batched-matrix-multiplication",
-    "title": "Batched Matrix Multiplication（批量矩阵乘法）"
+    "title": "Batched Matrix Multiplication（批量矩阵乘法）",
+    "difficulty": "medium"
   },
   {
     "id": "matrix-copy",
-    "title": "Matrix Copy（矩阵复制）"
+    "title": "Matrix Copy（矩阵复制）",
+    "difficulty": "easy"
   },
   {
     "id": "int8-quantized-matmul",
-    "title": "INT8 Quantized MatMul（INT8 量化矩阵乘法）"
+    "title": "INT8 Quantized MatMul（INT8 量化矩阵乘法）",
+    "difficulty": "medium"
   },
   {
     "id": "ordinary-least-squares",
-    "title": "Ordinary Least Squares（普通最小二乘）"
+    "title": "Ordinary Least Squares（普通最小二乘）",
+    "difficulty": "medium"
   },
   {
     "id": "logistic-regression",
-    "title": "Logistic Regression（逻辑回归）"
+    "title": "Logistic Regression（逻辑回归）",
+    "difficulty": "medium"
   },
   {
     "id": "monte-carlo-integration",
-    "title": "Monte Carlo Integration（蒙特卡洛积分）"
+    "title": "Monte Carlo Integration（蒙特卡洛积分）",
+    "difficulty": "medium"
   },
   {
     "id": "radix-sort",
-    "title": "Radix Sort（基数排序）"
+    "title": "Radix Sort（基数排序）",
+    "difficulty": "hard"
   },
   {
     "id": "matrix-power",
-    "title": "Matrix Power（矩阵幂）"
+    "title": "Matrix Power（矩阵幂）",
+    "difficulty": "medium"
   },
   {
     "id": "nearest-neighbor",
-    "title": "Nearest Neighbor（最近邻）"
+    "title": "Nearest Neighbor（最近邻）",
+    "difficulty": "medium"
   },
   {
     "id": "fast-fourier-transform",
-    "title": "Fast Fourier Transform（快速傅里叶变换）"
+    "title": "Fast Fourier Transform（快速傅里叶变换）",
+    "difficulty": "hard"
   },
   {
     "id": "batch-normalization",
-    "title": "Batch Normalization（批归一化）"
+    "title": "Batch Normalization（批归一化）",
+    "difficulty": "medium"
   },
   {
     "id": "simple-inference",
-    "title": "Simple Inference（简单模型推理）"
+    "title": "Simple Inference（简单模型推理）",
+    "difficulty": "easy"
   },
   {
     "id": "2d-max-pooling",
-    "title": "2D Max Pooling（二维最大池化）"
+    "title": "2D Max Pooling（二维最大池化）",
+    "difficulty": "medium"
   },
   {
     "id": "count-array-element",
-    "title": "Count Array Element（统计一维数组元素）"
+    "title": "Count Array Element（统计一维数组元素）",
+    "difficulty": "medium"
   },
   {
     "id": "count-2d-array-element",
-    "title": "Count 2D Array Element（统计二维数组元素）"
+    "title": "Count 2D Array Element（统计二维数组元素）",
+    "difficulty": "medium"
   },
   {
     "id": "count-3d-array-element",
-    "title": "Count 3D Array Element（统计三维数组元素）"
+    "title": "Count 3D Array Element（统计三维数组元素）",
+    "difficulty": "medium"
   },
   {
     "id": "bfs-shortest-path",
-    "title": "BFS Shortest Path（BFS 最短路径）"
+    "title": "BFS Shortest Path（BFS 最短路径）",
+    "difficulty": "hard"
   },
   {
     "id": "subarray-sum",
-    "title": "Subarray Sum（一维子数组求和）"
+    "title": "Subarray Sum（一维子数组求和）",
+    "difficulty": "medium"
   },
   {
     "id": "2d-subarray-sum",
-    "title": "2D Subarray Sum（二维子数组求和）"
+    "title": "2D Subarray Sum（二维子数组求和）",
+    "difficulty": "medium"
   },
   {
     "id": "3d-subarray-sum",
-    "title": "3D Subarray Sum（三维子数组求和）"
+    "title": "3D Subarray Sum（三维子数组求和）",
+    "difficulty": "medium"
   },
   {
     "id": "rms-normalization",
-    "title": "RMS Normalization（RMS 归一化）"
+    "title": "RMS Normalization（RMS 归一化）",
+    "difficulty": "medium"
   },
   {
     "id": "max-subarray-sum",
-    "title": "Max Subarray Sum（固定窗口最大子数组和）"
+    "title": "Max Subarray Sum（固定窗口最大子数组和）",
+    "difficulty": "medium"
   },
   {
     "id": "sigmoid-linear-unit",
-    "title": "Sigmoid Linear Unit（SiLU 激活函数）"
+    "title": "Sigmoid Linear Unit（SiLU 激活函数）",
+    "difficulty": "easy"
   },
   {
     "id": "causal-self-attention",
-    "title": "Causal Self-Attention（因果自注意力）"
+    "title": "Causal Self-Attention（因果自注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "swish-gated-linear-unit",
-    "title": "Swish-Gated Linear Unit（SWiGLU 激活函数）"
+    "title": "Swish-Gated Linear Unit（SWiGLU 激活函数）",
+    "difficulty": "easy"
   },
   {
     "id": "attention-with-linear-biases",
-    "title": "Attention with Linear Biases（带线性偏置的注意力）"
+    "title": "Attention with Linear Biases（带线性偏置的注意力）",
+    "difficulty": "medium"
   },
   {
     "id": "linear-self-attention",
-    "title": "Linear Self-Attention（线性自注意力）"
+    "title": "Linear Self-Attention（线性自注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "fp16-batched-matrix-multiplication",
-    "title": "FP16 Batched Matrix Multiplication（FP16 批量矩阵乘法）"
+    "title": "FP16 Batched Matrix Multiplication（FP16 批量矩阵乘法）",
+    "difficulty": "medium"
   },
   {
     "id": "fp16-dot-product",
-    "title": "FP16 Dot Product（FP16 向量点积）"
+    "title": "FP16 Dot Product（FP16 向量点积）",
+    "difficulty": "medium"
   },
   {
     "id": "sliding-window-self-attention",
-    "title": "Sliding Window Self-Attention（滑动窗口自注意力）"
+    "title": "Sliding Window Self-Attention（滑动窗口自注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "top-p-sampling",
-    "title": "Top-p Sampling（Top-p 采样）"
+    "title": "Top-p Sampling（Top-p 采样）",
+    "difficulty": "medium"
   },
   {
     "id": "rotary-positional-embedding",
-    "title": "Rotary Positional Embedding（旋转位置编码）"
+    "title": "Rotary Positional Embedding（旋转位置编码）",
+    "difficulty": "medium"
   },
   {
     "id": "value-clipping",
-    "title": "Value Clipping（数值裁剪）"
+    "title": "Value Clipping（数值裁剪）",
+    "difficulty": "easy"
   },
   {
     "id": "interleave-arrays",
-    "title": "Interleave Arrays（数组交错排列）"
+    "title": "Interleave Arrays（数组交错排列）",
+    "difficulty": "easy"
   },
   {
     "id": "weight-dequantization",
-    "title": "Weight Dequantization（权重反量化）"
+    "title": "Weight Dequantization（权重反量化）",
+    "difficulty": "medium"
   },
   {
     "id": "gaussian-error-gated-linear-unit",
-    "title": "Gaussian Error Gated Linear Unit（高斯误差门控线性单元）"
+    "title": "Gaussian Error Gated Linear Unit（高斯误差门控线性单元）",
+    "difficulty": "easy"
   },
   {
     "id": "rgb-to-grayscale",
-    "title": "RGB to Grayscale（RGB 转灰度图）"
+    "title": "RGB to Grayscale（RGB 转灰度图）",
+    "difficulty": "easy"
   },
   {
     "id": "moe-top-k-gating",
-    "title": "MoE Top-K Gating（MoE Top-K 门控）"
+    "title": "MoE Top-K Gating（MoE Top-K 门控）",
+    "difficulty": "medium"
   },
   {
     "id": "sigmoid-activation",
-    "title": "Sigmoid Activation（Sigmoid 激活函数）"
+    "title": "Sigmoid Activation（Sigmoid 激活函数）",
+    "difficulty": "easy"
   },
   {
     "id": "2d-jacobi-stencil",
-    "title": "2D Jacobi Stencil（二维 Jacobi 模板计算）"
+    "title": "2D Jacobi Stencil（二维 Jacobi 模板计算）",
+    "difficulty": "medium"
   },
   {
     "id": "segmented-exclusive-prefix-sum",
-    "title": "Segmented Exclusive Prefix Sum（分段独占前缀和）"
+    "title": "Segmented Exclusive Prefix Sum（分段独占前缀和）",
+    "difficulty": "medium"
   },
   {
     "id": "parallel-merge",
-    "title": "Parallel Merge（并行归并）"
+    "title": "Parallel Merge（并行归并）",
+    "difficulty": "medium"
   },
   {
     "id": "stream-compaction",
-    "title": "Stream Compaction（数据流压缩）"
+    "title": "Stream Compaction（数据流压缩）",
+    "difficulty": "medium"
   },
   {
     "id": "all-pairs-shortest-paths",
-    "title": "All-Pairs Shortest Paths（全源最短路径）"
+    "title": "All-Pairs Shortest Paths（全源最短路径）",
+    "difficulty": "hard"
   },
   {
     "id": "gpt-2-transformer-block",
-    "title": "GPT-2 Transformer Block（GPT-2 Transformer 块）"
+    "title": "GPT-2 Transformer Block（GPT-2 Transformer 块）",
+    "difficulty": "hard"
   },
   {
     "id": "sparse-matrix-dense-matrix-multiplication",
-    "title": "Sparse Matrix-Dense Matrix Multiplication（稀疏矩阵与稠密矩阵乘法）"
+    "title": "Sparse Matrix-Dense Matrix Multiplication（稀疏矩阵与稠密矩阵乘法）",
+    "difficulty": "medium"
   },
   {
     "id": "adder-transformer-inference",
-    "title": "Adder Transformer Inference（加法器 Transformer 推理）"
+    "title": "Adder Transformer Inference（加法器 Transformer 推理）",
+    "difficulty": "medium"
   },
   {
     "id": "integral-image",
-    "title": "Integral Image（积分图）"
+    "title": "Integral Image（积分图）",
+    "difficulty": "medium"
   },
   {
     "id": "2d-fft",
-    "title": "2D FFT（二维快速傅里叶变换）"
+    "title": "2D FFT（二维快速傅里叶变换）",
+    "difficulty": "medium"
   },
   {
     "id": "connected-components",
-    "title": "Connected Components（连通分量）"
+    "title": "Connected Components（连通分量）",
+    "difficulty": "medium"
   },
   {
     "id": "grouped-query-attention",
-    "title": "Grouped Query Attention（分组查询注意力）"
+    "title": "Grouped Query Attention（分组查询注意力）",
+    "difficulty": "medium"
   },
   {
     "id": "int4-weight-only-quantized-matmul",
-    "title": "INT4 Weight-Only Quantized MatMul（INT4 仅权重量化矩阵乘法）"
+    "title": "INT4 Weight-Only Quantized MatMul（INT4 仅权重量化矩阵乘法）",
+    "difficulty": "medium"
   },
   {
     "id": "linear-recurrence",
-    "title": "Linear Recurrence（线性递推）"
+    "title": "Linear Recurrence（线性递推）",
+    "difficulty": "medium"
   },
   {
     "id": "fused-residual-add-and-rms-norm",
-    "title": "Fused Residual Add and RMS Norm（融合残差加法与 RMS 归一化）"
+    "title": "Fused Residual Add and RMS Norm（融合残差加法与 RMS 归一化）",
+    "difficulty": "medium"
   },
   {
     "id": "swiglu-mlp-block",
-    "title": "SwiGLU MLP Block（SwiGLU MLP 模块）"
+    "title": "SwiGLU MLP Block（SwiGLU MLP 模块）",
+    "difficulty": "medium"
   },
   {
     "id": "lora-linear",
-    "title": "LoRA Linear（LoRA 线性层）"
+    "title": "LoRA Linear（LoRA 线性层）",
+    "difficulty": "medium"
   },
   {
     "id": "paged-kv-cache-attention",
-    "title": "Paged KV-Cache Attention（分页 KV Cache 注意力）"
+    "title": "Paged KV-Cache Attention（分页 KV Cache 注意力）",
+    "difficulty": "medium"
   },
   {
     "id": "speculative-decoding-verification",
-    "title": "Speculative Decoding Verification（推测解码验证）"
+    "title": "Speculative Decoding Verification（推测解码验证）",
+    "difficulty": "medium"
   },
   {
     "id": "shared-prefix-cascade-attention",
-    "title": "Shared-Prefix Cascade Attention（共享前缀级联注意力）"
+    "title": "Shared-Prefix Cascade Attention（共享前缀级联注意力）",
+    "difficulty": "medium"
   },
   {
     "id": "nvfp4-matrix-multiplication",
-    "title": "NVFP4 Matrix Multiplication（NVFP4 矩阵乘法）"
+    "title": "NVFP4 Matrix Multiplication（NVFP4 矩阵乘法）",
+    "difficulty": "hard"
   },
   {
     "id": "causal-depthwise-conv1d",
-    "title": "Causal Depthwise Conv1d（因果深度可分离一维卷积）"
+    "title": "Causal Depthwise Conv1d（因果深度可分离一维卷积）",
+    "difficulty": "medium"
   },
   {
     "id": "moe-token-dispatch",
-    "title": "MoE Token Dispatch（MoE Token 分发）"
+    "title": "MoE Token Dispatch（MoE Token 分发）",
+    "difficulty": "medium"
   },
   {
     "id": "decaying-causal-attention",
-    "title": "Decaying Causal Attention（衰减因果注意力）"
+    "title": "Decaying Causal Attention（衰减因果注意力）",
+    "difficulty": "medium"
   },
   {
     "id": "llama-transformer-block",
-    "title": "Llama Transformer Block（Llama Transformer 块）"
+    "title": "Llama Transformer Block（Llama Transformer 块）",
+    "difficulty": "hard"
   },
   {
     "id": "ssm-selective-scan",
-    "title": "SSM Selective Scan（SSM 选择性扫描）"
+    "title": "SSM Selective Scan（SSM 选择性扫描）",
+    "difficulty": "medium"
   },
   {
     "id": "turboquant-kv-cache-attention",
-    "title": "TurboQuant KV Cache Attention（TurboQuant KV Cache 注意力）"
+    "title": "TurboQuant KV Cache Attention（TurboQuant KV Cache 注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "int8-kv-cache-attention",
-    "title": "INT8 KV-Cache Attention（INT8 KV Cache 注意力）"
+    "title": "INT8 KV-Cache Attention（INT8 KV Cache 注意力）",
+    "difficulty": "medium"
   },
   {
     "id": "beam-search-step",
-    "title": "Beam Search Step（Beam Search 单步扩展）"
+    "title": "Beam Search Step（Beam Search 单步扩展）",
+    "difficulty": "medium"
   },
   {
     "id": "grouped-gemm",
-    "title": "Grouped GEMM（分组矩阵乘法）"
+    "title": "Grouped GEMM（分组矩阵乘法）",
+    "difficulty": "medium"
   },
   {
     "id": "n-body-gravitational-force",
-    "title": "N-body Gravitational Force（N 体引力）"
+    "title": "N-body Gravitational Force（N 体引力）",
+    "difficulty": "medium"
   },
   {
     "id": "variable-length-causal-attention",
-    "title": "Variable-Length Causal Attention（变长因果注意力）"
+    "title": "Variable-Length Causal Attention（变长因果注意力）",
+    "difficulty": "medium"
   },
   {
     "id": "hadamard-transform",
-    "title": "Hadamard Transform（哈达玛变换）"
+    "title": "Hadamard Transform（哈达玛变换）",
+    "difficulty": "medium"
   },
   {
     "id": "min-p-sampling",
-    "title": "Min-P Sampling（Min-P 采样概率过滤）"
+    "title": "Min-P Sampling（Min-P 采样概率过滤）",
+    "difficulty": "medium"
   },
   {
     "id": "group-normalization",
-    "title": "Group Normalization（组归一化）"
+    "title": "Group Normalization（组归一化）",
+    "difficulty": "medium"
   },
   {
     "id": "token-embedding-layer",
-    "title": "Token Embedding Layer（Token 嵌入层）"
+    "title": "Token Embedding Layer（Token 嵌入层）",
+    "difficulty": "medium"
   },
   {
     "id": "ppo-clipped-surrogate-loss",
-    "title": "PPO Clipped Surrogate Loss（PPO 截断代理损失）"
+    "title": "PPO Clipped Surrogate Loss（PPO 截断代理损失）",
+    "difficulty": "medium"
   },
   {
     "id": "dpo-sequence-loss",
-    "title": "DPO Sequence Loss（DPO 序列损失）"
+    "title": "DPO Sequence Loss（DPO 序列损失）",
+    "difficulty": "medium"
   },
   {
     "id": "grpo-surrogate-loss",
-    "title": "GRPO Surrogate Loss（GRPO 代理损失）"
+    "title": "GRPO Surrogate Loss（GRPO 代理损失）",
+    "difficulty": "medium"
   },
   {
     "id": "parallel-reverse-scan-gae",
-    "title": "Parallel Reverse Scan (GAE)（并行反向扫描（GAE））"
+    "title": "Parallel Reverse Scan (GAE)（并行反向扫描（GAE））",
+    "difficulty": "medium"
   },
   {
     "id": "softmax-attention-backward",
-    "title": "Softmax Attention Backward（Softmax 注意力反向传播）"
+    "title": "Softmax Attention Backward（Softmax 注意力反向传播）",
+    "difficulty": "medium"
   },
   {
     "id": "attention-with-sinks",
-    "title": "Attention with Sinks（带注意力汇聚点的滑动窗口注意力）"
+    "title": "Attention with Sinks（带注意力汇聚点的滑动窗口注意力）",
+    "difficulty": "medium"
   },
   {
     "id": "layer-normalization",
-    "title": "Layer Normalization（层归一化）"
+    "title": "Layer Normalization（层归一化）",
+    "difficulty": "medium"
   },
   {
     "id": "multi-head-latent-attention-decode",
-    "title": "Multi-Head Latent Attention Decode（多头潜变量注意力解码）"
+    "title": "Multi-Head Latent Attention Decode（多头潜变量注意力解码）",
+    "difficulty": "hard"
   },
   {
     "id": "fused-qkv-projection-with-rope-and-kv-cache-update",
-    "title": "Fused QKV Projection with RoPE and KV Cache Update（融合 QKV 投影、RoPE 与 KV Cache 更新）"
+    "title": "Fused QKV Projection with RoPE and KV Cache Update（融合 QKV 投影、RoPE 与 KV Cache 更新）",
+    "difficulty": "medium"
   },
   {
     "id": "diffusion-transformer-block",
-    "title": "Diffusion Transformer Block（Diffusion Transformer Block）"
+    "title": "Diffusion Transformer Block（Diffusion Transformer Block）",
+    "difficulty": "hard"
   },
   {
     "id": "non-maximum-suppression",
-    "title": "Non-Maximum Suppression（非极大值抑制）"
+    "title": "Non-Maximum Suppression（非极大值抑制）",
+    "difficulty": "hard"
   },
   {
     "id": "vision-transformer-patch-embedding",
-    "title": "Vision Transformer Patch Embedding（Vision Transformer Patch Embedding）"
+    "title": "Vision Transformer Patch Embedding（Vision Transformer Patch Embedding）",
+    "difficulty": "medium"
   },
   {
     "id": "block-sparse-kv-selection-attention",
-    "title": "Block-Sparse KV Selection Attention（块稀疏 KV 选择注意力）"
+    "title": "Block-Sparse KV Selection Attention（块稀疏 KV 选择注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "kimi-delta-attention",
-    "title": "Kimi Delta Attention（Kimi Delta Attention）"
+    "title": "Kimi Delta Attention（Kimi Delta Attention）",
+    "difficulty": "medium"
   },
   {
     "id": "fused-logit-penalties",
-    "title": "Fused Logit Penalties（融合 Logit 惩罚）"
+    "title": "Fused Logit Penalties（融合 Logit 惩罚）",
+    "difficulty": "medium"
   },
   {
     "id": "hamming-top-k-search",
-    "title": "Hamming Top-K Search（汉明距离 Top-K 搜索）"
+    "title": "Hamming Top-K Search（汉明距离 Top-K 搜索）",
+    "difficulty": "medium"
   },
   {
     "id": "multi-scale-deformable-attention",
-    "title": "Multi-Scale Deformable Attention（多尺度可变形注意力）"
+    "title": "Multi-Scale Deformable Attention（多尺度可变形注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "gelu-activation",
-    "title": "GELU Activation（GELU 激活函数）"
+    "title": "GELU Activation（GELU 激活函数）",
+    "difficulty": "easy"
   },
   {
     "id": "scatter-add",
-    "title": "Scatter Add（散射加法）"
+    "title": "Scatter Add（散射加法）",
+    "difficulty": "medium"
   },
   {
     "id": "row-wise-argmax",
-    "title": "Row-wise Argmax（逐行最大值索引）"
+    "title": "Row-wise Argmax（逐行最大值索引）",
+    "difficulty": "medium"
   },
   {
     "id": "fused-adamw",
-    "title": "Fused AdamW（融合 AdamW）"
+    "title": "Fused AdamW（融合 AdamW）",
+    "difficulty": "medium"
   },
   {
     "id": "split-kv-attention-reduction",
-    "title": "Split-KV Attention Reduction（Split-KV 注意力归约）"
+    "title": "Split-KV Attention Reduction（Split-KV 注意力归约）",
+    "difficulty": "medium"
   },
   {
     "id": "fused-linear-cross-entropy",
-    "title": "Fused Linear Cross Entropy（融合线性投影与交叉熵）"
+    "title": "Fused Linear Cross Entropy（融合线性投影与交叉熵）",
+    "difficulty": "hard"
   },
   {
     "id": "fused-moe-swiglu-layer",
-    "title": "Fused MoE SwiGLU Layer（融合 MoE SwiGLU 层）"
+    "title": "Fused MoE SwiGLU Layer（融合 MoE SwiGLU 层）",
+    "difficulty": "hard"
   },
   {
     "id": "fused-layernorm-linear-gelu",
-    "title": "Fused LayerNorm Linear GELU（融合 LayerNorm、Linear 与 GELU）"
+    "title": "Fused LayerNorm Linear GELU（融合 LayerNorm、Linear 与 GELU）",
+    "difficulty": "medium"
   },
   {
     "id": "speculative-tree-attention",
-    "title": "Speculative Tree Attention（推测树注意力）"
+    "title": "Speculative Tree Attention（推测树注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "multi-lora-batched-linear",
-    "title": "Multi-LoRA Batched Linear（多 LoRA 批量线性层）"
+    "title": "Multi-LoRA Batched Linear（多 LoRA 批量线性层）",
+    "difficulty": "medium"
   },
   {
     "id": "fp8-block-scaled-gemm",
-    "title": "FP8 Block-Scaled GEMM（FP8 分块缩放矩阵乘法）"
+    "title": "FP8 Block-Scaled GEMM（FP8 分块缩放矩阵乘法）",
+    "difficulty": "hard"
   },
   {
     "id": "flash-decoding-attention",
-    "title": "Flash Decoding Attention（Flash 解码注意力）"
+    "title": "Flash Decoding Attention（Flash 解码注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "rms-norm-backward",
-    "title": "RMS Norm Backward（RMS Norm 反向传播）"
+    "title": "RMS Norm Backward（RMS Norm 反向传播）",
+    "difficulty": "medium"
   },
   {
     "id": "fused-residual-add-and-layernorm-with-saved-statistics",
-    "title": "Fused Residual Add and LayerNorm with Saved Statistics（融合残差加法与保存统计量的 LayerNorm）"
+    "title": "Fused Residual Add and LayerNorm with Saved Statistics（融合残差加法与保存统计量的 LayerNorm）",
+    "difficulty": "hard"
   },
   {
     "id": "layer-norm-backward",
-    "title": "Layer Norm Backward（Layer Norm 反向传播）"
+    "title": "Layer Norm Backward（Layer Norm 反向传播）",
+    "difficulty": "medium"
   },
   {
     "id": "paged-chunked-prefill-attention",
-    "title": "Paged Chunked Prefill Attention（分页分块预填充注意力）"
+    "title": "Paged Chunked Prefill Attention（分页分块预填充注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "fused-gate-up-projection-with-silu",
-    "title": "Fused Gate-Up Projection with SiLU（融合 Gate-Up 投影与 SiLU）"
+    "title": "Fused Gate-Up Projection with SiLU（融合 Gate-Up 投影与 SiLU）",
+    "difficulty": "hard"
   },
   {
     "id": "gated-attention",
-    "title": "Gated Attention（门控注意力）"
+    "title": "Gated Attention（门控注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "differential-attention",
-    "title": "Differential Attention（差分注意力）"
+    "title": "Differential Attention（差分注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "fused-rmsnorm-and-w8a8-linear",
-    "title": "Fused RMSNorm and W8A8 Linear（融合 RMSNorm 与 W8A8 线性层）"
+    "title": "Fused RMSNorm and W8A8 Linear（融合 RMSNorm 与 W8A8 线性层）",
+    "difficulty": "hard"
   },
   {
     "id": "distillation-kl-divergence",
-    "title": "Distillation KL Divergence（蒸馏 KL 散度）"
+    "title": "Distillation KL Divergence（蒸馏 KL 散度）",
+    "difficulty": "medium"
   },
   {
     "id": "muon-optimizer",
-    "title": "Muon Optimizer（Muon 优化器）"
+    "title": "Muon Optimizer（Muon 优化器）",
+    "difficulty": "medium"
   },
   {
     "id": "softcapped-sliding-window-attention",
-    "title": "Softcapped Sliding Window Attention（Softcap 滑动窗口注意力）"
+    "title": "Softcapped Sliding Window Attention（Softcap 滑动窗口注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "fused-rope-causal-attention",
-    "title": "Fused RoPE Causal Attention（融合 RoPE 因果注意力）"
+    "title": "Fused RoPE Causal Attention（融合 RoPE 因果注意力）",
+    "difficulty": "hard"
   },
   {
     "id": "fused-mamba-2-ssd-scan",
-    "title": "Fused Mamba-2 SSD Scan（融合 Mamba-2 SSD 扫描）"
+    "title": "Fused Mamba-2 SSD Scan（融合 Mamba-2 SSD 扫描）",
+    "difficulty": "hard"
   },
   {
     "id": "moe-expert-weight-gradient",
-    "title": "MoE Expert Weight Gradient（MoE 专家权重梯度）"
+    "title": "MoE Expert Weight Gradient（MoE 专家权重梯度）",
+    "difficulty": "medium"
   }
 ]

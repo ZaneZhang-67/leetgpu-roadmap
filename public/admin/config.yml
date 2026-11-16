@@ -51,6 +51,7 @@ collections:
     fields:
       - { label: 页面 ID, name: id, widget: string, hint: 使用小写 kebab-case，例如 cuda-thread-hierarchy }
       - { label: 导航顺序, name: order, widget: number, value_type: int, min: 0 }
+      - { label: 难度分组, name: difficulty, widget: select, options: [easy, medium, hard], default: easy }
       - { label: 英文标题, name: titleEn, widget: string }
       - { label: 中文标题, name: titleZh, widget: string }
       - { label: 页面摘要, name: description, widget: text }
